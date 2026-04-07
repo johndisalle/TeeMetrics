@@ -5,7 +5,9 @@ import SwiftUI
 
 struct RoundDetailView: View {
     let round: GolfRound
-    @State private var showShareSheet = false
+    @State private var showShareCard = false
+    @State private var showPDFExport = false
+    @State private var pdfData: Data?
 
     private var sortedEntries: [HoleEntry] {
         round.holeEntries.sorted { $0.holeNumber < $1.holeNumber }
@@ -63,6 +65,35 @@ struct RoundDetailView: View {
                     }
                     .cardStyle()
                 }
+
+                // MARK: - Actions
+                VStack(spacing: 10) {
+                    Button {
+                        showShareCard = true
+                    } label: {
+                        Label("Share Round Card", systemImage: "square.and.arrow.up")
+                            .font(.subheadline.bold())
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Theme.primary)
+                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+
+                    Button {
+                        pdfData = PDFReportGenerator.generateReport(round: round)
+                        showPDFExport = true
+                    } label: {
+                        Label("Export PDF Report", systemImage: "doc.fill")
+                            .font(.subheadline.bold())
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Theme.cardBackground)
+                            .foregroundStyle(Theme.primary)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .proGated(.pdfExport)
+                }
             }
             .padding()
         }
@@ -74,6 +105,25 @@ struct RoundDetailView: View {
                     subject: Text("My Golf Round"),
                     message: Text("Check out my round!")
                 )
+            }
+        }
+        .sheet(isPresented: $showShareCard) {
+            NavigationStack {
+                RoundShareSheet(round: round)
+                    .navigationTitle("Share Round")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Done") { showShareCard = false }
+                        }
+                    }
+            }
+        }
+        .sheet(isPresented: $showPDFExport) {
+            if let data = pdfData {
+                ShareLink(item: data, preview: SharePreview("Round Report", image: Image(systemName: "doc.fill"))) {
+                    Label("Share PDF", systemImage: "square.and.arrow.up")
+                }
             }
         }
     }

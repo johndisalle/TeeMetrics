@@ -28,6 +28,35 @@ struct NewRoundView: View {
     var body: some View {
         NavigationStack {
             Form {
+                // MARK: - Nearby Suggestion
+                if let suggested = CourseDetectionManager.shared.suggestedCourse {
+                    Section("Nearby") {
+                        Button {
+                            selectedCourse = suggested
+                            Haptics.selection()
+                        } label: {
+                            HStack {
+                                Image(systemName: "location.fill")
+                                    .foregroundStyle(Theme.primary)
+                                VStack(alignment: .leading) {
+                                    Text(suggested.name)
+                                        .font(.subheadline.bold())
+                                    if let dist = CourseDetectionManager.shared.distanceTo(suggested) {
+                                        Text(dist)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                Spacer()
+                                if selectedCourse?.id == suggested.id {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundStyle(.green)
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // MARK: - Course Selection
                 Section("Course") {
                     if courses.isEmpty {
@@ -96,6 +125,10 @@ struct NewRoundView: View {
                 }
             }
             .searchable(text: $searchText, prompt: "Search courses")
+            .onAppear {
+                CourseDetectionManager.shared.requestLocation()
+                CourseDetectionManager.shared.findNearbyCourses(from: courses)
+            }
         }
     }
 

@@ -59,7 +59,7 @@ struct SubscriptionView: View {
                         pricingCard(
                             title: "Yearly",
                             price: "$29.99/yr",
-                            subtitle: "Save 50% — best value",
+                            subtitle: "3-day free trial \u{2022} Save 50%",
                             productID: SubscriptionManager.yearlyID,
                             highlighted: true
                         )

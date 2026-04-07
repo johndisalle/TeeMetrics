@@ -18,6 +18,9 @@ struct TeeMetricsApp: App {
             ShotEntry.self,
             Club.self,
             Bag.self,
+            Goal.self,
+            PracticeSession.self,
+            PracticeShot.self,
         ])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {
@@ -31,6 +34,11 @@ struct TeeMetricsApp: App {
         WindowGroup {
             if hasCompletedOnboarding {
                 MainTabView()
+                    .onAppear {
+                        NotificationManager.requestPermission()
+                        NotificationManager.scheduleWeeklySummary()
+                        CourseDetectionManager.shared.requestLocation()
+                    }
             } else {
                 OnboardingView()
             }

@@ -1,0 +1,125 @@
+// MARK: - Gating Manager
+// Progressive feature gating: 5 free rounds, then stats lock
+// 3-day free trial on yearly plan
+
+import SwiftUI
+import SwiftData
+
+@MainActor @Observable
+final class GatingManager {
+    static let shared = GatingManager()
+
+    // MARK: - Free tier limits
+    static let freeRoundLimit = 5
+    static let trialDurationDays = 3
+
+    var completedRoundCount: Int = 0
+
+    var isProUser: Bool {
+        SubscriptionManager.shared.isProUser
+    }
+
+    // MARK: - Can user access advanced stats?
+    var canAccessAdvancedStats: Bool {
+        isProUser || completedRoundCount <= Self.freeRoundLimit
+    }
+
+    // MARK: - Can user log unlimited rounds?
+    var canLogUnlimitedRounds: Bool {
+        true // Free tier always allows logging — we gate stats, not logging
+    }
+
+    // MARK: - Should show upgrade prompt?
+    var shouldShowUpgradePrompt: Bool {
+        !isProUser && completedRoundCount > Self.freeRoundLimit
+    }
+
+    // MARK: - Rounds remaining in free tier
+    var freeRoundsRemaining: Int {
+        max(0, Self.freeRoundLimit - completedRoundCount)
+    }
+
+    // MARK: - Feature check
+    func requiresPro(feature: ProFeature) -> Bool {
+        guard !isProUser else { return false }
+        switch feature {
+        case .advancedStats:
+            return completedRoundCount > Self.freeRoundLimit
+        case .strokesGained:
+            return completedRoundCount > Self.freeRoundLimit
+        case .pdfExport:
+            return true
+        case .csvExport:
+            return completedRoundCount > Self.freeRoundLimit
+        case .iCloudSync:
+            return true
+        case .unlimitedHistory:
+            return false // Always show history, gate detailed stats
+        case .roundComparison:
+            return completedRoundCount > Self.freeRoundLimit
+        case .clubRecommendation:
+            return completedRoundCount > Self.freeRoundLimit
+        }
+    }
+
+    // MARK: - Update count from SwiftData
+    func updateRoundCount(from context: ModelContext) {
+        let descriptor = FetchDescriptor<GolfRound>(
+            predicate: #Predicate { $0.isCompleted == true }
+        )
+        completedRoundCount = (try? context.fetchCount(descriptor)) ?? 0
+    }
+}
+
+// MARK: - Pro Feature Enum
+enum ProFeature: String, CaseIterable {
+    case advancedStats = "Advanced Stats"
+    case strokesGained = "Strokes Gained"
+    case pdfExport = "PDF Export"
+    case csvExport = "CSV Export"
+    case iCloudSync = "iCloud Sync"
+    case unlimitedHistory = "Unlimited History"
+    case roundComparison = "Round Comparison"
+    case clubRecommendation = "Club Recommendation"
+}
+
+// MARK: - Pro Gate View Modifier
+struct ProGateModifier: ViewModifier {
+    let feature: ProFeature
+    @State private var showPaywall = false
+
+    func body(content: Content) -> some View {
+        if GatingManager.shared.requiresPro(feature: feature) {
+            Button {
+                showPaywall = true
+            } label: {
+                VStack(spacing: 12) {
+                    Image(systemName: "lock.fill")
+                        .font(.title)
+                        .foregroundStyle(Theme.accent)
+                    Text("Unlock \(feature.rawValue)")
+                        .font(.subheadline.bold())
+                    Text("Upgrade to Pro to access this feature")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 32)
+                .background(Theme.cardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+            }
+            .buttonStyle(.plain)
+            .sheet(isPresented: $showPaywall) {
+                NavigationStack { SubscriptionView() }
+            }
+        } else {
+            content
+        }
+    }
+}
+
+extension View {
+    func proGated(_ feature: ProFeature) -> some View {
+        modifier(ProGateModifier(feature: feature))
+    }
+}

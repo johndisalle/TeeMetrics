@@ -50,11 +50,19 @@ struct DashboardView: View {
                         if completedRounds.count >= 3 {
                             hotStreaksSection
                         }
+
+                        // MARK: - Handicap Projection
+                        if let projectionText = StatsCalculator.handicapProjectionText(rounds: completedRounds) {
+                            highlightCard(icon: "chart.line.downtrend.xyaxis", color: .blue, title: "Handicap Projection", subtitle: projectionText)
+                        }
+
+                        // MARK: - Quick Links
+                        quickLinksSection
                     }
 
-                    // MARK: - Pro Banner
-                    if !SubscriptionManager.shared.isProUser {
-                        proBanner
+                    // MARK: - Free Rounds Remaining
+                    if !GatingManager.shared.isProUser {
+                        freeRoundsCard
                     }
                 }
                 .padding()
@@ -324,6 +332,72 @@ struct DashboardView: View {
         .background(Theme.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.04), radius: 4, y: 2)
+    }
+
+    // MARK: - Quick Links
+    private var quickLinksSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Quick Links")
+                .font(.headline)
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                quickLink("Goals", icon: "target", destination: AnyView(GoalsView()))
+                quickLink("Achievements", icon: "trophy.fill", destination: AnyView(AchievementsView()))
+                quickLink("Practice", icon: "figure.golf", destination: AnyView(PracticeView()))
+            }
+        }
+    }
+
+    private func quickLink(_ title: String, icon: String, destination: AnyView) -> some View {
+        NavigationLink { destination } label: {
+            VStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundStyle(Theme.primary)
+                Text(title)
+                    .font(.caption2.bold())
+                    .foregroundStyle(.primary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(Theme.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .shadow(color: .black.opacity(0.03), radius: 3, y: 1)
+        }
+    }
+
+    // MARK: - Free Rounds Card
+    private var freeRoundsCard: some View {
+        NavigationLink {
+            SubscriptionView()
+        } label: {
+            let remaining = GatingManager.shared.freeRoundsRemaining
+            HStack(spacing: 14) {
+                Image(systemName: remaining > 0 ? "gift.fill" : "crown.fill")
+                    .font(.title2)
+                    .foregroundStyle(remaining > 0 ? Theme.primary : Theme.accent)
+                VStack(alignment: .leading, spacing: 2) {
+                    if remaining > 0 {
+                        Text("\(remaining) free rounds remaining")
+                            .font(.subheadline.bold())
+                        Text("Full stats unlock after \(GatingManager.freeRoundLimit) rounds — or go Pro now")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text("Unlock Pro for Full Stats")
+                            .font(.subheadline.bold())
+                            .foregroundStyle(.white)
+                        Text("3-day free trial \u{2022} $29.99/year")
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.7))
+                    }
+                }
+                Spacer()
+            }
+            .padding()
+            .background(remaining > 0 ? Theme.cardBackground : AnyShapeStyle(Theme.golfGradient))
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .shadow(color: .black.opacity(0.06), radius: 6, y: 3)
+        }
     }
 
     // MARK: - Pro Banner

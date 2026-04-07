@@ -119,4 +119,37 @@ enum StatsCalculator {
         let prev5 = completed.dropFirst(5).prefix(5).reduce(0) { $0 + $1.totalScore }
         return Double(prev5 - recent5) / 5.0 // Positive = improving
     }
+
+    // MARK: - Handicap Projection
+    // Estimates future handicap based on rate of improvement
+    static func handicapProjection(rounds: [GolfRound], monthsAhead: Int = 3) -> Double? {
+        let completed = rounds.filter { $0.isCompleted && $0.course != nil }.sorted { $0.date > $1.date }
+        guard completed.count >= 5 else { return nil }
+
+        let currentHCP = handicapIndex(rounds: completed)
+
+        // Calculate handicap from 3 months ago
+        let threeMonthsAgo = Calendar.current.date(byAdding: .month, value: -3, to: Date()) ?? Date()
+        let olderRounds = completed.filter { $0.date < threeMonthsAgo }
+        guard olderRounds.count >= 3 else { return nil }
+
+        let pastHCP = handicapIndex(rounds: olderRounds)
+        let ratePerMonth = (pastHCP - currentHCP) / 3.0 // Positive = improving
+
+        let projected = currentHCP - (ratePerMonth * Double(monthsAhead))
+        return max(0, (projected * 10).rounded() / 10)
+    }
+
+    static func handicapProjectionText(rounds: [GolfRound]) -> String? {
+        guard let projected = handicapProjection(rounds: rounds, monthsAhead: 3) else { return nil }
+        let current = handicapIndex(rounds: rounds)
+        let monthName = Calendar.current.date(byAdding: .month, value: 3, to: Date())
+            .map { $0.formatted(.dateTime.month(.wide)) } ?? "soon"
+
+        if projected < current {
+            return String(format: "At this pace, you'll be a %.1f by %@", projected, monthName)
+        } else {
+            return String(format: "Projected handicap: %.1f by %@", projected, monthName)
+        }
+    }
 }

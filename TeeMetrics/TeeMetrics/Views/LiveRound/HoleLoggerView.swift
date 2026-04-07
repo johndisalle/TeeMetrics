@@ -3,14 +3,39 @@
 // Fairway/GIR/Sand Save toggles, notes, shot tracker access
 
 import SwiftUI
+import SwiftData
 
 struct HoleLoggerView: View {
     @Bindable var entry: HoleEntry
+    @Query(filter: #Predicate<Bag> { $0.isDefault == true }) private var bags: [Bag]
     var onShowShotTracker: () -> Void
+
+    private var clubTip: String? {
+        ClubRecommendationEngine.suggestForHole(
+            holeInfo: entry.holeInfo,
+            shotNumber: entry.shots.count + 1,
+            bag: bags.first
+        )
+    }
 
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
+                // MARK: - Club Recommendation
+                if let tip = clubTip {
+                    HStack(spacing: 10) {
+                        Image(systemName: "lightbulb.fill")
+                            .foregroundStyle(Theme.accent)
+                        Text(tip)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Theme.accent.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+
                 // MARK: - Hole Info
                 HStack {
                     Text("Hole \(entry.holeNumber)")

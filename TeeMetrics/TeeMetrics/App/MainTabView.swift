@@ -2,8 +2,10 @@
 // Root navigation with 5 tabs: Dashboard, Rounds, Stats, Bag, Settings
 
 import SwiftUI
+import SwiftData
 
 struct MainTabView: View {
+    @Environment(\.modelContext) private var modelContext
     @State private var selectedTab = 0
 
     var body: some View {
@@ -25,5 +27,8 @@ struct MainTabView: View {
                 .tag(4)
         }
         .tint(Theme.primary)
+        .onAppear {
+            GatingManager.shared.updateRoundCount(from: modelContext)
+        }
     }
 }

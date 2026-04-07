@@ -34,14 +34,15 @@ struct StatsView: View {
                             puttsTrendChart
                             fairwayGIRChart
 
-                            if SubscriptionManager.shared.isProUser {
-                                strokesGainedChart
-                                handicapChart
-                            } else {
-                                proUpgradeCard
-                            }
+                            strokesGainedChart
+                                .proGated(.strokesGained)
+                            handicapChart
+                                .proGated(.advancedStats)
 
                             insightsSection
+
+                            // MARK: - Feature Links
+                            statsQuickLinks
                         }
                         .padding()
                     }
@@ -263,27 +264,63 @@ struct StatsView: View {
         .cardStyle()
     }
 
-    // MARK: - Pro Upgrade
-    private var proUpgradeCard: some View {
-        NavigationLink {
-            SubscriptionView()
-        } label: {
-            HStack {
-                Image(systemName: "lock.fill")
-                    .foregroundStyle(Theme.accent)
-                VStack(alignment: .leading) {
-                    Text("Unlock Advanced Stats")
-                        .font(.subheadline.bold())
-                    Text("Strokes gained, handicap trends & more")
+    // MARK: - Stats Quick Links
+    private var statsQuickLinks: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Explore")
+                .font(.headline)
+
+            NavigationLink {
+                RoundComparisonView()
+            } label: {
+                HStack {
+                    Image(systemName: "arrow.left.arrow.right")
+                        .foregroundStyle(Theme.primary)
+                    Text("Compare Rounds")
+                        .font(.subheadline)
+                    Spacer()
+                    Image(systemName: "chevron.right")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.quaternary)
                 }
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .foregroundStyle(.secondary)
+                .cardStyle()
             }
-            .cardStyle()
+            .buttonStyle(.plain)
+
+            NavigationLink {
+                AchievementsView()
+            } label: {
+                HStack {
+                    Image(systemName: "trophy.fill")
+                        .foregroundStyle(Theme.accent)
+                    Text("Achievements")
+                        .font(.subheadline)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.quaternary)
+                }
+                .cardStyle()
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink {
+                GoalsView()
+            } label: {
+                HStack {
+                    Image(systemName: "target")
+                        .foregroundStyle(.blue)
+                    Text("Goals")
+                        .font(.subheadline)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.quaternary)
+                }
+                .cardStyle()
+            }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
     }
 }
+

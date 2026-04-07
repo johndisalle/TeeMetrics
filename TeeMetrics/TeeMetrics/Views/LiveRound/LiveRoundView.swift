@@ -73,6 +73,11 @@ struct LiveRoundView: View {
         .onChange(of: currentHole) { _, newVal in
             round.currentHole = newVal
             Haptics.selection()
+            WidgetDataWriter.updateActiveRound(
+                hole: newVal,
+                courseName: round.course?.name ?? "",
+                runningScore: runningTotal
+            )
         }
     }
 
@@ -172,6 +177,30 @@ struct LiveRoundView: View {
     private func finishRound() {
         round.recalculateTotals()
         round.isCompleted = true
+
+        // Update widget data
+        WidgetDataWriter.updateLastRound(round: round)
+        WidgetDataWriter.clearActiveRound()
+
+        // Update gating manager
+        GatingManager.shared.updateRoundCount(from: modelContext)
+
+        // Schedule inactivity reminder
+        NotificationManager.scheduleInactivityReminder(lastRoundDate: round.date)
+
+        // Check for new achievements
+        let descriptor = FetchDescriptor<GolfRound>(predicate: #Predicate { $0.isCompleted == true })
+        if let allRounds = try? modelContext.fetch(descriptor) {
+            let previouslyEarned = Set(UserDefaults.standard.stringArray(forKey: "earnedAchievements") ?? [])
+            let newAchievements = AchievementsManager.newlyEarned(rounds: allRounds, previouslyEarned: previouslyEarned)
+            for achievement in newAchievements {
+                NotificationManager.notifyAchievement(achievement)
+            }
+            // Save updated earned list
+            let allEarned = AchievementsManager.evaluateAchievements(rounds: allRounds).map(\.rawValue)
+            UserDefaults.standard.set(allEarned, forKey: "earnedAchievements")
+        }
+
         Haptics.success()
         dismiss()
     }
