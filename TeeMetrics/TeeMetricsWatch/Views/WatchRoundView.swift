@@ -181,6 +181,7 @@ struct WatchRoundView: View {
 
 // MARK: - Watch Connectivity Helper
 final class WatchConnector: NSObject, ObservableObject, WCSessionDelegate {
+    @Published var lastReceivedData: [String: Any] = [:]
     var onDataReceived: (([String: Any]) -> Void)?
 
     override init() {
