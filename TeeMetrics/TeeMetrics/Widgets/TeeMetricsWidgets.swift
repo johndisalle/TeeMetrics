@@ -273,6 +273,7 @@ struct TeeMetricsLastRoundWidget: Widget {
 }
 
 // MARK: - Widget Bundle
+@main
 struct TeeMetricsWidgetBundle: WidgetBundle {
     var body: some Widget {
         TeeMetricsLastRoundWidget()
