@@ -1,5 +1,5 @@
 // MARK: - Onboarding View
-// Welcome flow: golf-green gradient, animated flag, name & handicap entry
+// Premium welcome flow with layered depth, glass morphism, and staggered reveals
 
 import SwiftUI
 import SwiftData
@@ -10,151 +10,255 @@ struct OnboardingView: View {
 
     @State private var name = ""
     @State private var handicap = ""
-    @State private var flagOffset: CGFloat = -30
-    @State private var showContent = false
-    @State private var showFields = false
+    @State private var flagOffset: CGFloat = -40
+    @State private var showBranding = false
+    @State private var showFeatures = false
+    @State private var showForm = false
+    @State private var showButton = false
+    @State private var pulseFlag = false
 
     var body: some View {
         ZStack {
-            Theme.golfGradient.ignoresSafeArea()
-
-            // Subtle background pattern
-            VStack {
-                Spacer()
-                Image(systemName: "circle.grid.3x3.fill")
-                    .font(.system(size: 200))
-                    .foregroundStyle(.white.opacity(0.03))
-                    .rotationEffect(.degrees(15))
-            }
-            .ignoresSafeArea()
+            // MARK: - Background layers
+            backgroundGradient
+            backgroundOrbs
 
             VStack(spacing: 0) {
-                Spacer().frame(minHeight: 20, maxHeight: 60)
+                Spacer()
 
-                // MARK: - Animated Flag
-                Image(systemName: "flag.fill")
-                    .font(.system(size: 64))
-                    .foregroundStyle(Theme.accent)
+                // MARK: - Logo & Branding
+                VStack(spacing: 16) {
+                    // Animated flag with glow
+                    ZStack {
+                        // Glow behind flag
+                        Circle()
+                            .fill(Theme.accent.opacity(0.15))
+                            .frame(width: 100, height: 100)
+                            .blur(radius: 20)
+                            .scaleEffect(pulseFlag ? 1.2 : 0.8)
+
+                        Image(systemName: "flag.fill")
+                            .font(.system(size: 56))
+                            .foregroundStyle(Theme.accent)
+                            .shadow(color: Theme.accent.opacity(0.4), radius: 12, y: 4)
+                    }
                     .offset(y: flagOffset)
-                    .opacity(showContent ? 1 : 0)
-                    .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
+                    .opacity(showBranding ? 1 : 0)
 
-                Spacer().frame(height: 20)
-
-                // MARK: - Welcome Text
-                VStack(spacing: 6) {
-                    Text("TeeMetrics")
-                        .font(.system(size: 34, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-                    Text("Golf Stats Tracker & Round Analyzer")
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.7))
-                }
-                .opacity(showContent ? 1 : 0)
-                .offset(y: showContent ? 0 : 10)
-
-                Spacer().frame(height: 14)
-
-                // MARK: - Feature Pills
-                HStack(spacing: 12) {
-                    featurePill("Offline First")
-                    featurePill("100% Private")
-                    featurePill("Apple Watch")
-                }
-                .opacity(showContent ? 1 : 0)
-                .offset(y: showContent ? 0 : 10)
-
-                Spacer().frame(minHeight: 24, maxHeight: 48)
-
-                // MARK: - Input Fields
-                VStack(spacing: 12) {
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("YOUR NAME")
-                            .font(.caption.bold())
-                            .foregroundStyle(.white.opacity(0.6))
-                        TextField("", text: $name, prompt: Text("Enter your name").foregroundStyle(.white.opacity(0.4)))
-                            .textContentType(.name)
-                            .autocorrectionDisabled()
-                            .font(.body)
+                    VStack(spacing: 6) {
+                        Text("TeeMetrics")
+                            .font(.system(size: 38, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 12)
-                            .background(.white.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
 
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("HANDICAP INDEX")
-                            .font(.caption.bold())
-                            .foregroundStyle(.white.opacity(0.6))
-                        TextField("", text: $handicap, prompt: Text("Optional").foregroundStyle(.white.opacity(0.4)))
-                            .keyboardType(.decimalPad)
-                            .font(.body)
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 12)
-                            .background(.white.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        Text("Track Every Shot. Own Your Game.")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.55))
                     }
+                    .opacity(showBranding ? 1 : 0)
+                    .offset(y: showBranding ? 0 : 12)
                 }
-                .padding(.horizontal, 28)
-                .opacity(showFields ? 1 : 0)
-                .offset(y: showFields ? 0 : 20)
 
                 Spacer().frame(height: 24)
 
-                // MARK: - Get Started Button
+                // MARK: - Feature chips
+                HStack(spacing: 10) {
+                    featureChip(icon: "bolt.fill", text: "Offline First")
+                    featureChip(icon: "lock.fill", text: "100% Private")
+                    featureChip(icon: "applewatch", text: "Apple Watch")
+                }
+                .opacity(showFeatures ? 1 : 0)
+                .offset(y: showFeatures ? 0 : 8)
+
+                Spacer()
+
+                // MARK: - Input Card (glass morphism)
+                VStack(spacing: 16) {
+                    // Name field
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("YOUR NAME")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.45))
+                            .kerning(1.2)
+                        HStack(spacing: 10) {
+                            Image(systemName: "person.fill")
+                                .font(.system(size: 14))
+                                .foregroundStyle(.white.opacity(0.35))
+                            TextField("", text: $name, prompt: Text("Enter your name").foregroundStyle(.white.opacity(0.3)))
+                                .textContentType(.name)
+                                .autocorrectionDisabled()
+                                .foregroundStyle(.white)
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 13)
+                        .background(.white.opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(.white.opacity(0.1), lineWidth: 1)
+                        )
+                    }
+
+                    // Handicap field
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("HANDICAP INDEX")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.45))
+                            .kerning(1.2)
+                        HStack(spacing: 10) {
+                            Image(systemName: "number")
+                                .font(.system(size: 14))
+                                .foregroundStyle(.white.opacity(0.35))
+                            TextField("", text: $handicap, prompt: Text("Optional").foregroundStyle(.white.opacity(0.3)))
+                                .keyboardType(.decimalPad)
+                                .foregroundStyle(.white)
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 13)
+                        .background(.white.opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(.white.opacity(0.1), lineWidth: 1)
+                        )
+                    }
+                }
+                .padding(20)
+                .background(.ultraThinMaterial.opacity(0.4))
+                .background(.white.opacity(0.04))
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(.white.opacity(0.08), lineWidth: 1)
+                )
+                .padding(.horizontal, 24)
+                .opacity(showForm ? 1 : 0)
+                .offset(y: showForm ? 0 : 24)
+
+                Spacer().frame(height: 24)
+
+                // MARK: - CTA Button
                 Button {
                     completeOnboarding()
                 } label: {
-                    Text("Get Started")
-                        .font(.headline)
-                        .foregroundStyle(Theme.primary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                        .shadow(color: .black.opacity(0.15), radius: 8, y: 4)
+                    HStack(spacing: 8) {
+                        Text("Get Started")
+                            .font(.system(size: 17, weight: .semibold))
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 14, weight: .semibold))
+                    }
+                    .foregroundStyle(Color(red: 0.08, green: 0.22, blue: 0.15))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 17)
+                    .background(
+                        LinearGradient(
+                            colors: [.white, .white.opacity(0.9)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .shadow(color: .white.opacity(0.15), radius: 12, y: 4)
                 }
-                .padding(.horizontal, 28)
+                .padding(.horizontal, 24)
                 .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
-                .opacity(name.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1)
-                .opacity(showFields ? 1 : 0)
+                .opacity(name.trimmingCharacters(in: .whitespaces).isEmpty ? 0.4 : 1)
+                .opacity(showButton ? 1 : 0)
+                .offset(y: showButton ? 0 : 16)
 
-                Spacer().frame(height: 12)
+                Spacer().frame(height: 14)
 
-                // MARK: - Legal Links
-                HStack(spacing: 16) {
+                // MARK: - Legal
+                HStack(spacing: 14) {
                     Link("Terms of Service", destination: AppURLs.terms)
-                    Text("·").foregroundStyle(.white.opacity(0.4))
+                    Text("·").foregroundStyle(.white.opacity(0.25))
                     Link("Privacy Policy", destination: AppURLs.privacy)
                 }
-                .font(.caption2)
-                .foregroundStyle(.white.opacity(0.5))
+                .font(.system(size: 11))
+                .foregroundStyle(.white.opacity(0.35))
+                .opacity(showButton ? 1 : 0)
 
-                Spacer().frame(height: 24)
+                Spacer().frame(height: 28)
             }
         }
-        .onAppear {
-            withAnimation(.easeOut(duration: 0.7)) {
-                showContent = true
-                flagOffset = 0
-            }
-            withAnimation(.easeOut(duration: 0.6).delay(0.4)) {
-                showFields = true
-            }
-        }
+        .onAppear { startAnimations() }
     }
 
-    // MARK: - Feature Pill
-    private func featurePill(_ text: String) -> some View {
-        Text(text)
-            .font(.caption2.bold())
-            .foregroundStyle(.white.opacity(0.7))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(.white.opacity(0.1))
-            .clipShape(Capsule())
+    // MARK: - Background Gradient (deeper, richer)
+    private var backgroundGradient: some View {
+        LinearGradient(
+            stops: [
+                .init(color: Color(red: 0.06, green: 0.18, blue: 0.12), location: 0),
+                .init(color: Color(red: 0.10, green: 0.28, blue: 0.19), location: 0.4),
+                .init(color: Color(red: 0.08, green: 0.24, blue: 0.16), location: 0.7),
+                .init(color: Color(red: 0.05, green: 0.15, blue: 0.10), location: 1),
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+    }
+
+    // MARK: - Floating Background Orbs
+    private var backgroundOrbs: some View {
+        ZStack {
+            Circle()
+                .fill(Theme.accent.opacity(0.04))
+                .frame(width: 300, height: 300)
+                .blur(radius: 60)
+                .offset(x: -80, y: -200)
+
+            Circle()
+                .fill(Color.green.opacity(0.06))
+                .frame(width: 250, height: 250)
+                .blur(radius: 50)
+                .offset(x: 100, y: 300)
+
+            Circle()
+                .fill(Theme.accent.opacity(0.03))
+                .frame(width: 200, height: 200)
+                .blur(radius: 40)
+                .offset(x: 120, y: -100)
+        }
+        .ignoresSafeArea()
+    }
+
+    // MARK: - Feature Chip
+    private func featureChip(icon: String, text: String) -> some View {
+        HStack(spacing: 5) {
+            Image(systemName: icon)
+                .font(.system(size: 10, weight: .semibold))
+            Text(text)
+                .font(.system(size: 11, weight: .semibold))
+        }
+        .foregroundStyle(.white.opacity(0.55))
+        .padding(.horizontal, 12)
+        .padding(.vertical, 7)
+        .background(.white.opacity(0.07))
+        .clipShape(Capsule())
+        .overlay(
+            Capsule()
+                .stroke(.white.opacity(0.08), lineWidth: 1)
+        )
+    }
+
+    // MARK: - Animation Sequence
+    private func startAnimations() {
+        withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) {
+            showBranding = true
+            flagOffset = 0
+        }
+        withAnimation(.spring(response: 0.8, dampingFraction: 0.7).delay(0.15)) {
+            pulseFlag = true
+        }
+        withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
+            showFeatures = true
+        }
+        withAnimation(.easeOut(duration: 0.5).delay(0.5)) {
+            showForm = true
+        }
+        withAnimation(.easeOut(duration: 0.5).delay(0.7)) {
+            showButton = true
+        }
     }
 
     // MARK: - Complete Onboarding
