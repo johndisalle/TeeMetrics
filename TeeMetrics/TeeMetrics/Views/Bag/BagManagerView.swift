@@ -18,7 +18,7 @@ struct BagManagerView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if let bag {
+                if bags.first != nil {
                     List {
                         ForEach(clubsByType) { group in
                             Section(group.type.capitalized) {

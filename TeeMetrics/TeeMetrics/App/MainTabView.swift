@@ -8,21 +8,21 @@ struct MainTabView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            Tab("Home", systemImage: "house.fill", value: 0) {
-                DashboardView()
-            }
-            Tab("Rounds", systemImage: "list.bullet.clipboard.fill", value: 1) {
-                RoundHistoryView()
-            }
-            Tab("Stats", systemImage: "chart.bar.fill", value: 2) {
-                StatsView()
-            }
-            Tab("Bag", systemImage: "bag.fill", value: 3) {
-                BagManagerView()
-            }
-            Tab("Settings", systemImage: "gearshape.fill", value: 4) {
-                SettingsView()
-            }
+            DashboardView()
+                .tabItem { Label("Home", systemImage: "house.fill") }
+                .tag(0)
+            RoundHistoryView()
+                .tabItem { Label("Rounds", systemImage: "list.bullet.clipboard.fill") }
+                .tag(1)
+            StatsView()
+                .tabItem { Label("Stats", systemImage: "chart.bar.fill") }
+                .tag(2)
+            BagManagerView()
+                .tabItem { Label("Bag", systemImage: "bag.fill") }
+                .tag(3)
+            SettingsView()
+                .tabItem { Label("Settings", systemImage: "gearshape.fill") }
+                .tag(4)
         }
         .tint(Theme.primary)
     }
