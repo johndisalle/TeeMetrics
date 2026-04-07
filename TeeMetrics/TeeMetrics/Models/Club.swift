@@ -106,9 +106,7 @@ final class Bag {
             ("Putter", "putter", 0, 13),
         ]
         for (name, type, dist, order) in defaultClubs {
-            let club = Club(name: name, clubType: type, avgDistance: dist, sortOrder: order, bag: bag)
-            bag.clubs.append(club)
-            _ = club // silence warning
+            bag.clubs.append(Club(name: name, clubType: type, avgDistance: dist, sortOrder: order, bag: bag))
         }
         return bag
     }

@@ -121,9 +121,9 @@ struct OnboardingView: View {
 
                 // MARK: - Legal Links
                 HStack(spacing: 16) {
-                    Link("Terms of Service", destination: URL(string: "https://johndisalle.github.io/TeeMetrics/terms")!)
+                    Link("Terms of Service", destination: AppURLs.terms)
                     Text("·").foregroundStyle(.white.opacity(0.4))
-                    Link("Privacy Policy", destination: URL(string: "https://johndisalle.github.io/TeeMetrics/privacy")!)
+                    Link("Privacy Policy", destination: AppURLs.privacy)
                 }
                 .font(.caption2)
                 .foregroundStyle(.white.opacity(0.5))

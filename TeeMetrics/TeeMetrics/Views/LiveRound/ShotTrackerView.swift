@@ -86,6 +86,8 @@ struct ShotTrackerView: View {
                                     .foregroundStyle(selectedClub == club.name ? .white : .primary)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                                 }
+                                .accessibilityLabel("\(club.name)\(club.avgDistance > 0 ? ", \(club.avgDistance) yards" : "")")
+                                .accessibilityAddTraits(selectedClub == club.name ? .isSelected : [])
                             }
                         }
                     }

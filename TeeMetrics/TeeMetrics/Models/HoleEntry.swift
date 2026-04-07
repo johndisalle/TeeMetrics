@@ -17,6 +17,8 @@ final class HoleEntry {
     var sandSave: Bool?
     var upAndDown: Bool?
     var notes: String
+
+    // MARK: - Relationships (inverse side — owner declares @Relationship)
     var round: GolfRound?
     var holeInfo: HoleInfo?
 
@@ -40,15 +42,17 @@ final class HoleEntry {
         }
     }
 
-    var scoreLabelShort: String {
+    var scoreLabelAccessible: String {
         let diff = scoreToPar
         switch diff {
-        case ...(-2): return "🦅"
-        case -1: return "🐦"
-        case 0: return ""
-        case 1: return "●"
-        case 2: return "●●"
-        default: return "●●●"
+        case ...(-3): return "Albatross, \(-diff) under par"
+        case -2: return "Eagle, 2 under par"
+        case -1: return "Birdie, 1 under par"
+        case 0: return "Par"
+        case 1: return "Bogey, 1 over par"
+        case 2: return "Double bogey, 2 over par"
+        case 3: return "Triple bogey, 3 over par"
+        default: return "\(diff) over par"
         }
     }
 

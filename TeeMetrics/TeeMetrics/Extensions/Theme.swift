@@ -10,12 +10,12 @@ enum Theme {
     static let secondaryBackground = Color(.secondarySystemBackground)
     static let cardBackground = Color(.tertiarySystemBackground)
 
-    // Score colors
-    static let eagle = Color.yellow
-    static let birdie = Color.red
-    static let par = Color.green
-    static let bogey = Color.blue
-    static let doublePlus = Color.purple
+    // Score colors (adaptive for light/dark mode)
+    static let eagle = Color(red: 0.85, green: 0.65, blue: 0.0)   // gold — visible in both modes
+    static let birdie = Color(red: 0.9, green: 0.25, blue: 0.2)   // warm red
+    static let par = Color(red: 0.2, green: 0.65, blue: 0.35)     // medium green
+    static let bogey = Color(red: 0.3, green: 0.5, blue: 0.85)    // soft blue
+    static let doublePlus = Color(red: 0.6, green: 0.35, blue: 0.7) // muted purple
 
     static func scoreColor(for scoreToPar: Int) -> Color {
         switch scoreToPar {

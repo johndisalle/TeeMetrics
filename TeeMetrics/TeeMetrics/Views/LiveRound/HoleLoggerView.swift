@@ -64,7 +64,7 @@ struct HoleLoggerView: View {
                     }
                 }
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel("Score: \(entry.score)")
+                .accessibilityLabel("Score: \(entry.score). \(entry.score > 0 ? entry.scoreLabelAccessible : "Not yet scored")")
                 .accessibilityAdjustableAction { direction in
                     switch direction {
                     case .increment: entry.score += 1

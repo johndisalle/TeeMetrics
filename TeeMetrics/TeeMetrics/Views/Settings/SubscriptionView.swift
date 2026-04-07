@@ -79,9 +79,9 @@ struct SubscriptionView: View {
 
                     // MARK: - Legal (required by App Store for paywall)
                     HStack(spacing: 16) {
-                        Link("Terms of Service", destination: URL(string: "https://johndisalle.github.io/TeeMetrics/terms")!)
+                        Link("Terms of Service", destination: AppURLs.terms)
                         Text("·")
-                        Link("Privacy Policy", destination: URL(string: "https://johndisalle.github.io/TeeMetrics/privacy")!)
+                        Link("Privacy Policy", destination: AppURLs.privacy)
                     }
                     .font(.caption2)
                     .foregroundStyle(.secondary)

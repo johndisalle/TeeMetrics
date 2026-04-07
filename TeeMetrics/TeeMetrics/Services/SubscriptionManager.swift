@@ -4,7 +4,7 @@
 import SwiftUI
 import StoreKit
 
-@Observable
+@MainActor @Observable
 final class SubscriptionManager {
     static let shared = SubscriptionManager()
 
@@ -28,7 +28,6 @@ final class SubscriptionManager {
     }
 
     // MARK: - Load Products
-    @MainActor
     func loadProducts() async {
         do {
             products = try await Product.products(for: [
@@ -42,12 +41,11 @@ final class SubscriptionManager {
     }
 
     // MARK: - Purchase
-    @MainActor
     func purchase(_ product: Product) async throws -> Bool {
         let result = try await product.purchase()
         switch result {
         case .success(let verification):
-            let transaction = try checkVerified(verification)
+            let transaction = try Self.checkVerified(verification)
             await transaction.finish()
             await updatePurchasedProducts()
             return true
@@ -61,7 +59,6 @@ final class SubscriptionManager {
     }
 
     // MARK: - Restore
-    @MainActor
     func restore() async {
         try? await AppStore.sync()
         await updatePurchasedProducts()
@@ -72,7 +69,7 @@ final class SubscriptionManager {
         Task.detached {
             for await result in Transaction.updates {
                 do {
-                    let transaction = try self.checkVerified(result)
+                    let transaction = try Self.checkVerified(result)
                     await self.updatePurchasedProducts()
                     await transaction.finish()
                 } catch {
@@ -83,12 +80,11 @@ final class SubscriptionManager {
     }
 
     // MARK: - Update Purchased State
-    @MainActor
     func updatePurchasedProducts() async {
         var purchased: Set<String> = []
         for await result in Transaction.currentEntitlements {
             do {
-                let transaction = try checkVerified(result)
+                let transaction = try Self.checkVerified(result)
                 purchased.insert(transaction.productID)
             } catch {
                 continue
@@ -98,7 +94,8 @@ final class SubscriptionManager {
         isProUser = !purchased.isEmpty
     }
 
-    nonisolated private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
+    // MARK: - Verification (static, nonisolated)
+    nonisolated static func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
         switch result {
         case .unverified:
             throw StoreError.failedVerification

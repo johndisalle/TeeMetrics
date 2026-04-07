@@ -20,10 +20,10 @@ struct SettingsView: View {
     private var golfer: Golfer? { golfers.first }
     private var completedRoundsCount: Int { rounds.filter { $0.isCompleted }.count }
 
-    // MARK: - GitHub Pages URLs
-    private let termsURL = URL(string: "https://johndisalle.github.io/TeeMetrics/terms")!
-    private let privacyURL = URL(string: "https://johndisalle.github.io/TeeMetrics/privacy")!
-    private let supportURL = URL(string: "https://johndisalle.github.io/TeeMetrics/support")!
+    // URLs from shared constants
+    private let termsURL = AppURLs.terms
+    private let privacyURL = AppURLs.privacy
+    private let supportURL = AppURLs.support
 
     var body: some View {
         NavigationStack {
@@ -143,7 +143,7 @@ struct SettingsView: View {
                     HStack {
                         Label("Version", systemImage: "info.circle")
                         Spacer()
-                        Text("1.0.0")
+                        Text(AppConfig.appVersion)
                             .foregroundStyle(.secondary)
                     }
                     HStack {
