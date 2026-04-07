@@ -1,6 +1,6 @@
 // MARK: - Hole Logger View
-// Individual hole scoring: big tappable score, putts, penalties,
-// Fairway/GIR/Sand Save toggles, notes, shot tracker access
+// Quick-score buttons + detailed mode, putts, penalties,
+// Fairway/GIR/Sand Save toggles, club recommendation, shot tracker
 
 import SwiftUI
 import SwiftData
@@ -9,6 +9,9 @@ struct HoleLoggerView: View {
     @Bindable var entry: HoleEntry
     @Query(filter: #Predicate<Bag> { $0.isDefault == true }) private var bags: [Bag]
     var onShowShotTracker: () -> Void
+
+    @State private var showDetailedMode = false
+    @State private var scoreFlash = false
 
     private var clubTip: String? {
         ClubRecommendationEngine.suggestForHole(
@@ -20,7 +23,37 @@ struct HoleLoggerView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(spacing: 20) {
+                // MARK: - Hole Header
+                HStack(alignment: .bottom) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Hole \(entry.holeNumber)")
+                            .font(.title2.bold())
+                        HStack(spacing: 8) {
+                            Text("Par \(entry.par)")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            if let info = entry.holeInfo {
+                                Text("\u{2022} \(info.yardage) yds")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                    Spacer()
+                    if entry.score > 0 {
+                        Text(entry.scoreLabel)
+                            .font(.caption.bold())
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(Theme.scoreColor(for: entry.scoreToPar))
+                            .clipShape(Capsule())
+                            .scaleEffect(scoreFlash ? 1.15 : 1.0)
+                            .animation(.spring(response: 0.3, dampingFraction: 0.5), value: scoreFlash)
+                    }
+                }
+
                 // MARK: - Club Recommendation
                 if let tip = clubTip {
                     HStack(spacing: 10) {
@@ -36,76 +69,74 @@ struct HoleLoggerView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
 
-                // MARK: - Hole Info
-                HStack {
-                    Text("Hole \(entry.holeNumber)")
-                        .font(.title2.bold())
-                    Spacer()
-                    Text("Par \(entry.par)")
-                        .font(.title3)
+                // MARK: - Quick Score Buttons (2-tap scoring)
+                VStack(spacing: 10) {
+                    Text("QUICK SCORE")
+                        .font(.caption2.bold())
                         .foregroundStyle(.secondary)
-                    if let info = entry.holeInfo {
-                        Text("\(info.yardage) yds")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+
+                    HStack(spacing: 10) {
+                        quickScoreButton(label: scoreLabel(for: entry.par - 2), value: entry.par - 2, color: Theme.eagle)
+                        quickScoreButton(label: scoreLabel(for: entry.par - 1), value: entry.par - 1, color: Theme.birdie)
+                        quickScoreButton(label: "Par", value: entry.par, color: Theme.par)
+                        quickScoreButton(label: "Bogey", value: entry.par + 1, color: Theme.bogey)
+                        quickScoreButton(label: "Dbl", value: entry.par + 2, color: Theme.doublePlus)
+                    }
+
+                    // Other score button
+                    Button {
+                        withAnimation(.spring(response: 0.3)) {
+                            showDetailedMode.toggle()
+                        }
+                    } label: {
+                        HStack {
+                            Text(showDetailedMode ? "Hide Stepper" : "Other Score...")
+                                .font(.caption)
+                            Image(systemName: showDetailedMode ? "chevron.up" : "chevron.down")
+                                .font(.caption2)
+                        }
+                        .foregroundStyle(.secondary)
                     }
                 }
 
-                // MARK: - Score Stepper (big tappable)
-                VStack(spacing: 8) {
-                    Text("SCORE")
-                        .font(.caption.bold())
-                        .foregroundStyle(.secondary)
-
+                // MARK: - Detailed Stepper (expandable)
+                if showDetailedMode {
                     HStack(spacing: 24) {
                         Button {
                             if entry.score > 0 { entry.score -= 1 }
                             Haptics.light()
+                            flashScore()
                         } label: {
                             Image(systemName: "minus.circle.fill")
-                                .font(.system(size: 44))
+                                .font(.system(size: 40))
                                 .foregroundStyle(Theme.primary)
                         }
 
-                        VStack(spacing: 4) {
-                            Text("\(entry.score)")
-                                .font(.system(size: 64, weight: .bold, design: .rounded))
-                            if entry.score > 0 {
-                                Text(entry.scoreLabel)
-                                    .font(.caption.bold())
-                                    .foregroundStyle(Theme.scoreColor(for: entry.scoreToPar))
-                            }
-                        }
-                        .frame(width: 100)
+                        Text("\(entry.score)")
+                            .font(.system(size: 56, weight: .bold, design: .rounded))
+                            .frame(width: 80)
 
                         Button {
                             entry.score += 1
                             Haptics.light()
+                            flashScore()
                         } label: {
                             Image(systemName: "plus.circle.fill")
-                                .font(.system(size: 44))
+                                .font(.system(size: 40))
                                 .foregroundStyle(Theme.primary)
                         }
                     }
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Score: \(entry.score). \(entry.score > 0 ? entry.scoreLabelAccessible : "Not yet scored")")
-                .accessibilityAdjustableAction { direction in
-                    switch direction {
-                    case .increment: entry.score += 1
-                    case .decrement: if entry.score > 0 { entry.score -= 1 }
-                    @unknown default: break
-                    }
+                    .transition(.opacity.combined(with: .move(edge: .top)))
                 }
 
-                // MARK: - Putts & Penalties
+                // MARK: - Putts (always visible — critical stat)
                 HStack(spacing: 32) {
                     stepperColumn(label: "PUTTS", value: $entry.putts)
                     stepperColumn(label: "PENALTIES", value: $entry.penalties)
                 }
 
                 // MARK: - Toggle Row
-                HStack(spacing: 12) {
+                HStack(spacing: 10) {
                     if entry.par >= 4 {
                         toggleButton(
                             label: "FW",
@@ -117,11 +148,7 @@ struct HoleLoggerView: View {
                         )
                     }
 
-                    toggleButton(
-                        label: "GIR",
-                        isOn: $entry.greenInRegulation,
-                        icon: "target"
-                    )
+                    toggleButton(label: "GIR", isOn: $entry.greenInRegulation, icon: "target")
 
                     toggleButton(
                         label: "Sand",
@@ -160,6 +187,51 @@ struct HoleLoggerView: View {
                     .lineLimit(2...4)
             }
             .padding()
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    // MARK: - Quick Score Button
+    private func quickScoreButton(label: String, value: Int, color: Color) -> some View {
+        Button {
+            entry.score = value
+            Haptics.medium()
+            flashScore()
+        } label: {
+            VStack(spacing: 3) {
+                Text("\(value)")
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                Text(label)
+                    .font(.system(size: 9, weight: .bold))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(entry.score == value ? color : color.opacity(0.12))
+            .foregroundStyle(entry.score == value ? .white : color)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(entry.score == value ? color : .clear, lineWidth: 2)
+            )
+        }
+        .accessibilityLabel("\(label), score \(value)")
+    }
+
+    private func scoreLabel(for score: Int) -> String {
+        let diff = score - entry.par
+        switch diff {
+        case ...(-2): return "Eagle"
+        case -1: return "Birdie"
+        case 0: return "Par"
+        case 1: return "Bogey"
+        default: return "Dbl+"
+        }
+    }
+
+    private func flashScore() {
+        scoreFlash = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            scoreFlash = false
         }
     }
 

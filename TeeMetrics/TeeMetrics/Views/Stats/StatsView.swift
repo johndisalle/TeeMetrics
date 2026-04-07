@@ -30,19 +30,27 @@ struct StatsView: View {
                     ScrollView {
                         VStack(spacing: 20) {
                             overviewCards
+                                .slideIn(delay: 0)
                             scoreTrendChart
+                                .slideIn(delay: 0.05)
                             puttsTrendChart
+                                .slideIn(delay: 0.1)
                             fairwayGIRChart
+                                .slideIn(delay: 0.15)
 
                             strokesGainedChart
                                 .proGated(.strokesGained)
+                                .slideIn(delay: 0.2)
                             handicapChart
                                 .proGated(.advancedStats)
+                                .slideIn(delay: 0.25)
 
                             insightsSection
+                                .slideIn(delay: 0.3)
 
                             // MARK: - Feature Links
                             statsQuickLinks
+                                .slideIn(delay: 0.35)
                         }
                         .padding()
                     }

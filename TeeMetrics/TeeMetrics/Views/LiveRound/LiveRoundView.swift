@@ -13,6 +13,9 @@ struct LiveRoundView: View {
     @State private var currentHole = 1
     @State private var showShotTracker = false
     @State private var showFinishAlert = false
+    @State private var showCelebration = false
+    @State private var isPersonalBest = false
+    @State private var previousBest: Int?
 
     private var sortedEntries: [HoleEntry] {
         round.holeEntries.sorted { $0.holeNumber < $1.holeNumber }
@@ -68,6 +71,14 @@ struct LiveRoundView: View {
             if let entry = currentEntry {
                 ShotTrackerView(holeEntry: entry)
             }
+        }
+        .fullScreenCover(isPresented: $showCelebration) {
+            RoundCelebrationView(
+                round: round,
+                isPersonalBest: isPersonalBest,
+                previousBest: previousBest,
+                onDismiss: { dismiss() }
+            )
         }
         .onAppear { currentHole = round.currentHole }
         .onChange(of: currentHole) { _, newVal in
@@ -178,30 +189,37 @@ struct LiveRoundView: View {
         round.recalculateTotals()
         round.isCompleted = true
 
-        // Update widget data
-        WidgetDataWriter.updateLastRound(round: round)
-        WidgetDataWriter.clearActiveRound()
-
-        // Update gating manager
-        GatingManager.shared.updateRoundCount(from: modelContext)
-
-        // Schedule inactivity reminder
-        NotificationManager.scheduleInactivityReminder(lastRoundDate: round.date)
-
-        // Check for new achievements
+        // Check personal best BEFORE saving
         let descriptor = FetchDescriptor<GolfRound>(predicate: #Predicate { $0.isCompleted == true })
         if let allRounds = try? modelContext.fetch(descriptor) {
+            let otherScores = allRounds.filter { $0.id != round.id }.compactMap { $0.totalScore > 0 ? $0.totalScore : nil }
+            previousBest = otherScores.min()
+            isPersonalBest = previousBest.map { round.totalScore < $0 } ?? (allRounds.count <= 1)
+
+            // Achievements
             let previouslyEarned = Set(UserDefaults.standard.stringArray(forKey: "earnedAchievements") ?? [])
             let newAchievements = AchievementsManager.newlyEarned(rounds: allRounds, previouslyEarned: previouslyEarned)
             for achievement in newAchievements {
                 NotificationManager.notifyAchievement(achievement)
             }
-            // Save updated earned list
             let allEarned = AchievementsManager.evaluateAchievements(rounds: allRounds).map(\.rawValue)
             UserDefaults.standard.set(allEarned, forKey: "earnedAchievements")
         }
 
-        Haptics.success()
-        dismiss()
+        // Update widget + Siri data
+        WidgetDataWriter.updateLastRound(round: round)
+        WidgetDataWriter.clearActiveRound()
+        GatingManager.shared.updateRoundCount(from: modelContext)
+
+        // Cache handicap for Siri
+        if let allCompleted = try? modelContext.fetch(FetchDescriptor<GolfRound>(predicate: #Predicate { $0.isCompleted == true })) {
+            let hcp = StatsCalculator.handicapIndex(rounds: allCompleted)
+            UserDefaults.standard.set(hcp, forKey: "cachedHandicap")
+            WidgetDataWriter.updateStats(handicap: hcp, roundCount: allCompleted.count)
+        }
+        NotificationManager.scheduleInactivityReminder(lastRoundDate: round.date)
+
+        // Show celebration instead of dismiss
+        showCelebration = true
     }
 }

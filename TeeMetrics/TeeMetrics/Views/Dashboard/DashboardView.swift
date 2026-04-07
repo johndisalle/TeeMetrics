@@ -31,38 +31,51 @@ struct DashboardView: View {
                     // MARK: - Welcome Header
                     if let golfer {
                         welcomeHeader(golfer: golfer)
+                            .slideIn(delay: 0)
                     }
+
+                    // MARK: - Streak Banner
+                    streakBanner
+                        .slideIn(delay: 0.05)
 
                     // MARK: - Quick Start / Resume
                     quickStartSection
+                        .slideIn(delay: 0.1)
 
                     if completedRounds.isEmpty {
                         // MARK: - Empty State
                         emptyState
+                            .slideIn(delay: 0.15)
                     } else {
                         // MARK: - Key Stats
                         statsGrid
+                            .slideIn(delay: 0.15)
 
                         // MARK: - Recent Rounds
                         recentRoundsSection
+                            .slideIn(delay: 0.2)
 
                         // MARK: - Hot Streaks
                         if completedRounds.count >= 3 {
                             hotStreaksSection
+                                .slideIn(delay: 0.25)
                         }
 
                         // MARK: - Handicap Projection
                         if let projectionText = StatsCalculator.handicapProjectionText(rounds: completedRounds) {
                             highlightCard(icon: "chart.line.downtrend.xyaxis", color: .blue, title: "Handicap Projection", subtitle: projectionText)
+                                .slideIn(delay: 0.3)
                         }
 
                         // MARK: - Quick Links
                         quickLinksSection
+                            .slideIn(delay: 0.35)
                     }
 
                     // MARK: - Free Rounds Remaining
                     if !GatingManager.shared.isProUser {
                         freeRoundsCard
+                            .slideIn(delay: 0.4)
                     }
                 }
                 .padding()
@@ -109,6 +122,50 @@ struct DashboardView: View {
         .background(Theme.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .shadow(color: .black.opacity(0.04), radius: 6, y: 3)
+    }
+
+    // MARK: - Streak Banner
+    @ViewBuilder
+    private var streakBanner: some View {
+        let streak = StatsCalculator.currentWeekStreak(rounds: completedRounds)
+        let daysSince = StatsCalculator.daysSinceLastRound(rounds: completedRounds)
+
+        if streak >= 2 {
+            HStack(spacing: 12) {
+                Text("🔥")
+                    .font(.title2)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(streak)-week streak!")
+                        .font(.subheadline.bold())
+                    Text("You've played \(streak) weeks in a row. Keep it going!")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+            }
+            .padding()
+            .background(
+                LinearGradient(colors: [.orange.opacity(0.12), .red.opacity(0.08)], startPoint: .leading, endPoint: .trailing)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        } else if let days = daysSince, days >= 10 {
+            HStack(spacing: 12) {
+                Image(systemName: "figure.golf")
+                    .font(.title2)
+                    .foregroundStyle(Theme.primary)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Miss the course?")
+                        .font(.subheadline.bold())
+                    Text("It's been \(days) days since your last round")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+            }
+            .padding()
+            .background(Theme.primary.opacity(0.06))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
     }
 
     private var greeting: String {

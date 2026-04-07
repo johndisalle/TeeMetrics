@@ -140,6 +140,41 @@ enum StatsCalculator {
         return max(0, (projected * 10).rounded() / 10)
     }
 
+    // MARK: - Streak Tracking
+    // Returns consecutive weeks with at least one round
+    static func currentWeekStreak(rounds: [GolfRound]) -> Int {
+        let completed = rounds.filter { $0.isCompleted }.sorted { $0.date > $1.date }
+        guard !completed.isEmpty else { return 0 }
+
+        let calendar = Calendar.current
+        var streak = 0
+        var checkDate = Date()
+
+        // Walk backwards week by week
+        while true {
+            let weekStart = calendar.dateInterval(of: .weekOfYear, for: checkDate)?.start ?? checkDate
+            let weekEnd = calendar.date(byAdding: .day, value: 7, to: weekStart) ?? checkDate
+
+            let hasRound = completed.contains { round in
+                round.date >= weekStart && round.date < weekEnd
+            }
+
+            if hasRound {
+                streak += 1
+                checkDate = calendar.date(byAdding: .day, value: -7, to: weekStart) ?? checkDate
+            } else {
+                break
+            }
+        }
+        return streak
+    }
+
+    // MARK: - Days Since Last Round
+    static func daysSinceLastRound(rounds: [GolfRound]) -> Int? {
+        guard let last = rounds.filter({ $0.isCompleted }).sorted(by: { $0.date > $1.date }).first else { return nil }
+        return Calendar.current.dateComponents([.day], from: last.date, to: Date()).day
+    }
+
     static func handicapProjectionText(rounds: [GolfRound]) -> String? {
         guard let projected = handicapProjection(rounds: rounds, monthsAhead: 3) else { return nil }
         let current = handicapIndex(rounds: rounds)
