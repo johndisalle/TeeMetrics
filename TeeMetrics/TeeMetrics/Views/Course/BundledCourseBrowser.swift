@@ -16,7 +16,7 @@ struct BundledCourseBrowser: View {
     @State private var importedName = ""
 
     private var states: [String] {
-        var s = Set(allCourses.map(\.state))
+        let s = Set(allCourses.map(\.state))
         return ["All"] + s.sorted()
     }
 
