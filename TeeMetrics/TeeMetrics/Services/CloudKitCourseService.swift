@@ -46,10 +46,9 @@ final class CloudKitCourseService {
 
     // MARK: - Check CloudKit Availability
     private func checkAvailability() {
-        container.accountStatus { [weak self] status, _ in
-            Task { @MainActor in
-                self?.isAvailable = (status == .available)
-            }
+        Task {
+            let status = try? await container.accountStatus()
+            isAvailable = (status == .available)
         }
     }
 
@@ -136,12 +135,9 @@ final class CloudKitCourseService {
         errorMessage = nil
 
         let location = CLLocation(latitude: latitude, longitude: longitude)
-        let predicate = NSPredicate(format: "distanceToLocation:fromLocation:(location, %@) < %f",
-                                     location, radiusKM * 1000)
 
-        // Fallback: if location-based query isn't indexed, fetch all and filter locally
-        // CloudKit location queries require a "location" field of type Location
-        // For simplicity, we'll fetch recent courses and filter by distance
+        // Fetch recent courses and filter by distance locally
+        // (CloudKit location queries require a Location field type — we use lat/lng doubles instead)
         let query = CKQuery(recordType: SharedCourseRecord.recordType, predicate: NSPredicate(value: true))
         query.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
 
