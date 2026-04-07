@@ -29,22 +29,22 @@ struct OnboardingView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                Spacer()
+                Spacer().frame(minHeight: 20, maxHeight: 60)
 
                 // MARK: - Animated Flag
                 Image(systemName: "flag.fill")
-                    .font(.system(size: 72))
+                    .font(.system(size: 64))
                     .foregroundStyle(Theme.accent)
                     .offset(y: flagOffset)
                     .opacity(showContent ? 1 : 0)
                     .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
 
-                Spacer().frame(height: 24)
+                Spacer().frame(height: 20)
 
                 // MARK: - Welcome Text
-                VStack(spacing: 8) {
+                VStack(spacing: 6) {
                     Text("TeeMetrics")
-                        .font(.system(size: 36, weight: .bold, design: .rounded))
+                        .font(.system(size: 34, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                     Text("Golf Stats Tracker & Round Analyzer")
                         .font(.subheadline)
@@ -53,7 +53,7 @@ struct OnboardingView: View {
                 .opacity(showContent ? 1 : 0)
                 .offset(y: showContent ? 0 : 10)
 
-                Spacer().frame(height: 16)
+                Spacer().frame(height: 14)
 
                 // MARK: - Feature Pills
                 HStack(spacing: 12) {
@@ -64,11 +64,11 @@ struct OnboardingView: View {
                 .opacity(showContent ? 1 : 0)
                 .offset(y: showContent ? 0 : 10)
 
-                Spacer()
+                Spacer().frame(minHeight: 24, maxHeight: 48)
 
                 // MARK: - Input Fields
-                VStack(spacing: 14) {
-                    VStack(alignment: .leading, spacing: 6) {
+                VStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 5) {
                         Text("YOUR NAME")
                             .font(.caption.bold())
                             .foregroundStyle(.white.opacity(0.6))
@@ -77,12 +77,13 @@ struct OnboardingView: View {
                             .autocorrectionDisabled()
                             .font(.body)
                             .foregroundStyle(.white)
-                            .padding()
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 12)
                             .background(.white.opacity(0.12))
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
 
-                    VStack(alignment: .leading, spacing: 6) {
+                    VStack(alignment: .leading, spacing: 5) {
                         Text("HANDICAP INDEX")
                             .font(.caption.bold())
                             .foregroundStyle(.white.opacity(0.6))
@@ -90,7 +91,8 @@ struct OnboardingView: View {
                             .keyboardType(.decimalPad)
                             .font(.body)
                             .foregroundStyle(.white)
-                            .padding()
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 12)
                             .background(.white.opacity(0.12))
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
@@ -99,7 +101,7 @@ struct OnboardingView: View {
                 .opacity(showFields ? 1 : 0)
                 .offset(y: showFields ? 0 : 20)
 
-                Spacer().frame(height: 28)
+                Spacer().frame(height: 24)
 
                 // MARK: - Get Started Button
                 Button {
@@ -119,6 +121,8 @@ struct OnboardingView: View {
                 .opacity(name.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1)
                 .opacity(showFields ? 1 : 0)
 
+                Spacer().frame(height: 12)
+
                 // MARK: - Legal Links
                 HStack(spacing: 16) {
                     Link("Terms of Service", destination: AppURLs.terms)
@@ -127,7 +131,8 @@ struct OnboardingView: View {
                 }
                 .font(.caption2)
                 .foregroundStyle(.white.opacity(0.5))
-                .padding(.bottom, 16)
+
+                Spacer().frame(height: 24)
             }
         }
         .onAppear {
