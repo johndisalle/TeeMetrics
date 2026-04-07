@@ -23,7 +23,7 @@ struct TeeMetricsApp: App {
             PracticeSession.self,
             PracticeShot.self,
         ])
-        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, cloudKitDatabase: .none)
         do {
             return try ModelContainer(for: schema, configurations: [config])
         } catch {
