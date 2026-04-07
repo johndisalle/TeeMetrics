@@ -394,7 +394,7 @@ struct DashboardView: View {
                 Spacer()
             }
             .padding()
-            .background(remaining > 0 ? Theme.cardBackground : AnyShapeStyle(Theme.golfGradient))
+            .background(remaining > 0 ? AnyShapeStyle(Theme.cardBackground) : AnyShapeStyle(Theme.golfGradient))
             .clipShape(RoundedRectangle(cornerRadius: 14))
             .shadow(color: .black.opacity(0.06), radius: 6, y: 3)
         }
