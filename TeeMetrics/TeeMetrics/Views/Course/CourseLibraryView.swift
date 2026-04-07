@@ -11,6 +11,7 @@ struct CourseLibraryView: View {
     @State private var searchText = ""
     @State private var showAddCourse = false
     @State private var showBundledBrowser = false
+    @State private var showCommunityBrowser = false
 
     private var filteredCourses: [GolfCourse] {
         if searchText.isEmpty { return courses }
@@ -51,6 +52,12 @@ struct CourseLibraryView: View {
                             Label("Browse 500+ Courses", systemImage: "building.2.fill")
                         }
                         Button {
+                            showCommunityBrowser = true
+                        } label: {
+                            Label("Community Courses", systemImage: "person.3.fill")
+                        }
+                        Divider()
+                        Button {
                             showAddCourse = true
                         } label: {
                             Label("Create Custom Course", systemImage: "plus.circle")
@@ -65,6 +72,9 @@ struct CourseLibraryView: View {
             }
             .sheet(isPresented: $showBundledBrowser) {
                 BundledCourseBrowser()
+            }
+            .sheet(isPresented: $showCommunityBrowser) {
+                CommunityCourseBrowser()
             }
         }
     }

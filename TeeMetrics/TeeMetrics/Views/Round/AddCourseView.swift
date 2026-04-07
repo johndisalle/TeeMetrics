@@ -19,6 +19,8 @@ struct AddCourseView: View {
     @State private var holes: [EditableHole] = (1...18).map { EditableHole(number: $0) }
     @State private var cameraPosition: MapCameraPosition = .automatic
     @State private var pinLocation: CLLocationCoordinate2D?
+    @State private var showSharePrompt = false
+    @State private var savedCourse: GolfCourse?
 
     struct EditableHole: Identifiable {
         let id = UUID()
@@ -112,6 +114,21 @@ struct AddCourseView: View {
                         .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
+            .alert("Share with Community?", isPresented: $showSharePrompt) {
+                Button("Share") {
+                    if let course = savedCourse {
+                        Task {
+                            _ = await CloudKitCourseService.shared.shareCourse(course, contributorName: "TeeMetrics User")
+                        }
+                    }
+                    dismiss()
+                }
+                Button("No Thanks", role: .cancel) {
+                    dismiss()
+                }
+            } message: {
+                Text("Help other golfers! Share this course with the TeeMetrics community.")
+            }
         }
     }
 
@@ -161,7 +178,15 @@ struct AddCourseView: View {
         }
 
         Haptics.success()
+        savedCourse = course
         onCourseCreated?(course)
-        dismiss()
+
+        // Prompt to share with community
+        if CloudKitCourseService.shared.isAvailable {
+            showSharePrompt = true
+        } else {
+            dismiss()
+        }
     }
 }
+
