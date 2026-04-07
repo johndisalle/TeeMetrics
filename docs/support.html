@@ -19,9 +19,8 @@
         .contact-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; margin: 20px 0; text-align: center; }
         .contact-card .email { font-size: 20px; font-weight: 600; color: #1a4d33; }
         .faq { background: #fff; border: 1px solid #eee; border-radius: 12px; margin: 12px 0; overflow: hidden; }
-        .faq-q { padding: 16px 20px; font-weight: 600; font-size: 15px; cursor: pointer; }
+        .faq-q { padding: 16px 20px; font-weight: 600; font-size: 15px; }
         .faq-a { padding: 0 20px 16px; font-size: 14px; color: #555; }
-        .badge { display: inline-block; background: #e8f5e9; color: #1a4d33; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; margin-bottom: 8px; }
         .footer { text-align: center; padding: 32px; font-size: 13px; color: #999; border-top: 1px solid #eee; }
     </style>
 </head>
@@ -43,93 +42,131 @@
         <div class="faq">
             <div class="faq-q">How do I start my first round?</div>
             <div class="faq-a">
-                <p>From the Home tab, tap "Start New Round." You'll be prompted to select or create a course, then you'll jump into the live round logger where you can score hole-by-hole. If you haven't added a course yet, tap "Add New Course" in the round setup.</p>
+                <p>From the Home tab, tap "Start New Round." You can select from 660+ pre-loaded courses, search community courses, or create a custom course. If location is enabled, TeeMetrics will suggest nearby courses automatically. Select a course and bag, then start scoring with the quick-score buttons (one tap per hole) or detailed mode.</p>
+            </div>
+        </div>
+
+        <div class="faq">
+            <div class="faq-q">What are the quick-score buttons?</div>
+            <div class="faq-a">
+                <p>Quick-score lets you score any hole in a single tap. Five buttons appear for each hole: Eagle, Birdie, Par, Bogey, and Double. Tap one and you're done — the score is set instantly. For unusual scores (triple bogey, etc.), tap "Other Score..." to expand the +/- stepper.</p>
+            </div>
+        </div>
+
+        <div class="faq">
+            <div class="faq-q">How do I choose a bag template?</div>
+            <div class="faq-a">
+                <p>During onboarding, tap the "Bag Setup" field to choose from 6 templates: Beginner, Standard, Low Handicap, Senior, Women's, and Junior. Each has realistic club selections and average distances. You can also change your bag anytime in the Bag tab — tap the + button and select "Reset to Template."</p>
+            </div>
+        </div>
+
+        <div class="faq">
+            <div class="faq-q">How do I find my golf course?</div>
+            <div class="faq-a">
+                <p>TeeMetrics includes 660+ pre-loaded courses across the US. When starting a round, use the search bar or browse by state. If your course isn't listed, tap "Create Custom Course" and enter the hole-by-hole data. You can also check "Community Courses" for courses shared by other users.</p>
+            </div>
+        </div>
+
+        <div class="faq">
+            <div class="faq-q">What does "Verify scorecard before your round" mean?</div>
+            <div class="faq-a">
+                <p>Pre-loaded course data may not be perfectly accurate — courses get renovated, tees change, and yardages shift. We recommend reviewing the par and yardage for each hole before your round and editing any that look off. Your corrections are saved locally.</p>
+            </div>
+        </div>
+
+        <div class="faq">
+            <div class="faq-q">How do I share a course with the community?</div>
+            <div class="faq-a">
+                <p>After creating a custom course, you'll be asked "Share with Community?" Tap Share and the course data will be uploaded anonymously to the TeeMetrics community database. Other users can then discover and import your course. This requires an iCloud account.</p>
             </div>
         </div>
 
         <div class="faq">
             <div class="faq-q">Where is my data stored?</div>
             <div class="faq-a">
-                <p>All data is stored locally on your device by default. We never collect or transmit your data to external servers. If you enable iCloud Sync in Settings, your data will additionally sync to your personal iCloud account.</p>
+                <p>All personal data (rounds, scores, stats, clubs) is stored locally on your device. The only data that leaves your device is if you choose to share a course with the community (anonymized course data via CloudKit) or share a round card/PDF with friends.</p>
             </div>
         </div>
 
         <div class="faq">
-            <div class="faq-q">How do I export my round data?</div>
+            <div class="faq-q">How do club recommendations work?</div>
             <div class="faq-a">
-                <p>Go to Settings > Export CSV. This creates a comma-separated file with all your completed rounds including date, course, score, putts, fairway percentage, and GIR percentage. You can share this file via email, AirDrop, or save it to Files.</p>
+                <p>TeeMetrics uses your bag's average distances to suggest the right club for each shot. On the scoring screen, you'll see tips like "From 155 yds, your 7-iron averages 158. Hit it." The more shots you track, the more accurate recommendations become.</p>
+            </div>
+        </div>
+
+        <div class="faq">
+            <div class="faq-q">What are Siri Shortcuts?</div>
+            <div class="faq-a">
+                <p>TeeMetrics supports three Siri Shortcuts: "Hey Siri, start a round in TeeMetrics" opens the app ready to play. "What's my handicap in TeeMetrics" reads your current index. "How did my last round go in TeeMetrics" reads your most recent score. These work hands-free on the course.</p>
             </div>
         </div>
 
         <div class="faq">
             <div class="faq-q">How is my handicap calculated?</div>
             <div class="faq-a">
-                <p>TeeMetrics uses a simplified version of the USGA handicap formula. It calculates score differentials for your most recent 20 rounds, selects the best differentials (number varies by total rounds), averages them, and multiplies by 0.96. Please note this is an approximation — for an official handicap, register with your local golf association or GHIN.</p>
+                <p>TeeMetrics uses a simplified version of the USGA handicap formula. It calculates score differentials for your most recent 20 rounds, selects the best differentials, averages them, and multiplies by 0.96. The handicap projection feature estimates where your handicap is heading based on your improvement rate. Please note these are approximations — for an official handicap, register with your local golf association or GHIN.</p>
             </div>
         </div>
 
         <div class="faq">
             <div class="faq-q">What is Strokes Gained?</div>
             <div class="faq-a">
-                <p>Strokes Gained is an advanced stat that compares your performance to a baseline in four categories: Off the Tee, Approach, Short Game, and Putting. Positive values mean you're gaining strokes (better than baseline), negative means you're losing strokes. TeeMetrics uses simplified PGA baselines for these calculations. Strokes Gained is available to Pro subscribers.</p>
+                <p>Strokes Gained compares your performance to a baseline in four categories: Off the Tee, Approach, Short Game, and Putting. Positive values mean you're gaining strokes (better than baseline), negative means you're losing strokes. TeeMetrics uses simplified PGA baselines. Strokes Gained is available after your first 5 rounds, or immediately with Pro.</p>
             </div>
         </div>
 
         <div class="faq">
             <div class="faq-q">What's included in TeeMetrics Pro?</div>
             <div class="faq-a">
-                <p>Pro unlocks: advanced analytics and trends (50+ rounds), strokes gained breakdown, club distance heatmaps, unlimited round history, CSV and PDF export, custom club sets, iCloud sync, and an ad-free experience. Available as monthly ($4.99), yearly ($29.99), or lifetime ($49.99).</p>
+                <p>Pro unlocks everything: advanced analytics and score trends, strokes gained breakdown, handicap projection, round comparison, club recommendations, goal setting, 17 achievements, streak tracking, practice session logging, 6 bag templates, PDF round reports, shareable round cards (Instagram feed and story formats), CSV export, community course sharing, smart notifications, and weekly recaps. Available as monthly ($4.99), yearly ($29.99 with 3-day free trial), or lifetime ($49.99).</p>
             </div>
         </div>
 
         <div class="faq">
             <div class="faq-q">How do I cancel my subscription?</div>
             <div class="faq-a">
-                <p>Subscriptions are managed through your Apple ID. Go to iPhone Settings > [Your Name] > Subscriptions > TeeMetrics > Cancel Subscription. Your Pro features will remain active until the end of the current billing period.</p>
+                <p>Subscriptions are managed through your Apple ID. Go to iPhone Settings &gt; [Your Name] &gt; Subscriptions &gt; TeeMetrics &gt; Cancel Subscription. Your Pro features will remain active until the end of the current billing period. If you're on the 3-day free trial, cancel before the trial ends to avoid being charged.</p>
             </div>
         </div>
 
         <div class="faq">
             <div class="faq-q">Can I get a refund?</div>
             <div class="faq-a">
-                <p>Refunds are handled by Apple. Visit <a href="https://reportaproblem.apple.com" target="_blank">reportaproblem.apple.com</a>, sign in with your Apple ID, find the TeeMetrics purchase, and request a refund. Apple typically processes refund requests within 48 hours.</p>
-            </div>
-        </div>
-
-        <div class="faq">
-            <div class="faq-q">I lost my data. Can you recover it?</div>
-            <div class="faq-a">
-                <p>Because all data is stored locally on your device, we cannot recover data that has been deleted or lost due to device issues. We strongly recommend enabling iCloud Sync and periodically exporting your data as CSV to prevent data loss.</p>
+                <p>Refunds are handled by Apple. Visit <a href="https://reportaproblem.apple.com" target="_blank">reportaproblem.apple.com</a>, sign in with your Apple ID, find the TeeMetrics purchase, and request a refund.</p>
             </div>
         </div>
 
         <div class="faq">
             <div class="faq-q">Does TeeMetrics work on Apple Watch?</div>
             <div class="faq-a">
-                <p>Yes! TeeMetrics includes a companion Apple Watch app for quick score entry during rounds. You can log scores and putts for each hole directly from your wrist. The Watch app is available to all users (free and Pro).</p>
+                <p>Yes! TeeMetrics includes a companion Apple Watch app for quick score entry during rounds. You can log scores and putts for each hole with color-coded feedback (red for birdie, green for par). The Watch syncs with your iPhone via WatchConnectivity so your data stays in sync.</p>
             </div>
         </div>
 
         <div class="faq">
-            <div class="faq-q">How do I add a custom course?</div>
+            <div class="faq-q">I lost my data. Can you recover it?</div>
             <div class="faq-a">
-                <p>When starting a new round, tap "Add New Course." Enter the course name, city, state, slope rating, and course rating. You can set up each hole's par and yardage individually, or use the "Standard Par 72 Layout" quick-fill button. You can also optionally pin the location on the map.</p>
+                <p>Because all data is stored locally on your device, we cannot recover data that has been deleted or lost due to device issues. We strongly recommend periodically exporting your data as CSV to prevent data loss.</p>
             </div>
         </div>
 
         <h2>Troubleshooting</h2>
 
         <h3>App is slow or freezing</h3>
-        <p>Try force-quitting and reopening the app. If the issue persists, restart your device. TeeMetrics is designed to run smoothly with thousands of rounds, but very large datasets may benefit from periodic CSV export and data cleanup.</p>
+        <p>Try force-quitting and reopening the app. If the issue persists, restart your device.</p>
 
         <h3>Scores not saving</h3>
         <p>TeeMetrics auto-saves as you score. If scores appear to be lost, ensure you haven't accidentally tapped "Delete All Data" in Settings. Check that your device has sufficient storage space.</p>
 
-        <h3>iCloud Sync not working</h3>
-        <p>Verify that iCloud is enabled in your device's Settings > [Your Name] > iCloud. Ensure TeeMetrics has iCloud access enabled. Try toggling iCloud Sync off and on in TeeMetrics Settings. Sync may take a few minutes depending on your connection.</p>
+        <h3>Community courses not loading</h3>
+        <p>Community courses require an iCloud account. Make sure you're signed into iCloud on your device (Settings &gt; [Your Name]). If you see "Field not queryable" errors, the community database may still be setting up — try again in a few minutes.</p>
+
+        <h3>Widget not appearing</h3>
+        <p>After installing TeeMetrics, long-press your home screen, tap +, and search for "TeeMetrics." If it doesn't appear, try restarting your device. The widget shows your most recent round stats or live scoring during a round.</p>
 
         <h2>Feature Requests & Bug Reports</h2>
-        <p>We're constantly improving TeeMetrics and love hearing from golfers. If you have a feature request or found a bug, please email us at <strong>support@ellasid.com</strong> with:</p>
+        <p>We're constantly improving TeeMetrics and love hearing from golfers. Email us at <strong>support@ellasid.com</strong> with:</p>
         <ul>
             <li>Your device model and iOS version</li>
             <li>A description of the issue or feature request</li>
@@ -141,6 +178,7 @@
             <li><strong>Current Version:</strong> 1.0.0</li>
             <li><strong>Requires:</strong> iOS 17.0 or later</li>
             <li><strong>Compatibility:</strong> iPhone, Apple Watch</li>
+            <li><strong>Pre-loaded Courses:</strong> 660+</li>
             <li><strong>Developer:</strong> TeeMetrics</li>
         </ul>
     </div>

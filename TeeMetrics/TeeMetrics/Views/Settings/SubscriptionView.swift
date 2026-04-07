@@ -1,5 +1,5 @@
 // MARK: - Subscription View
-// StoreKit 2 paywall with all Pro features listed, 3-day trial, progressive gating
+// StoreKit 2 paywall with all Pro features, 3-day trial, progressive gating
 
 import SwiftUI
 import StoreKit
@@ -25,7 +25,6 @@ struct SubscriptionView: View {
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
 
-                    // Free rounds remaining
                     if !manager.isProUser {
                         let remaining = GatingManager.shared.freeRoundsRemaining
                         if remaining > 0 {
@@ -46,27 +45,41 @@ struct SubscriptionView: View {
                         .padding(.bottom, 2)
 
                     // Analytics & Insights
+                    sectionLabel("Analytics & Insights")
                     proFeature("chart.line.uptrend.xyaxis", "Advanced analytics & score trends")
                     proFeature("scope", "Strokes gained breakdown (off-tee, approach, short game, putting)")
-                    proFeature("chart.line.downtrend.xyaxis", "Handicap projection & progress tracking")
+                    proFeature("chart.line.downtrend.xyaxis", "Handicap projection — see where your game is heading")
                     proFeature("arrow.left.arrow.right", "Round comparison — overlay two rounds side by side")
-                    proFeature("lightbulb.fill", "Club recommendations — know exactly which club to hit")
+                    proFeature("lightbulb.fill", "Club recommendations — \"From 155 yds, hit your 7-iron\"")
 
                     Divider().padding(.vertical, 4)
 
-                    // Tracking & Tools
-                    proFeature("target", "Goal setting with progress tracking")
-                    proFeature("trophy.fill", "Achievements & milestones")
-                    proFeature("figure.golf", "Practice & range session tracking")
+                    // On-Course Tools
+                    sectionLabel("On-Course Tools")
+                    proFeature("bolt.fill", "Quick-score mode — score any hole in one tap")
+                    proFeature("party.popper.fill", "Post-round celebrations with confetti & stat reveals")
+                    proFeature("mic.fill", "Siri Shortcuts — \"Hey Siri, start a round\"")
+                    proFeature("applewatch", "Apple Watch live scoring with phone sync")
+                    proFeature("mappin.and.ellipse", "660+ pre-loaded courses with auto-detection")
+
+                    Divider().padding(.vertical, 4)
+
+                    // Tracking & Goals
+                    sectionLabel("Tracking & Goals")
+                    proFeature("target", "Goal setting — break 80, lower handicap, and more")
+                    proFeature("trophy.fill", "17 achievements & milestones to unlock")
+                    proFeature("flame.fill", "Streak tracking — keep your weekly streak alive")
+                    proFeature("figure.golf", "Practice & range session logging")
+                    proFeature("bag.fill", "6 bag templates + custom club sets")
+
+                    Divider().padding(.vertical, 4)
+
+                    // Sharing & Export
+                    sectionLabel("Sharing & Export")
+                    proFeature("photo.fill", "Shareable round cards (Instagram feed & story)")
                     proFeature("doc.richtext", "Beautiful PDF round reports")
-                    proFeature("photo.fill", "Shareable round cards (feed & story formats)")
-
-                    Divider().padding(.vertical, 4)
-
-                    // Data & Sync
-                    proFeature("square.and.arrow.up", "CSV & PDF data export")
-                    proFeature("bag.fill", "Custom club sets & distance tracking")
-                    proFeature("infinity", "Unlimited round history & stats")
+                    proFeature("square.and.arrow.up", "CSV data export")
+                    proFeature("person.3.fill", "Community course sharing via CloudKit")
                     proFeature("bell.fill", "Smart notifications & weekly recaps")
                 }
                 .padding()
@@ -106,7 +119,6 @@ struct SubscriptionView: View {
                         )
                     }
 
-                    // MARK: - Guarantee
                     HStack(spacing: 8) {
                         Image(systemName: "shield.checkered")
                             .foregroundStyle(.green)
@@ -123,7 +135,6 @@ struct SubscriptionView: View {
                     .foregroundStyle(.secondary)
                     .padding(.top, 4)
 
-                    // MARK: - Legal
                     HStack(spacing: 16) {
                         Link("Terms of Service", destination: AppURLs.terms)
                         Text("·")
@@ -141,7 +152,13 @@ struct SubscriptionView: View {
         .task { await manager.loadProducts() }
     }
 
-    // MARK: - Feature Row
+    private func sectionLabel(_ text: String) -> some View {
+        Text(text)
+            .font(.caption2.bold())
+            .foregroundStyle(Theme.primary)
+            .padding(.top, 2)
+    }
+
     private func proFeature(_ icon: String, _ text: String) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
@@ -152,7 +169,6 @@ struct SubscriptionView: View {
         }
     }
 
-    // MARK: - Pricing Card
     private func pricingCard(
         title: String,
         price: String,

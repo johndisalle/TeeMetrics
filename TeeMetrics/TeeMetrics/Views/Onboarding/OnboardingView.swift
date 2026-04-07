@@ -64,6 +64,12 @@ struct OnboardingView: View {
                 HStack(spacing: 10) {
                     featureChip(icon: "bolt.fill", text: "Offline First")
                     featureChip(icon: "lock.fill", text: "100% Private")
+                }
+                .opacity(showFeatures ? 1 : 0)
+                .offset(y: showFeatures ? 0 : 8)
+
+                HStack(spacing: 10) {
+                    featureChip(icon: "mappin.and.ellipse", text: "660+ Courses")
                     featureChip(icon: "applewatch", text: "Apple Watch")
                 }
                 .opacity(showFeatures ? 1 : 0)
