@@ -17,6 +17,9 @@ struct OnboardingView: View {
     @State private var showButton = false
     @State private var pulseFlag = false
 
+    @State private var showBagPicker = false
+    @State private var selectedTemplate: BagTemplate = .standard
+
     var body: some View {
         ZStack {
             // MARK: - Background layers
@@ -28,9 +31,7 @@ struct OnboardingView: View {
 
                 // MARK: - Logo & Branding
                 VStack(spacing: 16) {
-                    // Animated flag with glow
                     ZStack {
-                        // Glow behind flag
                         Circle()
                             .fill(Theme.accent.opacity(0.15))
                             .frame(width: 100, height: 100)
@@ -49,7 +50,6 @@ struct OnboardingView: View {
                         Text("TeeMetrics")
                             .font(.system(size: 38, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
-
                         Text("Track Every Shot. Own Your Game.")
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(.white.opacity(0.55))
@@ -71,9 +71,8 @@ struct OnboardingView: View {
 
                 Spacer()
 
-                // MARK: - Input Card (glass morphism)
+                // MARK: - Input Card
                 VStack(spacing: 16) {
-                    // Name field
                     VStack(alignment: .leading, spacing: 5) {
                         Text("YOUR NAME")
                             .font(.system(size: 11, weight: .bold))
@@ -98,28 +97,62 @@ struct OnboardingView: View {
                         )
                     }
 
-                    // Handicap field
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("HANDICAP INDEX")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(.white.opacity(0.45))
-                            .kerning(1.2)
-                        HStack(spacing: 10) {
-                            Image(systemName: "number")
-                                .font(.system(size: 14))
-                                .foregroundStyle(.white.opacity(0.35))
-                            TextField("", text: $handicap, prompt: Text("Optional").foregroundStyle(.white.opacity(0.3)))
-                                .keyboardType(.decimalPad)
-                                .foregroundStyle(.white)
+                    HStack(spacing: 12) {
+                        // Handicap
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text("HANDICAP")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(.white.opacity(0.45))
+                                .kerning(1.2)
+                            HStack(spacing: 10) {
+                                Image(systemName: "number")
+                                    .font(.system(size: 14))
+                                    .foregroundStyle(.white.opacity(0.35))
+                                TextField("", text: $handicap, prompt: Text("Optional").foregroundStyle(.white.opacity(0.3)))
+                                    .keyboardType(.decimalPad)
+                                    .foregroundStyle(.white)
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 13)
+                            .background(.white.opacity(0.08))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(.white.opacity(0.1), lineWidth: 1)
+                            )
                         }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 13)
-                        .background(.white.opacity(0.08))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(.white.opacity(0.1), lineWidth: 1)
-                        )
+
+                        // Bag template picker
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text("BAG SETUP")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(.white.opacity(0.45))
+                                .kerning(1.2)
+                            Button {
+                                showBagPicker = true
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: selectedTemplate.icon)
+                                        .font(.system(size: 14))
+                                        .foregroundStyle(.white.opacity(0.6))
+                                    Text(selectedTemplate.rawValue)
+                                        .font(.system(size: 15))
+                                        .foregroundStyle(.white.opacity(0.7))
+                                    Spacer()
+                                    Image(systemName: "chevron.down")
+                                        .font(.system(size: 11))
+                                        .foregroundStyle(.white.opacity(0.3))
+                                }
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 13)
+                                .background(.white.opacity(0.08))
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(.white.opacity(0.1), lineWidth: 1)
+                                )
+                            }
+                        }
                     }
                 }
                 .padding(20)
@@ -181,6 +214,44 @@ struct OnboardingView: View {
             }
         }
         .onAppear { startAnimations() }
+        .sheet(isPresented: $showBagPicker) {
+            OnboardingBagSheet(selectedTemplate: $selectedTemplate)
+        }
+    }
+
+    // MARK: - Inline Bag Template Sheet
+    struct OnboardingBagSheet: View {
+        @Environment(\.dismiss) private var dismiss
+        @Binding var selectedTemplate: BagTemplate
+
+        var body: some View {
+            NavigationStack {
+                ScrollView {
+                    VStack(spacing: 12) {
+                        ForEach(BagTemplate.allCases) { template in
+                            BagTemplateCard(
+                                template: template,
+                                isSelected: selectedTemplate == template,
+                                onTap: {
+                                    selectedTemplate = template
+                                    Haptics.selection()
+                                    dismiss()
+                                }
+                            )
+                        }
+                    }
+                    .padding()
+                }
+                .navigationTitle("Choose Bag")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { dismiss() }
+                    }
+                }
+            }
+            .presentationDetents([.medium, .large])
+        }
     }
 
     // MARK: - Background Gradient (deeper, richer)
@@ -271,7 +342,7 @@ struct OnboardingView: View {
         )
         modelContext.insert(golfer)
 
-        let bag = Bag.createDefault()
+        let bag = Bag.createFromTemplate(selectedTemplate)
         modelContext.insert(bag)
         golfer.defaultBagID = bag.id
 

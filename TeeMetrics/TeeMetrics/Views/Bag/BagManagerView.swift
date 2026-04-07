@@ -8,6 +8,7 @@ struct BagManagerView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(filter: #Predicate<Bag> { $0.isDefault == true }) private var bags: [Bag]
     @State private var showAddClub = false
+    @State private var showTemplatePicker = false
 
     private var bag: Bag? { bags.first }
 
@@ -47,8 +48,17 @@ struct BagManagerView: View {
             .navigationTitle("My Bag")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        showAddClub = true
+                    Menu {
+                        Button {
+                            showAddClub = true
+                        } label: {
+                            Label("Add Club", systemImage: "plus.circle")
+                        }
+                        Button {
+                            showTemplatePicker = true
+                        } label: {
+                            Label("Reset to Template", systemImage: "arrow.counterclockwise")
+                        }
                     } label: {
                         Image(systemName: "plus")
                     }
@@ -56,6 +66,9 @@ struct BagManagerView: View {
             }
             .sheet(isPresented: $showAddClub) {
                 AddClubView(bag: bag)
+            }
+            .sheet(isPresented: $showTemplatePicker) {
+                BagTemplatePicker()
             }
         }
     }

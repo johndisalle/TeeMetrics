@@ -88,26 +88,147 @@ final class Bag {
 
     // MARK: - Default Bag Factory
     static func createDefault() -> Bag {
-        let bag = Bag(name: "My Bag", isDefault: true)
-        let defaultClubs: [(String, String, Int, Int)] = [
-            ("Driver", "driver", 240, 0),
-            ("3 Wood", "wood", 215, 1),
-            ("5 Wood", "wood", 200, 2),
-            ("4 Hybrid", "hybrid", 190, 3),
-            ("5 Iron", "iron", 175, 4),
-            ("6 Iron", "iron", 165, 5),
-            ("7 Iron", "iron", 155, 6),
-            ("8 Iron", "iron", 145, 7),
-            ("9 Iron", "iron", 135, 8),
-            ("PW", "wedge", 120, 9),
-            ("GW", "wedge", 105, 10),
-            ("SW", "wedge", 90, 11),
-            ("LW", "wedge", 70, 12),
-            ("Putter", "putter", 0, 13),
-        ]
-        for (name, type, dist, order) in defaultClubs {
-            bag.clubs.append(Club(name: name, clubType: type, avgDistance: dist, sortOrder: order, bag: bag))
+        createFromTemplate(.standard)
+    }
+
+    // MARK: - Bag Templates
+    static func createFromTemplate(_ template: BagTemplate) -> Bag {
+        let bag = Bag(name: template.name, isDefault: true)
+        for (i, club) in template.clubs.enumerated() {
+            bag.clubs.append(Club(name: club.0, clubType: club.1, avgDistance: club.2, sortOrder: i, bag: bag))
         }
         return bag
+    }
+}
+
+// MARK: - Bag Template
+enum BagTemplate: String, CaseIterable, Identifiable {
+    case beginner = "Beginner"
+    case standard = "Standard"
+    case lowHandicap = "Low Handicap"
+    case senior = "Senior"
+    case womens = "Women's"
+    case junior = "Junior"
+
+    var id: String { rawValue }
+
+    var name: String { rawValue + " Bag" }
+
+    var subtitle: String {
+        switch self {
+        case .beginner: return "Forgiving setup, 11 clubs"
+        case .standard: return "Classic 14-club setup"
+        case .lowHandicap: return "Players irons, extra wedges"
+        case .senior: return "More hybrids, higher launch"
+        case .womens: return "Adjusted distances, more fairway woods"
+        case .junior: return "Compact starter set, 9 clubs"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .beginner: return "hand.wave.fill"
+        case .standard: return "bag.fill"
+        case .lowHandicap: return "trophy.fill"
+        case .senior: return "figure.walk"
+        case .womens: return "figure.stand"
+        case .junior: return "figure.and.child.holdinghands"
+        }
+    }
+
+    var clubCount: Int { clubs.count }
+
+    // (name, type, avgDistance)
+    var clubs: [(String, String, Int)] {
+        switch self {
+        case .beginner:
+            return [
+                ("Driver", "driver", 200),
+                ("5 Wood", "wood", 170),
+                ("5 Hybrid", "hybrid", 155),
+                ("7 Iron", "iron", 130),
+                ("8 Iron", "iron", 120),
+                ("9 Iron", "iron", 110),
+                ("PW", "wedge", 95),
+                ("SW", "wedge", 70),
+                ("Putter", "putter", 0),
+            ]
+        case .standard:
+            return [
+                ("Driver", "driver", 240),
+                ("3 Wood", "wood", 215),
+                ("5 Wood", "wood", 200),
+                ("4 Hybrid", "hybrid", 190),
+                ("5 Iron", "iron", 175),
+                ("6 Iron", "iron", 165),
+                ("7 Iron", "iron", 155),
+                ("8 Iron", "iron", 145),
+                ("9 Iron", "iron", 135),
+                ("PW", "wedge", 120),
+                ("GW", "wedge", 105),
+                ("SW", "wedge", 90),
+                ("LW", "wedge", 70),
+                ("Putter", "putter", 0),
+            ]
+        case .lowHandicap:
+            return [
+                ("Driver", "driver", 275),
+                ("3 Wood", "wood", 250),
+                ("3 Iron", "iron", 220),
+                ("4 Iron", "iron", 210),
+                ("5 Iron", "iron", 195),
+                ("6 Iron", "iron", 183),
+                ("7 Iron", "iron", 170),
+                ("8 Iron", "iron", 158),
+                ("9 Iron", "iron", 145),
+                ("PW", "wedge", 132),
+                ("50\u{00B0}", "wedge", 115),
+                ("54\u{00B0}", "wedge", 100),
+                ("58\u{00B0}", "wedge", 80),
+                ("Putter", "putter", 0),
+            ]
+        case .senior:
+            return [
+                ("Driver", "driver", 210),
+                ("3 Wood", "wood", 190),
+                ("5 Wood", "wood", 175),
+                ("7 Wood", "wood", 160),
+                ("4 Hybrid", "hybrid", 155),
+                ("5 Hybrid", "hybrid", 145),
+                ("6 Iron", "iron", 140),
+                ("7 Iron", "iron", 130),
+                ("8 Iron", "iron", 120),
+                ("9 Iron", "iron", 110),
+                ("PW", "wedge", 100),
+                ("SW", "wedge", 75),
+                ("Putter", "putter", 0),
+            ]
+        case .womens:
+            return [
+                ("Driver", "driver", 180),
+                ("3 Wood", "wood", 160),
+                ("5 Wood", "wood", 145),
+                ("7 Wood", "wood", 130),
+                ("5 Hybrid", "hybrid", 125),
+                ("6 Hybrid", "hybrid", 115),
+                ("7 Iron", "iron", 105),
+                ("8 Iron", "iron", 95),
+                ("9 Iron", "iron", 85),
+                ("PW", "wedge", 75),
+                ("SW", "wedge", 55),
+                ("Putter", "putter", 0),
+            ]
+        case .junior:
+            return [
+                ("Driver", "driver", 160),
+                ("5 Wood", "wood", 130),
+                ("5 Hybrid", "hybrid", 115),
+                ("7 Iron", "iron", 100),
+                ("9 Iron", "iron", 80),
+                ("PW", "wedge", 65),
+                ("SW", "wedge", 45),
+                ("Putter", "putter", 0),
+            ]
+        }
     }
 }
