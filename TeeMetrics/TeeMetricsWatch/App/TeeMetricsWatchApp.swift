@@ -3,6 +3,7 @@
 
 import SwiftUI
 
+@main
 struct TeeMetricsWatchApp: App {
     var body: some Scene {
         WindowGroup {
