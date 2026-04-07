@@ -3,6 +3,7 @@
 // Quick score entry, putts, running total
 
 import SwiftUI
+import Combine
 import WatchConnectivity
 
 struct WatchRoundView: View {
