@@ -132,8 +132,9 @@ struct DashboardView: View {
 
         if streak >= 2 {
             HStack(spacing: 12) {
-                Text("🔥")
+                Image(systemName: "flame.fill")
                     .font(.title2)
+                    .foregroundStyle(.orange)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(streak)-week streak!")
                         .font(.subheadline.bold())
@@ -300,7 +301,7 @@ struct DashboardView: View {
                 StatCard(
                     title: "Avg Putts",
                     value: String(format: "%.1f", StatsCalculator.averagePutts(rounds: completedRounds)),
-                    icon: "circle.fill",
+                    icon: "hockey.puck.fill",
                     color: .orange
                 )
             }
