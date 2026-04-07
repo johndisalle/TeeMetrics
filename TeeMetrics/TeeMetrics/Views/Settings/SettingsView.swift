@@ -13,7 +13,6 @@ struct SettingsView: View {
     @AppStorage("selectedAppearance") private var selectedAppearance = "system"
     @State private var showExportSheet = false
     @State private var showDeleteAlert = false
-    @State private var showSampleDataLoaded = false
     @State private var exportData = ""
 
     private var golfer: Golfer? { golfers.first }
@@ -89,13 +88,6 @@ struct SettingsView: View {
                         Label("Course Library", systemImage: "flag.fill")
                     }
 
-                    Button {
-                        SampleDataSeeder.loadSampleData(into: modelContext)
-                        showSampleDataLoaded = true
-                        Haptics.success()
-                    } label: {
-                        Label("Load Sample Data", systemImage: "tray.and.arrow.down.fill")
-                    }
                 }
 
                 // MARK: - Appearance
@@ -180,11 +172,6 @@ struct SettingsView: View {
                 Button("Cancel", role: .cancel) { }
             } message: {
                 Text("This cannot be undone. All rounds, courses, and clubs will be permanently deleted.")
-            }
-            .alert("Sample Data Loaded", isPresented: $showSampleDataLoaded) {
-                Button("OK") { }
-            } message: {
-                Text("2 courses and 5 demo rounds have been added. Check your Dashboard and Stats!")
             }
             .sheet(isPresented: $showExportSheet) {
                 ShareLink(item: exportData)
