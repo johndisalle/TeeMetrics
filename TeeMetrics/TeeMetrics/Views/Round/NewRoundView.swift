@@ -16,6 +16,7 @@ struct NewRoundView: View {
     @State private var playerNames = ""
     @State private var weatherNotes = ""
     @State private var showAddCourse = false
+    @State private var showBundledBrowser = false
     @State private var searchText = ""
     @State private var navigateToRound = false
     @State private var createdRound: GolfRound?
@@ -77,6 +78,13 @@ struct NewRoundView: View {
                     } label: {
                         Label("Add New Course", systemImage: "plus.circle")
                     }
+
+                    Button {
+                        showBundledBrowser = true
+                    } label: {
+                        Label("Browse 500+ Courses", systemImage: "building.2.fill")
+                            .foregroundStyle(Theme.primary)
+                    }
                 }
 
                 // MARK: - Players
@@ -117,6 +125,12 @@ struct NewRoundView: View {
             .sheet(isPresented: $showAddCourse) {
                 AddCourseView { course in
                     selectedCourse = course
+                }
+            }
+            .sheet(isPresented: $showBundledBrowser) {
+                BundledCourseBrowser { course in
+                    selectedCourse = course
+                    showBundledBrowser = false
                 }
             }
             .navigationDestination(isPresented: $navigateToRound) {
