@@ -76,6 +76,16 @@ struct SubscriptionView: View {
                     }
                     .font(.caption)
                     .foregroundStyle(.secondary)
+
+                    // MARK: - Legal (required by App Store for paywall)
+                    HStack(spacing: 16) {
+                        Link("Terms of Service", destination: URL(string: "https://johndisalle.github.io/TeeMetrics/terms")!)
+                        Text("·")
+                        Link("Privacy Policy", destination: URL(string: "https://johndisalle.github.io/TeeMetrics/privacy")!)
+                    }
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 4)
                 }
             }
             .padding()

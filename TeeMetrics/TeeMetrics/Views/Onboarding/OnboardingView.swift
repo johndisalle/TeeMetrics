@@ -119,7 +119,15 @@ struct OnboardingView: View {
                 .opacity(name.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1)
                 .opacity(showFields ? 1 : 0)
 
-                Spacer().frame(height: 40)
+                // MARK: - Legal Links
+                HStack(spacing: 16) {
+                    Link("Terms of Service", destination: URL(string: "https://johndisalle.github.io/TeeMetrics/terms")!)
+                    Text("·").foregroundStyle(.white.opacity(0.4))
+                    Link("Privacy Policy", destination: URL(string: "https://johndisalle.github.io/TeeMetrics/privacy")!)
+                }
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.5))
+                .padding(.bottom, 16)
             }
         }
         .onAppear {
