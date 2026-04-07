@@ -18,12 +18,18 @@ extension Date {
 
 // MARK: - View Modifiers
 struct CardStyle: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+
     func body(content: Content) -> some View {
         content
             .padding()
             .background(Theme.cardBackground)
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
+            .shadow(
+                color: colorScheme == .dark ? .white.opacity(0.04) : .black.opacity(0.06),
+                radius: colorScheme == .dark ? 2 : 4,
+                y: colorScheme == .dark ? 1 : 2
+            )
     }
 }
 

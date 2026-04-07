@@ -219,6 +219,7 @@ struct OnboardingView: View {
                 Spacer().frame(height: 28)
             }
         }
+        .onTapGesture { UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil) }
         .onAppear { startAnimations() }
         .sheet(isPresented: $showBagPicker) {
             OnboardingBagSheet(selectedTemplate: $selectedTemplate)

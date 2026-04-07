@@ -59,9 +59,7 @@ struct AddCourseView: View {
                     }
                     .frame(height: 200)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .onTapGesture { /* MapKit handles pin placement via long press */ }
-
-                    Text("Tap the map to set location (optional)")
+                    Text("Location is optional — used for nearby course suggestions")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

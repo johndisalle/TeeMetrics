@@ -36,7 +36,7 @@ struct AchievementsView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 14))
 
                 // Achievement grid
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: 12) {
                     ForEach(Achievement.allCases) { achievement in
                         let earned = earnedSet.contains(achievement.rawValue)
                         AchievementCard(achievement: achievement, isEarned: earned)

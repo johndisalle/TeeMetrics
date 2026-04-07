@@ -317,9 +317,13 @@ struct DashboardView: View {
                 NavigationLink {
                     RoundHistoryView()
                 } label: {
-                    Text("See All")
-                        .font(.caption)
-                        .foregroundStyle(Theme.primary)
+                    HStack(spacing: 2) {
+                        Text("See All")
+                        Image(systemName: "chevron.right")
+                            .font(.caption2)
+                    }
+                    .font(.caption)
+                    .foregroundStyle(Theme.primary)
                 }
             }
 

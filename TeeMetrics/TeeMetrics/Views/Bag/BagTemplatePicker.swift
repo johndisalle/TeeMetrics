@@ -10,7 +10,7 @@ struct BagTemplatePicker: View {
     var onBagCreated: ((Bag) -> Void)?
 
     @State private var selectedTemplate: BagTemplate = .standard
-    @State private var showPreview = false
+    @State private var showConfirmation = false
 
     var body: some View {
         NavigationStack {
@@ -79,7 +79,7 @@ struct BagTemplatePicker: View {
 
                     // Confirm button
                     Button {
-                        createBag()
+                        showConfirmation = true
                     } label: {
                         Text("Use This Bag")
                             .font(.headline)
@@ -88,6 +88,12 @@ struct BagTemplatePicker: View {
                             .background(Theme.primary)
                             .foregroundStyle(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 14))
+                    }
+                    .alert("Replace Current Bag?", isPresented: $showConfirmation) {
+                        Button("Replace", role: .destructive) { createBag() }
+                        Button("Cancel", role: .cancel) { }
+                    } message: {
+                        Text("This will replace all clubs in your current bag with the \(selectedTemplate.rawValue) template.")
                     }
                 }
                 .padding()
