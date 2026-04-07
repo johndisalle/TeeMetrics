@@ -13,6 +13,7 @@ struct SettingsView: View {
     @AppStorage("selectedAppearance") private var selectedAppearance = "system"
     @State private var showExportSheet = false
     @State private var showDeleteAlert = false
+    @State private var showRedeemCode = false
     @State private var exportData = ""
 
     private var golfer: Golfer? { golfers.first }
@@ -70,6 +71,14 @@ struct SettingsView: View {
                                     .background(Theme.primary.opacity(0.1))
                                     .clipShape(Capsule())
                             }
+                        }
+                    }
+
+                    if !SubscriptionManager.shared.isProUser {
+                        Button {
+                            showRedeemCode = true
+                        } label: {
+                            Label("Redeem Offer Code", systemImage: "ticket.fill")
                         }
                     }
                 }
@@ -175,6 +184,16 @@ struct SettingsView: View {
             }
             .sheet(isPresented: $showExportSheet) {
                 ShareLink(item: exportData)
+            }
+            .offerCodeRedemption(isPresented: $showRedeemCode) { result in
+                switch result {
+                case .success:
+                    Task { await SubscriptionManager.shared.updatePurchasedProducts() }
+                case .failure:
+                    break
+                @unknown default:
+                    break
+                }
             }
         }
     }
