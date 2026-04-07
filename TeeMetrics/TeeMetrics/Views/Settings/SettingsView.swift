@@ -1,5 +1,5 @@
 // MARK: - Settings View
-// Profile, subscription, data, sample data, rate, legal, about
+// Profile, subscription, data, appearance (light/dark/system), legal, about
 
 import SwiftUI
 import SwiftData
@@ -10,8 +10,7 @@ struct SettingsView: View {
     @Environment(\.requestReview) private var requestReview
     @Query private var golfers: [Golfer]
     @Query(sort: \GolfRound.date, order: .reverse) private var rounds: [GolfRound]
-    @AppStorage("iCloudSyncEnabled") private var iCloudSync = false
-    @AppStorage("selectedTheme") private var selectedTheme = "green"
+    @AppStorage("selectedAppearance") private var selectedAppearance = "system"
     @State private var showExportSheet = false
     @State private var showDeleteAlert = false
     @State private var showSampleDataLoaded = false
@@ -19,11 +18,6 @@ struct SettingsView: View {
 
     private var golfer: Golfer? { golfers.first }
     private var completedRoundsCount: Int { rounds.filter { $0.isCompleted }.count }
-
-    // URLs from shared constants
-    private let termsURL = AppURLs.terms
-    private let privacyURL = AppURLs.privacy
-    private let supportURL = AppURLs.support
 
     var body: some View {
         NavigationStack {
@@ -69,9 +63,13 @@ struct SettingsView: View {
                             Text(SubscriptionManager.shared.isProUser ? "Pro Active" : "Upgrade to Pro")
                             Spacer()
                             if !SubscriptionManager.shared.isProUser {
-                                Text("$29.99/yr")
+                                Text("3-day free trial")
                                     .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(Theme.primary)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(Theme.primary.opacity(0.1))
+                                    .clipShape(Capsule())
                             }
                         }
                     }
@@ -79,10 +77,6 @@ struct SettingsView: View {
 
                 // MARK: - Data
                 Section("Data") {
-                    Toggle(isOn: $iCloudSync) {
-                        Label("iCloud Sync", systemImage: "icloud")
-                    }
-
                     Button {
                         exportCSV()
                     } label: {
@@ -106,11 +100,25 @@ struct SettingsView: View {
 
                 // MARK: - Appearance
                 Section("Appearance") {
-                    Picker(selection: $selectedTheme) {
-                        Text("Golf Green").tag("green")
-                        Text("Classic").tag("classic")
+                    Picker(selection: $selectedAppearance) {
+                        Label("System", systemImage: "circle.lefthalf.filled")
+                            .tag("system")
+                        Label("Light", systemImage: "sun.max.fill")
+                            .tag("light")
+                        Label("Dark", systemImage: "moon.fill")
+                            .tag("dark")
                     } label: {
-                        Label("Theme", systemImage: "paintbrush")
+                        Label("Appearance", systemImage: "paintbrush")
+                    }
+                }
+
+                // MARK: - Notifications
+                Section("Notifications") {
+                    Button {
+                        NotificationManager.requestPermission()
+                        Haptics.light()
+                    } label: {
+                        Label("Enable Notifications", systemImage: "bell.badge")
                     }
                 }
 
@@ -123,17 +131,17 @@ struct SettingsView: View {
                             .foregroundStyle(Theme.accent)
                     }
 
-                    Link(destination: supportURL) {
+                    Link(destination: AppURLs.support) {
                         Label("Customer Support", systemImage: "questionmark.circle")
                     }
                 }
 
                 // MARK: - Legal
                 Section("Legal") {
-                    Link(destination: termsURL) {
+                    Link(destination: AppURLs.terms) {
                         Label("Terms of Service", systemImage: "doc.text")
                     }
-                    Link(destination: privacyURL) {
+                    Link(destination: AppURLs.privacy) {
                         Label("Privacy Policy", systemImage: "lock.shield")
                     }
                 }

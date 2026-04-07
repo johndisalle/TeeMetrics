@@ -7,6 +7,7 @@ import SwiftData
 @main
 struct TeeMetricsApp: App {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage("selectedAppearance") private var selectedAppearance = "system"
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -30,18 +31,29 @@ struct TeeMetricsApp: App {
         }
     }()
 
+    private var colorScheme: ColorScheme? {
+        switch selectedAppearance {
+        case "light": return .light
+        case "dark": return .dark
+        default: return nil
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
-            if hasCompletedOnboarding {
-                MainTabView()
-                    .onAppear {
-                        NotificationManager.requestPermission()
-                        NotificationManager.scheduleWeeklySummary()
-                        CourseDetectionManager.shared.requestLocation()
-                    }
-            } else {
-                OnboardingView()
+            Group {
+                if hasCompletedOnboarding {
+                    MainTabView()
+                        .onAppear {
+                            NotificationManager.requestPermission()
+                            NotificationManager.scheduleWeeklySummary()
+                            CourseDetectionManager.shared.requestLocation()
+                        }
+                } else {
+                    OnboardingView()
+                }
             }
+            .preferredColorScheme(colorScheme)
         }
         .modelContainer(sharedModelContainer)
     }
