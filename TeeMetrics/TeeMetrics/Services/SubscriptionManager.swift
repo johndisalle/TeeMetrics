@@ -16,15 +16,9 @@ final class SubscriptionManager {
     static let yearlyID = "com.teemetrics.pro.yearly"
     static let lifetimeID = "com.teemetrics.pro.lifetime"
 
-    private nonisolated var updateListenerTask: Task<Void, Error>?
-
     init() {
-        updateListenerTask = listenForTransactions()
+        listenForTransactions()
         Task { await updatePurchasedProducts() }
-    }
-
-    deinit {
-        updateListenerTask?.cancel()
     }
 
     // MARK: - Load Products
@@ -65,7 +59,7 @@ final class SubscriptionManager {
     }
 
     // MARK: - Transaction Listener
-    private func listenForTransactions() -> Task<Void, Error> {
+    private func listenForTransactions() {
         Task.detached {
             for await result in Transaction.updates {
                 do {
@@ -78,6 +72,7 @@ final class SubscriptionManager {
             }
         }
     }
+
 
     // MARK: - Update Purchased State
     func updatePurchasedProducts() async {
