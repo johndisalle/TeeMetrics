@@ -4,8 +4,8 @@
 import SwiftUI
 
 enum Theme {
-    static let primary = Color(red: 0, green: 0.39, blue: 0) // #006400
-    static let accent = Color(red: 1, green: 0.84, blue: 0)  // #FFD700
+    static let primary = Color(red: 0.13, green: 0.37, blue: 0.25) // #215F40 — muted emerald
+    static let accent = Color(red: 0.93, green: 0.79, blue: 0.39)  // #EDCA64 — warm gold
     static let background = Color(.systemBackground)
     static let secondaryBackground = Color(.secondarySystemBackground)
     static let cardBackground = Color(.tertiarySystemBackground)
@@ -29,13 +29,13 @@ enum Theme {
 
     // Gradient for headers / onboarding
     static let golfGradient = LinearGradient(
-        colors: [primary, Color(red: 0, green: 0.5, blue: 0.1)],
+        colors: [Color(red: 0.10, green: 0.30, blue: 0.20), Color(red: 0.18, green: 0.45, blue: 0.32)],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
 
     static let goldGradient = LinearGradient(
-        colors: [accent, Color(red: 0.85, green: 0.7, blue: 0)],
+        colors: [accent, Color(red: 0.82, green: 0.68, blue: 0.30)],
         startPoint: .leading,
         endPoint: .trailing
     )
