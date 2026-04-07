@@ -10,6 +10,7 @@ struct CourseLibraryView: View {
     @Query(sort: \GolfCourse.name) private var courses: [GolfCourse]
     @State private var searchText = ""
     @State private var showAddCourse = false
+    @State private var showBundledBrowser = false
 
     private var filteredCourses: [GolfCourse] {
         if searchText.isEmpty { return courses }
@@ -43,8 +44,17 @@ struct CourseLibraryView: View {
             .searchable(text: $searchText, prompt: "Search courses")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        showAddCourse = true
+                    Menu {
+                        Button {
+                            showBundledBrowser = true
+                        } label: {
+                            Label("Browse 500+ Courses", systemImage: "building.2.fill")
+                        }
+                        Button {
+                            showAddCourse = true
+                        } label: {
+                            Label("Create Custom Course", systemImage: "plus.circle")
+                        }
                     } label: {
                         Image(systemName: "plus")
                     }
@@ -52,6 +62,9 @@ struct CourseLibraryView: View {
             }
             .sheet(isPresented: $showAddCourse) {
                 AddCourseView()
+            }
+            .sheet(isPresented: $showBundledBrowser) {
+                BundledCourseBrowser()
             }
         }
     }
