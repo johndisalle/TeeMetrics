@@ -5,8 +5,8 @@
 import WidgetKit
 import SwiftUI
 
-// MARK: - Shared Data Keys (App Group: group.com.teemetrics.shared)
-enum WidgetDataKeys {
+// MARK: - Shared Data Keys (duplicated here since widget is a separate target)
+private enum Keys {
     static let suiteName = "group.com.teemetrics.shared"
     static let lastCourseName = "widget_lastCourseName"
     static let lastScore = "widget_lastScore"
@@ -20,42 +20,6 @@ enum WidgetDataKeys {
     static let isRoundActive = "widget_isRoundActive"
     static let handicap = "widget_handicap"
     static let roundCount = "widget_roundCount"
-}
-
-// MARK: - Widget Data Writer (called from main app)
-enum WidgetDataWriter {
-    static func updateLastRound(round: GolfRound) {
-        guard let defaults = UserDefaults(suiteName: WidgetDataKeys.suiteName) else { return }
-        defaults.set(round.course?.name ?? "Unknown", forKey: WidgetDataKeys.lastCourseName)
-        defaults.set(round.totalScore, forKey: WidgetDataKeys.lastScore)
-        defaults.set(round.scoreToParString, forKey: WidgetDataKeys.lastScoreToPar)
-        defaults.set(round.totalPutts, forKey: WidgetDataKeys.lastPutts)
-        defaults.set(String(format: "%.0f%%", round.fairwayPercentage), forKey: WidgetDataKeys.lastFairway)
-        defaults.set(round.date.shortFormatted, forKey: WidgetDataKeys.lastDate)
-        WidgetCenter.shared.reloadAllTimelines()
-    }
-
-    static func updateActiveRound(hole: Int, courseName: String, runningScore: Int) {
-        guard let defaults = UserDefaults(suiteName: WidgetDataKeys.suiteName) else { return }
-        defaults.set(true, forKey: WidgetDataKeys.isRoundActive)
-        defaults.set(hole, forKey: WidgetDataKeys.activeHole)
-        defaults.set(courseName, forKey: WidgetDataKeys.activeCourseName)
-        defaults.set(runningScore, forKey: WidgetDataKeys.activeRunningScore)
-        WidgetCenter.shared.reloadAllTimelines()
-    }
-
-    static func clearActiveRound() {
-        guard let defaults = UserDefaults(suiteName: WidgetDataKeys.suiteName) else { return }
-        defaults.set(false, forKey: WidgetDataKeys.isRoundActive)
-        WidgetCenter.shared.reloadAllTimelines()
-    }
-
-    static func updateStats(handicap: Double, roundCount: Int) {
-        guard let defaults = UserDefaults(suiteName: WidgetDataKeys.suiteName) else { return }
-        defaults.set(handicap, forKey: WidgetDataKeys.handicap)
-        defaults.set(roundCount, forKey: WidgetDataKeys.roundCount)
-        WidgetCenter.shared.reloadAllTimelines()
-    }
 }
 
 // MARK: - Widget Timeline Entry
@@ -96,20 +60,20 @@ struct RoundTimelineProvider: TimelineProvider {
     }
 
     private func loadEntry() -> RoundWidgetEntry {
-        guard let defaults = UserDefaults(suiteName: WidgetDataKeys.suiteName) else { return .placeholder }
+        guard let defaults = UserDefaults(suiteName: Keys.suiteName) else { return .placeholder }
         return RoundWidgetEntry(
             date: .now,
-            courseName: defaults.string(forKey: WidgetDataKeys.lastCourseName) ?? "No rounds yet",
-            score: defaults.integer(forKey: WidgetDataKeys.lastScore),
-            scoreToPar: defaults.string(forKey: WidgetDataKeys.lastScoreToPar) ?? "-",
-            putts: defaults.integer(forKey: WidgetDataKeys.lastPutts),
-            fairwayPct: defaults.string(forKey: WidgetDataKeys.lastFairway) ?? "-",
-            roundDate: defaults.string(forKey: WidgetDataKeys.lastDate) ?? "-",
-            isActive: defaults.bool(forKey: WidgetDataKeys.isRoundActive),
-            currentHole: defaults.integer(forKey: WidgetDataKeys.activeHole),
-            runningScore: defaults.integer(forKey: WidgetDataKeys.activeRunningScore),
-            handicap: defaults.double(forKey: WidgetDataKeys.handicap),
-            roundCount: defaults.integer(forKey: WidgetDataKeys.roundCount)
+            courseName: defaults.string(forKey: Keys.lastCourseName) ?? "No rounds yet",
+            score: defaults.integer(forKey: Keys.lastScore),
+            scoreToPar: defaults.string(forKey: Keys.lastScoreToPar) ?? "-",
+            putts: defaults.integer(forKey: Keys.lastPutts),
+            fairwayPct: defaults.string(forKey: Keys.lastFairway) ?? "-",
+            roundDate: defaults.string(forKey: Keys.lastDate) ?? "-",
+            isActive: defaults.bool(forKey: Keys.isRoundActive),
+            currentHole: defaults.integer(forKey: Keys.activeHole),
+            runningScore: defaults.integer(forKey: Keys.activeRunningScore),
+            handicap: defaults.double(forKey: Keys.handicap),
+            roundCount: defaults.integer(forKey: Keys.roundCount)
         )
     }
 }
