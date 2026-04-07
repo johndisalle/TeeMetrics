@@ -16,7 +16,7 @@ final class SubscriptionManager {
     static let yearlyID = "com.teemetrics.pro.yearly"
     static let lifetimeID = "com.teemetrics.pro.lifetime"
 
-    private var updateListenerTask: Task<Void, Error>?
+    private nonisolated(unsafe) var updateListenerTask: Task<Void, Error>?
 
     init() {
         updateListenerTask = listenForTransactions()
