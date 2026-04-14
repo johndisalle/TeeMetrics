@@ -1,0 +1,3663 @@
+=== FILE: ./TeeMetrics/App/MainTabView.swift ===
+// MARK: - Main Tab View
+// Root navigation with 5 tabs: Dashboard, Rounds, Stats, Bag, Settings
+
+import SwiftUI
+
+struct MainTabView: View {
+    @State private var selectedTab = 0
+
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            Tab("Home", systemImage: "house.fill", value: 0) {
+                DashboardView()
+            }
+            Tab("Rounds", systemImage: "list.bullet.clipboard.fill", value: 1) {
+                RoundHistoryView()
+            }
+            Tab("Stats", systemImage: "chart.bar.fill", value: 2) {
+                StatsView()
+            }
+            Tab("Bag", systemImage: "bag.fill", value: 3) {
+                BagManagerView()
+            }
+            Tab("Settings", systemImage: "gearshape.fill", value: 4) {
+                SettingsView()
+            }
+        }
+        .tint(Theme.primary)
+    }
+}
+
+=== FILE: ./TeeMetrics/App/TeeMetricsApp.swift ===
+// MARK: - TeeMetrics App Entry Point
+// Main app configuration with SwiftData container and tab navigation
+
+import SwiftUI
+import SwiftData
+
+@main
+struct TeeMetricsApp: App {
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+
+    var sharedModelContainer: ModelContainer = {
+        let schema = Schema([
+            Golfer.self,
+            GolfCourse.self,
+            HoleInfo.self,
+            GolfRound.self,
+            HoleEntry.self,
+            ShotEntry.self,
+            Club.self,
+            Bag.self,
+        ])
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        do {
+            return try ModelContainer(for: schema, configurations: [config])
+        } catch {
+            fatalError("Could not create ModelContainer: \(error)")
+        }
+    }()
+
+    var body: some Scene {
+        WindowGroup {
+            if hasCompletedOnboarding {
+                MainTabView()
+            } else {
+                OnboardingView()
+            }
+        }
+        .modelContainer(sharedModelContainer)
+    }
+}
+
+=== FILE: ./TeeMetrics/Models/HoleEntry.swift ===
+// MARK: - HoleEntry Model
+// Per-hole scoring data for a round
+
+import Foundation
+import SwiftData
+
+@Model
+final class HoleEntry {
+    var id: UUID
+    var holeNumber: Int
+    var par: Int
+    var score: Int
+    var putts: Int
+    var penalties: Int
+    var fairwayHit: Bool?
+    var greenInRegulation: Bool
+    var sandSave: Bool?
+    var upAndDown: Bool?
+    var notes: String
+    var round: GolfRound?
+    var holeInfo: HoleInfo?
+
+    @Relationship(deleteRule: .cascade, inverse: \ShotEntry.holeEntry)
+    var shots: [ShotEntry] = []
+
+    // MARK: - Score Relative to Par
+    var scoreToPar: Int { score - par }
+
+    var scoreLabel: String {
+        let diff = scoreToPar
+        switch diff {
+        case ...(-3): return "Albatross"
+        case -2: return "Eagle"
+        case -1: return "Birdie"
+        case 0: return "Par"
+        case 1: return "Bogey"
+        case 2: return "Double"
+        case 3: return "Triple"
+        default: return "+\(diff)"
+        }
+    }
+
+    var scoreLabelShort: String {
+        let diff = scoreToPar
+        switch diff {
+        case ...(-2): return "🦅"
+        case -1: return "🐦"
+        case 0: return ""
+        case 1: return "●"
+        case 2: return "●●"
+        default: return "●●●"
+        }
+    }
+
+    init(
+        holeNumber: Int,
+        par: Int = 4,
+        score: Int = 0,
+        putts: Int = 0,
+        penalties: Int = 0,
+        fairwayHit: Bool? = nil,
+        greenInRegulation: Bool = false,
+        round: GolfRound? = nil,
+        holeInfo: HoleInfo? = nil
+    ) {
+        self.id = UUID()
+        self.holeNumber = holeNumber
+        self.par = par
+        self.score = score
+        self.putts = putts
+        self.penalties = penalties
+        self.fairwayHit = fairwayHit
+        self.greenInRegulation = greenInRegulation
+        self.sandSave = nil
+        self.upAndDown = nil
+        self.notes = ""
+        self.round = round
+        self.holeInfo = holeInfo
+    }
+}
+
+=== FILE: ./TeeMetrics/Models/Club.swift ===
+// MARK: - Club & Bag Models
+// Club configuration with distance tracking, organized into bags
+
+import Foundation
+import SwiftData
+
+@Model
+final class Club {
+    var id: UUID
+    var name: String
+    var clubType: String // driver, wood, hybrid, iron, wedge, putter
+    var avgDistance: Int
+    var maxDistance: Int
+    var minDistance: Int
+    var totalShots: Int
+    var lastUsed: Date?
+    var sortOrder: Int
+    var bag: Bag?
+
+    var systemImage: String {
+        switch clubType {
+        case "driver": return "figure.golf"
+        case "wood": return "leaf.fill"
+        case "hybrid": return "leaf.arrow.triangle.circlepath"
+        case "iron": return "line.diagonal"
+        case "wedge": return "triangle.fill"
+        case "putter": return "hockey.puck.fill"
+        default: return "sportscourt.fill"
+        }
+    }
+
+    init(
+        name: String,
+        clubType: String,
+        avgDistance: Int = 0,
+        sortOrder: Int = 0,
+        bag: Bag? = nil
+    ) {
+        self.id = UUID()
+        self.name = name
+        self.clubType = clubType
+        self.avgDistance = avgDistance
+        self.maxDistance = avgDistance
+        self.minDistance = avgDistance
+        self.totalShots = 0
+        self.lastUsed = nil
+        self.sortOrder = sortOrder
+        self.bag = bag
+    }
+
+    func updateDistance(newDistance: Int) {
+        totalShots += 1
+        if newDistance > maxDistance { maxDistance = newDistance }
+        if newDistance < minDistance || minDistance == 0 { minDistance = newDistance }
+        avgDistance = ((avgDistance * (totalShots - 1)) + newDistance) / totalShots
+        lastUsed = Date()
+    }
+}
+
+// MARK: - Club Type Enum (for UI)
+enum ClubType: String, CaseIterable, Identifiable {
+    case driver, wood, hybrid, iron, wedge, putter
+    var id: String { rawValue }
+    var displayName: String { rawValue.capitalized }
+}
+
+// MARK: - Bag Model
+@Model
+final class Bag {
+    var id: UUID
+    var name: String
+    var isDefault: Bool
+    var createdAt: Date
+
+    @Relationship(deleteRule: .cascade, inverse: \Club.bag)
+    var clubs: [Club] = []
+
+    var sortedClubs: [Club] {
+        clubs.sorted { $0.sortOrder < $1.sortOrder }
+    }
+
+    init(name: String = "My Bag", isDefault: Bool = true) {
+        self.id = UUID()
+        self.name = name
+        self.isDefault = isDefault
+        self.createdAt = Date()
+    }
+
+    // MARK: - Default Bag Factory
+    static func createDefault() -> Bag {
+        let bag = Bag(name: "My Bag", isDefault: true)
+        let defaultClubs: [(String, String, Int, Int)] = [
+            ("Driver", "driver", 240, 0),
+            ("3 Wood", "wood", 215, 1),
+            ("5 Wood", "wood", 200, 2),
+            ("4 Hybrid", "hybrid", 190, 3),
+            ("5 Iron", "iron", 175, 4),
+            ("6 Iron", "iron", 165, 5),
+            ("7 Iron", "iron", 155, 6),
+            ("8 Iron", "iron", 145, 7),
+            ("9 Iron", "iron", 135, 8),
+            ("PW", "wedge", 120, 9),
+            ("GW", "wedge", 105, 10),
+            ("SW", "wedge", 90, 11),
+            ("LW", "wedge", 70, 12),
+            ("Putter", "putter", 0, 13),
+        ]
+        for (name, type, dist, order) in defaultClubs {
+            let club = Club(name: name, clubType: type, avgDistance: dist, sortOrder: order, bag: bag)
+            bag.clubs.append(club)
+            _ = club // silence warning
+        }
+        return bag
+    }
+}
+
+=== FILE: ./TeeMetrics/Models/ShotEntry.swift ===
+// MARK: - ShotEntry Model
+// Individual shot tracking within a hole
+
+import Foundation
+import SwiftData
+
+@Model
+final class ShotEntry {
+    var id: UUID
+    var shotNumber: Int
+    var clubUsed: String
+    var distanceYards: Int
+    var lieType: String // tee, fairway, rough, bunker, fringe, green, penalty
+    var result: String  // hit, push, pull, slice, hook, topped, chunked, perfect
+    var notes: String
+    var holeEntry: HoleEntry?
+
+    init(
+        shotNumber: Int,
+        clubUsed: String = "",
+        distanceYards: Int = 0,
+        lieType: String = "tee",
+        result: String = "hit",
+        holeEntry: HoleEntry? = nil
+    ) {
+        self.id = UUID()
+        self.shotNumber = shotNumber
+        self.clubUsed = clubUsed
+        self.distanceYards = distanceYards
+        self.lieType = lieType
+        self.result = result
+        self.notes = ""
+        self.holeEntry = holeEntry
+    }
+}
+
+// MARK: - Lie Type Enum (for UI)
+enum LieType: String, CaseIterable, Identifiable {
+    case tee, fairway, rough, bunker, fringe, green, penalty
+    var id: String { rawValue }
+
+    var displayName: String { rawValue.capitalized }
+
+    var systemImage: String {
+        switch self {
+        case .tee: return "flag.fill"
+        case .fairway: return "leaf.fill"
+        case .rough: return "leaf.arrow.triangle.circlepath"
+        case .bunker: return "sun.dust.fill"
+        case .fringe: return "circle.dashed"
+        case .green: return "circle.fill"
+        case .penalty: return "exclamationmark.triangle.fill"
+        }
+    }
+}
+
+// MARK: - Shot Result Enum (for UI)
+enum ShotResult: String, CaseIterable, Identifiable {
+    case perfect, hit, push, pull, slice, hook, topped, chunked
+    var id: String { rawValue }
+    var displayName: String { rawValue.capitalized }
+}
+
+=== FILE: ./TeeMetrics/Models/Golfer.swift ===
+// MARK: - Golfer Model
+// Single user profile with handicap, home course reference, and default bag
+
+import Foundation
+import SwiftData
+
+@Model
+final class Golfer {
+    var id: UUID
+    var name: String
+    var handicapIndex: Double
+    var homeCourseID: UUID?
+    var defaultBagID: UUID?
+    var createdAt: Date
+    var avatarSystemName: String
+
+    init(
+        name: String,
+        handicapIndex: Double = 0.0,
+        homeCourseID: UUID? = nil,
+        defaultBagID: UUID? = nil,
+        avatarSystemName: String = "figure.golf"
+    ) {
+        self.id = UUID()
+        self.name = name
+        self.handicapIndex = handicapIndex
+        self.homeCourseID = homeCourseID
+        self.defaultBagID = defaultBagID
+        self.createdAt = Date()
+        self.avatarSystemName = avatarSystemName
+    }
+}
+
+=== FILE: ./TeeMetrics/Models/GolfRound.swift ===
+// MARK: - GolfRound Model
+// A single round of golf with scoring, weather, and completion state
+
+import Foundation
+import SwiftData
+
+@Model
+final class GolfRound {
+    var id: UUID
+    var date: Date
+    var course: GolfCourse?
+    var weatherNotes: String
+    var totalScore: Int
+    var totalPutts: Int
+    var playersCount: Int
+    var playerNames: String // comma-separated for simplicity
+    var isCompleted: Bool
+    var notes: String
+    var currentHole: Int
+    var createdAt: Date
+
+    @Relationship(deleteRule: .cascade, inverse: \HoleEntry.round)
+    var holeEntries: [HoleEntry] = []
+
+    // MARK: - Computed Stats
+    var scoreToPar: Int {
+        guard let course else { return 0 }
+        return totalScore - course.totalPar
+    }
+
+    var scoreToParString: String {
+        let diff = scoreToPar
+        if diff == 0 { return "E" }
+        return diff > 0 ? "+\(diff)" : "\(diff)"
+    }
+
+    var fairwayPercentage: Double {
+        let eligible = holeEntries.filter { entry in
+            guard let hole = entry.holeInfo else { return false }
+            return hole.par >= 4
+        }
+        guard !eligible.isEmpty else { return 0 }
+        let hit = eligible.filter { $0.fairwayHit == true }.count
+        return Double(hit) / Double(eligible.count) * 100
+    }
+
+    var girPercentage: Double {
+        guard !holeEntries.isEmpty else { return 0 }
+        let hit = holeEntries.filter { $0.greenInRegulation }.count
+        return Double(hit) / Double(holeEntries.count) * 100
+    }
+
+    var averagePutts: Double {
+        guard !holeEntries.isEmpty else { return 0 }
+        let total = holeEntries.reduce(0) { $0 + $1.putts }
+        return Double(total) / Double(holeEntries.count)
+    }
+
+    var frontNine: Int {
+        holeEntries.filter { $0.holeNumber <= 9 }.reduce(0) { $0 + $1.score }
+    }
+
+    var backNine: Int {
+        holeEntries.filter { $0.holeNumber > 9 }.reduce(0) { $0 + $1.score }
+    }
+
+    init(
+        course: GolfCourse? = nil,
+        weatherNotes: String = "",
+        playersCount: Int = 1,
+        playerNames: String = ""
+    ) {
+        self.id = UUID()
+        self.date = Date()
+        self.course = course
+        self.weatherNotes = weatherNotes
+        self.totalScore = 0
+        self.totalPutts = 0
+        self.playersCount = playersCount
+        self.playerNames = playerNames
+        self.isCompleted = false
+        self.notes = ""
+        self.currentHole = 1
+        self.createdAt = Date()
+    }
+
+    // MARK: - Recalculate Totals
+    func recalculateTotals() {
+        totalScore = holeEntries.reduce(0) { $0 + $1.score }
+        totalPutts = holeEntries.reduce(0) { $0 + $1.putts }
+    }
+}
+
+=== FILE: ./TeeMetrics/Models/GolfCourse.swift ===
+// MARK: - GolfCourse Model
+// Course with 18 holes, location data, and offline MapKit region support
+
+import Foundation
+import SwiftData
+import CoreLocation
+
+@Model
+final class GolfCourse {
+    var id: UUID
+    var name: String
+    var city: String
+    var state: String
+    var latitude: Double
+    var longitude: Double
+    var totalPar: Int
+    var totalYardage: Int
+    var slopeRating: Double
+    var courseRating: Double
+    var createdAt: Date
+    var isFavorite: Bool
+
+    @Relationship(deleteRule: .cascade, inverse: \HoleInfo.course)
+    var holes: [HoleInfo] = []
+
+    @Relationship(deleteRule: .cascade, inverse: \GolfRound.course)
+    var rounds: [GolfRound] = []
+
+    init(
+        name: String,
+        city: String = "",
+        state: String = "",
+        latitude: Double = 0,
+        longitude: Double = 0,
+        totalPar: Int = 72,
+        totalYardage: Int = 6500,
+        slopeRating: Double = 113,
+        courseRating: Double = 72.0,
+        isFavorite: Bool = false
+    ) {
+        self.id = UUID()
+        self.name = name
+        self.city = city
+        self.state = state
+        self.latitude = latitude
+        self.longitude = longitude
+        self.totalPar = totalPar
+        self.totalYardage = totalYardage
+        self.slopeRating = slopeRating
+        self.courseRating = courseRating
+        self.createdAt = Date()
+        self.isFavorite = isFavorite
+    }
+}
+
+// MARK: - HoleInfo (static course data per hole)
+@Model
+final class HoleInfo {
+    var id: UUID
+    var holeNumber: Int
+    var par: Int
+    var yardage: Int
+    var handicapRating: Int
+    var course: GolfCourse?
+
+    init(
+        holeNumber: Int,
+        par: Int = 4,
+        yardage: Int = 350,
+        handicapRating: Int = 1,
+        course: GolfCourse? = nil
+    ) {
+        self.id = UUID()
+        self.holeNumber = holeNumber
+        self.par = par
+        self.yardage = yardage
+        self.handicapRating = handicapRating
+        self.course = course
+    }
+}
+
+=== FILE: ./TeeMetrics/Extensions/Extensions.swift ===
+// MARK: - Utility Extensions
+
+import SwiftUI
+
+// MARK: - Date Formatting
+extension Date {
+    var shortFormatted: String {
+        formatted(date: .abbreviated, time: .omitted)
+    }
+
+    var relativeFormatted: String {
+        let calendar = Calendar.current
+        if calendar.isDateInToday(self) { return "Today" }
+        if calendar.isDateInYesterday(self) { return "Yesterday" }
+        return shortFormatted
+    }
+}
+
+// MARK: - View Modifiers
+struct CardStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding()
+            .background(Theme.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
+    }
+}
+
+extension View {
+    func cardStyle() -> some View {
+        modifier(CardStyle())
+    }
+}
+
+// MARK: - Score Formatting
+extension Int {
+    var scoreToParString: String {
+        if self == 0 { return "E" }
+        return self > 0 ? "+\(self)" : "\(self)"
+    }
+}
+
+// MARK: - Haptic Feedback
+enum Haptics {
+    static func light() {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+
+    static func medium() {
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    }
+
+    static func success() {
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+    }
+
+    static func selection() {
+        UISelectionFeedbackGenerator().selectionChanged()
+    }
+}
+
+=== FILE: ./TeeMetrics/Extensions/Theme.swift ===
+// MARK: - Theme
+// App-wide color palette and styling constants
+
+import SwiftUI
+
+enum Theme {
+    static let primary = Color(red: 0, green: 0.39, blue: 0) // #006400
+    static let accent = Color(red: 1, green: 0.84, blue: 0)  // #FFD700
+    static let background = Color(.systemBackground)
+    static let secondaryBackground = Color(.secondarySystemBackground)
+    static let cardBackground = Color(.tertiarySystemBackground)
+
+    // Score colors
+    static let eagle = Color.yellow
+    static let birdie = Color.red
+    static let par = Color.green
+    static let bogey = Color.blue
+    static let doublePlus = Color.purple
+
+    static func scoreColor(for scoreToPar: Int) -> Color {
+        switch scoreToPar {
+        case ...(-2): return eagle
+        case -1: return birdie
+        case 0: return par
+        case 1: return bogey
+        default: return doublePlus
+        }
+    }
+
+    // Gradient for headers / onboarding
+    static let golfGradient = LinearGradient(
+        colors: [primary, Color(red: 0, green: 0.5, blue: 0.1)],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+
+    static let goldGradient = LinearGradient(
+        colors: [accent, Color(red: 0.85, green: 0.7, blue: 0)],
+        startPoint: .leading,
+        endPoint: .trailing
+    )
+}
+
+=== FILE: ./TeeMetrics/Views/Settings/SettingsView.swift ===
+// MARK: - Settings View
+// Pro subscription, iCloud sync toggle, data export, theme, about
+
+import SwiftUI
+import SwiftData
+
+struct SettingsView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query private var golfers: [Golfer]
+    @Query(sort: \GolfRound.date, order: .reverse) private var rounds: [GolfRound]
+    @AppStorage("iCloudSyncEnabled") private var iCloudSync = false
+    @AppStorage("selectedTheme") private var selectedTheme = "green"
+    @State private var showExportSheet = false
+    @State private var showDeleteAlert = false
+    @State private var exportData = ""
+
+    private var golfer: Golfer? { golfers.first }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                // MARK: - Profile
+                Section("Profile") {
+                    if let golfer {
+                        HStack {
+                            Image(systemName: golfer.avatarSystemName)
+                                .font(.title)
+                                .foregroundStyle(Theme.primary)
+                                .frame(width: 50, height: 50)
+                                .background(Theme.primary.opacity(0.1))
+                                .clipShape(Circle())
+                            VStack(alignment: .leading) {
+                                Text(golfer.name)
+                                    .font(.headline)
+                                Text("Handicap: \(String(format: "%.1f", golfer.handicapIndex))")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+
+                        NavigationLink("Edit Profile") {
+                            EditProfileView(golfer: golfer)
+                        }
+                    }
+                }
+
+                // MARK: - Pro
+                Section("Subscription") {
+                    NavigationLink {
+                        SubscriptionView()
+                    } label: {
+                        HStack {
+                            Image(systemName: SubscriptionManager.shared.isProUser ? "crown.fill" : "crown")
+                                .foregroundStyle(Theme.accent)
+                            Text(SubscriptionManager.shared.isProUser ? "Pro Active" : "Upgrade to Pro")
+                        }
+                    }
+                }
+
+                // MARK: - Data
+                Section("Data") {
+                    Toggle("iCloud Sync", isOn: $iCloudSync)
+
+                    Button {
+                        exportCSV()
+                    } label: {
+                        Label("Export CSV", systemImage: "square.and.arrow.up")
+                    }
+
+                    NavigationLink {
+                        CourseLibraryView()
+                    } label: {
+                        Label("Course Library", systemImage: "flag.fill")
+                    }
+                }
+
+                // MARK: - Theme
+                Section("Appearance") {
+                    Picker("Theme", selection: $selectedTheme) {
+                        Text("Golf Green").tag("green")
+                        Text("Classic").tag("classic")
+                    }
+                }
+
+                // MARK: - About
+                Section("About") {
+                    HStack {
+                        Text("Version")
+                        Spacer()
+                        Text("1.0.0")
+                            .foregroundStyle(.secondary)
+                    }
+                    HStack {
+                        Text("Rounds Logged")
+                        Spacer()
+                        Text("\(rounds.filter { $0.isCompleted }.count)")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                // MARK: - Danger Zone
+                Section {
+                    Button("Delete All Data", role: .destructive) {
+                        showDeleteAlert = true
+                    }
+                }
+            }
+            .navigationTitle("Settings")
+            .alert("Delete All Data?", isPresented: $showDeleteAlert) {
+                Button("Delete", role: .destructive) { deleteAllData() }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("This cannot be undone. All rounds, courses, and clubs will be permanently deleted.")
+            }
+            .sheet(isPresented: $showExportSheet) {
+                ShareLink(item: exportData)
+            }
+        }
+    }
+
+    private func exportCSV() {
+        var csv = "Date,Course,Score,Putts,Fairway%,GIR%\n"
+        for round in rounds.filter({ $0.isCompleted }) {
+            csv += "\(round.date.shortFormatted),\(round.course?.name ?? ""),\(round.totalScore),\(round.totalPutts),\(String(format: "%.0f", round.fairwayPercentage)),\(String(format: "%.0f", round.girPercentage))\n"
+        }
+        exportData = csv
+        showExportSheet = true
+    }
+
+    private func deleteAllData() {
+        try? modelContext.delete(model: GolfRound.self)
+        try? modelContext.delete(model: GolfCourse.self)
+        try? modelContext.delete(model: Bag.self)
+        try? modelContext.delete(model: Golfer.self)
+    }
+}
+
+// MARK: - Edit Profile
+struct EditProfileView: View {
+    @Bindable var golfer: Golfer
+    @State private var handicapText: String = ""
+
+    var body: some View {
+        Form {
+            TextField("Name", text: $golfer.name)
+            TextField("Handicap Index", text: $handicapText)
+                .keyboardType(.decimalPad)
+                .onAppear { handicapText = String(format: "%.1f", golfer.handicapIndex) }
+                .onChange(of: handicapText) { _, newVal in
+                    golfer.handicapIndex = Double(newVal) ?? golfer.handicapIndex
+                }
+        }
+        .navigationTitle("Edit Profile")
+    }
+}
+
+=== FILE: ./TeeMetrics/Views/Settings/SubscriptionView.swift ===
+// MARK: - Subscription View
+// StoreKit 2 paywall: monthly, yearly, lifetime options
+
+import SwiftUI
+import StoreKit
+
+struct SubscriptionView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var manager = SubscriptionManager.shared
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 24) {
+                // MARK: - Header
+                VStack(spacing: 12) {
+                    Image(systemName: "crown.fill")
+                        .font(.system(size: 60))
+                        .foregroundStyle(Theme.accent)
+
+                    Text("TeeMetrics Pro")
+                        .font(.largeTitle.bold())
+
+                    Text("Unlock the full power of your golf game")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.top, 32)
+
+                // MARK: - Feature List
+                VStack(alignment: .leading, spacing: 12) {
+                    proFeature("chart.line.uptrend.xyaxis", "Advanced analytics & trends")
+                    proFeature("scope", "Strokes gained breakdown")
+                    proFeature("map.fill", "Unlimited offline course maps")
+                    proFeature("square.and.arrow.up", "CSV & PDF export")
+                    proFeature("bag.fill", "Custom club sets")
+                    proFeature("icloud.fill", "iCloud sync")
+                    proFeature("infinity", "Unlimited round history")
+                    proFeature("hand.thumbsup.fill", "Ad-free experience")
+                }
+                .padding()
+                .background(Theme.secondaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+
+                // MARK: - Pricing
+                if manager.isProUser {
+                    Label("You're a Pro member!", systemImage: "checkmark.circle.fill")
+                        .font(.headline)
+                        .foregroundStyle(.green)
+                        .padding()
+                } else {
+                    VStack(spacing: 12) {
+                        pricingCard(
+                            title: "Monthly",
+                            price: "$4.99/mo",
+                            subtitle: "Cancel anytime",
+                            productID: SubscriptionManager.monthlyID
+                        )
+                        pricingCard(
+                            title: "Yearly",
+                            price: "$29.99/yr",
+                            subtitle: "Save 50% — best value",
+                            productID: SubscriptionManager.yearlyID,
+                            highlighted: true
+                        )
+                        pricingCard(
+                            title: "Lifetime",
+                            price: "$49.99",
+                            subtitle: "One-time purchase",
+                            productID: SubscriptionManager.lifetimeID
+                        )
+                    }
+
+                    Button("Restore Purchases") {
+                        Task { await manager.restore() }
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+            }
+            .padding()
+        }
+        .navigationTitle("Go Pro")
+        .navigationBarTitleDisplayMode(.inline)
+        .task { await manager.loadProducts() }
+    }
+
+    private func proFeature(_ icon: String, _ text: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .foregroundStyle(Theme.primary)
+                .frame(width: 24)
+            Text(text)
+                .font(.subheadline)
+        }
+    }
+
+    private func pricingCard(
+        title: String,
+        price: String,
+        subtitle: String,
+        productID: String,
+        highlighted: Bool = false
+    ) -> some View {
+        Button {
+            Task {
+                if let product = manager.products.first(where: { $0.id == productID }) {
+                    _ = try? await manager.purchase(product)
+                }
+            }
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.headline)
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(highlighted ? .white.opacity(0.8) : .secondary)
+                }
+                Spacer()
+                Text(price)
+                    .font(.title3.bold())
+            }
+            .padding()
+            .background(highlighted ? Theme.primary : Theme.cardBackground)
+            .foregroundStyle(highlighted ? .white : .primary)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(highlighted ? Color.clear : Color.gray.opacity(0.2), lineWidth: 1)
+            )
+        }
+    }
+}
+
+=== FILE: ./TeeMetrics/Views/Course/CourseLibraryView.swift ===
+// MARK: - Course Library
+// Browsable list of saved courses, 18-hole editor, favorites
+
+import SwiftUI
+import SwiftData
+import MapKit
+
+struct CourseLibraryView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \GolfCourse.name) private var courses: [GolfCourse]
+    @State private var searchText = ""
+    @State private var showAddCourse = false
+
+    private var filteredCourses: [GolfCourse] {
+        if searchText.isEmpty { return courses }
+        return courses.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+    }
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if courses.isEmpty {
+                    ContentUnavailableView(
+                        "No Courses",
+                        systemImage: "flag.fill",
+                        description: Text("Add your first course to get started")
+                    )
+                } else {
+                    List {
+                        ForEach(filteredCourses) { course in
+                            NavigationLink {
+                                CourseDetailView(course: course)
+                            } label: {
+                                CourseRow(course: course)
+                            }
+                        }
+                        .onDelete(perform: deleteCourses)
+                    }
+                    .listStyle(.plain)
+                }
+            }
+            .navigationTitle("Courses")
+            .searchable(text: $searchText, prompt: "Search courses")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        showAddCourse = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showAddCourse) {
+                AddCourseView()
+            }
+        }
+    }
+
+    private func deleteCourses(at offsets: IndexSet) {
+        for index in offsets {
+            modelContext.delete(filteredCourses[index])
+        }
+    }
+}
+
+// MARK: - Course Row
+struct CourseRow: View {
+    let course: GolfCourse
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(course.name)
+                        .font(.headline)
+                    if course.isFavorite {
+                        Image(systemName: "star.fill")
+                            .font(.caption)
+                            .foregroundStyle(Theme.accent)
+                    }
+                }
+                Text("\(course.city)\(course.city.isEmpty || course.state.isEmpty ? "" : ", ")\(course.state)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            VStack(alignment: .trailing, spacing: 4) {
+                Text("Par \(course.totalPar)")
+                    .font(.subheadline.bold())
+                Text("\(course.totalYardage) yds")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+}
+
+// MARK: - Course Detail
+struct CourseDetailView: View {
+    @Bindable var course: GolfCourse
+
+    private var sortedHoles: [HoleInfo] {
+        course.holes.sorted { $0.holeNumber < $1.holeNumber }
+    }
+
+    var body: some View {
+        List {
+            Section("Info") {
+                HStack {
+                    Text("Par")
+                    Spacer()
+                    Text("\(course.totalPar)")
+                }
+                HStack {
+                    Text("Yardage")
+                    Spacer()
+                    Text("\(course.totalYardage)")
+                }
+                HStack {
+                    Text("Slope / Rating")
+                    Spacer()
+                    Text("\(String(format: "%.0f", course.slopeRating)) / \(String(format: "%.1f", course.courseRating))")
+                }
+                HStack {
+                    Text("Rounds Played")
+                    Spacer()
+                    Text("\(course.rounds.filter { $0.isCompleted }.count)")
+                }
+            }
+
+            if course.latitude != 0 {
+                Section("Location") {
+                    Map {
+                        Marker(course.name, coordinate: CLLocationCoordinate2D(
+                            latitude: course.latitude,
+                            longitude: course.longitude
+                        ))
+                        .tint(Theme.primary)
+                    }
+                    .frame(height: 200)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+            }
+
+            Section("Holes") {
+                ForEach(sortedHoles) { hole in
+                    HStack {
+                        Text("#\(hole.holeNumber)")
+                            .font(.caption.bold())
+                            .frame(width: 30)
+                        Text("Par \(hole.par)")
+                            .frame(width: 50)
+                        Text("\(hole.yardage) yds")
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text("HCP \(hole.handicapRating)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        .navigationTitle(course.name)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    course.isFavorite.toggle()
+                    Haptics.selection()
+                } label: {
+                    Image(systemName: course.isFavorite ? "star.fill" : "star")
+                        .foregroundStyle(Theme.accent)
+                }
+            }
+        }
+    }
+}
+
+=== FILE: ./TeeMetrics/Views/LiveRound/ShotTrackerView.swift ===
+// MARK: - Shot Tracker View
+// Shot-by-shot club selection, distance, lie type, result tracking
+
+import SwiftUI
+import SwiftData
+
+struct ShotTrackerView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    @Bindable var holeEntry: HoleEntry
+    @Query(filter: #Predicate<Bag> { $0.isDefault == true }) private var bags: [Bag]
+
+    @State private var selectedClub = ""
+    @State private var distance = ""
+    @State private var selectedLie: LieType = .tee
+    @State private var selectedResult: ShotResult = .hit
+
+    private var clubs: [Club] {
+        bags.first?.sortedClubs ?? []
+    }
+
+    private var sortedShots: [ShotEntry] {
+        holeEntry.shots.sorted { $0.shotNumber < $1.shotNumber }
+    }
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 16) {
+                // MARK: - Shot List
+                if !sortedShots.isEmpty {
+                    List {
+                        ForEach(sortedShots) { shot in
+                            HStack {
+                                Text("#\(shot.shotNumber)")
+                                    .font(.caption.bold())
+                                    .frame(width: 30)
+                                Text(shot.clubUsed)
+                                    .font(.subheadline.bold())
+                                Spacer()
+                                if shot.distanceYards > 0 {
+                                    Text("\(shot.distanceYards) yds")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Text(shot.lieType.capitalized)
+                                    .font(.caption)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.gray.opacity(0.15))
+                                    .clipShape(Capsule())
+                            }
+                        }
+                        .onDelete(perform: deleteShots)
+                    }
+                    .listStyle(.plain)
+                    .frame(maxHeight: 200)
+                }
+
+                Divider()
+
+                // MARK: - Club Selector (horizontal scroll)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("CLUB")
+                        .font(.caption.bold())
+                        .foregroundStyle(.secondary)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(clubs) { club in
+                                Button {
+                                    selectedClub = club.name
+                                    Haptics.selection()
+                                } label: {
+                                    VStack(spacing: 4) {
+                                        Image(systemName: club.systemImage)
+                                            .font(.title3)
+                                        Text(club.name)
+                                            .font(.caption2.bold())
+                                        if club.avgDistance > 0 {
+                                            Text("\(club.avgDistance)y")
+                                                .font(.caption2)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                    .frame(width: 60, height: 70)
+                                    .background(selectedClub == club.name ? Theme.primary : Color.gray.opacity(0.1))
+                                    .foregroundStyle(selectedClub == club.name ? .white : .primary)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal)
+
+                // MARK: - Distance + Lie + Result
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text("DISTANCE")
+                            .font(.caption.bold())
+                            .foregroundStyle(.secondary)
+                        TextField("Yds", text: $distance)
+                            .keyboardType(.numberPad)
+                            .textFieldStyle(.roundedBorder)
+                    }
+
+                    VStack(alignment: .leading) {
+                        Text("LIE")
+                            .font(.caption.bold())
+                            .foregroundStyle(.secondary)
+                        Picker("Lie", selection: $selectedLie) {
+                            ForEach(LieType.allCases) { lie in
+                                Text(lie.displayName).tag(lie)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                    }
+
+                    VStack(alignment: .leading) {
+                        Text("RESULT")
+                            .font(.caption.bold())
+                            .foregroundStyle(.secondary)
+                        Picker("Result", selection: $selectedResult) {
+                            ForEach(ShotResult.allCases) { r in
+                                Text(r.displayName).tag(r)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                    }
+                }
+                .padding(.horizontal)
+
+                // MARK: - Add Shot Button
+                Button {
+                    addShot()
+                } label: {
+                    Label("Log Shot", systemImage: "plus.circle.fill")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Theme.primary)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .padding(.horizontal)
+                .disabled(selectedClub.isEmpty)
+
+                Spacer()
+            }
+            .navigationTitle("Shot Tracker - Hole \(holeEntry.holeNumber)")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+    }
+
+    private func addShot() {
+        let shotNum = sortedShots.count + 1
+        let shot = ShotEntry(
+            shotNumber: shotNum,
+            clubUsed: selectedClub,
+            distanceYards: Int(distance) ?? 0,
+            lieType: selectedLie.rawValue,
+            result: selectedResult.rawValue,
+            holeEntry: holeEntry
+        )
+        modelContext.insert(shot)
+        holeEntry.shots.append(shot)
+
+        // Update club stats
+        if let club = clubs.first(where: { $0.name == selectedClub }),
+           let dist = Int(distance), dist > 0 {
+            club.updateDistance(newDistance: dist)
+        }
+
+        Haptics.medium()
+        distance = ""
+        selectedLie = .fairway
+    }
+
+    private func deleteShots(at offsets: IndexSet) {
+        for index in offsets {
+            let shot = sortedShots[index]
+            modelContext.delete(shot)
+        }
+    }
+}
+
+=== FILE: ./TeeMetrics/Views/LiveRound/LiveRoundView.swift ===
+// MARK: - Live Round Logger
+// Horizontal pager per hole, big tappable score/putts/penalties,
+// fairway/GIR/sand save toggles, shot-by-shot tracking, voice notes, auto-save
+
+import SwiftUI
+import SwiftData
+
+struct LiveRoundView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    @Bindable var round: GolfRound
+
+    @State private var currentHole = 1
+    @State private var showShotTracker = false
+    @State private var showFinishAlert = false
+
+    private var sortedEntries: [HoleEntry] {
+        round.holeEntries.sorted { $0.holeNumber < $1.holeNumber }
+    }
+
+    private var currentEntry: HoleEntry? {
+        sortedEntries.first { $0.holeNumber == currentHole }
+    }
+
+    private var runningTotal: Int {
+        sortedEntries.filter { $0.holeNumber <= currentHole && $0.score > 0 }
+            .reduce(0) { $0 + $1.score }
+    }
+
+    private var runningToPar: Int {
+        sortedEntries.filter { $0.holeNumber <= currentHole && $0.score > 0 }
+            .reduce(0) { $0 + $1.scoreToPar }
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // MARK: - Running Score Header
+            scoreHeader
+
+            // MARK: - Hole Pager
+            TabView(selection: $currentHole) {
+                ForEach(sortedEntries) { entry in
+                    HoleLoggerView(entry: entry, onShowShotTracker: {
+                        showShotTracker = true
+                    })
+                    .tag(entry.holeNumber)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+
+            // MARK: - Hole Navigation
+            holeNavigator
+        }
+        .navigationTitle("Hole \(currentHole)")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Finish") { showFinishAlert = true }
+            }
+        }
+        .alert("Finish Round?", isPresented: $showFinishAlert) {
+            Button("Finish", role: .destructive) { finishRound() }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Score: \(runningTotal) (\(runningToPar.scoreToParString))")
+        }
+        .sheet(isPresented: $showShotTracker) {
+            if let entry = currentEntry {
+                ShotTrackerView(holeEntry: entry)
+            }
+        }
+        .onAppear { currentHole = round.currentHole }
+        .onChange(of: currentHole) { _, newVal in
+            round.currentHole = newVal
+            Haptics.selection()
+        }
+    }
+
+    // MARK: - Score Header
+    private var scoreHeader: some View {
+        HStack(spacing: 20) {
+            VStack(spacing: 2) {
+                Text("TOTAL")
+                    .font(.caption2.bold())
+                    .foregroundStyle(.secondary)
+                Text("\(runningTotal)")
+                    .font(.title.bold())
+            }
+            Divider().frame(height: 40)
+            VStack(spacing: 2) {
+                Text("TO PAR")
+                    .font(.caption2.bold())
+                    .foregroundStyle(.secondary)
+                Text(runningToPar.scoreToParString)
+                    .font(.title.bold())
+                    .foregroundStyle(Theme.scoreColor(for: runningToPar))
+            }
+            Divider().frame(height: 40)
+            VStack(spacing: 2) {
+                Text("PUTTS")
+                    .font(.caption2.bold())
+                    .foregroundStyle(.secondary)
+                let totalPutts = sortedEntries.reduce(0) { $0 + $1.putts }
+                Text("\(totalPutts)")
+                    .font(.title.bold())
+            }
+            Divider().frame(height: 40)
+            VStack(spacing: 2) {
+                Text("THRU")
+                    .font(.caption2.bold())
+                    .foregroundStyle(.secondary)
+                let completed = sortedEntries.filter { $0.score > 0 }.count
+                Text("\(completed)")
+                    .font(.title.bold())
+            }
+        }
+        .padding()
+        .background(Theme.secondaryBackground)
+    }
+
+    // MARK: - Hole Navigator
+    private var holeNavigator: some View {
+        HStack {
+            Button {
+                withAnimation { currentHole = max(1, currentHole - 1) }
+            } label: {
+                Image(systemName: "chevron.left.circle.fill")
+                    .font(.title)
+            }
+            .disabled(currentHole == 1)
+
+            Spacer()
+
+            // Hole dots
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(1...18, id: \.self) { hole in
+                        Button {
+                            withAnimation { currentHole = hole }
+                        } label: {
+                            let entry = sortedEntries.first { $0.holeNumber == hole }
+                            let scored = entry?.score ?? 0 > 0
+                            Text("\(hole)")
+                                .font(.caption2.bold())
+                                .frame(width: 28, height: 28)
+                                .background(
+                                    hole == currentHole ? Theme.primary :
+                                    scored ? Theme.primary.opacity(0.3) :
+                                    Color.gray.opacity(0.2)
+                                )
+                                .foregroundStyle(hole == currentHole ? .white : .primary)
+                                .clipShape(Circle())
+                        }
+                    }
+                }
+            }
+
+            Spacer()
+
+            Button {
+                withAnimation { currentHole = min(18, currentHole + 1) }
+            } label: {
+                Image(systemName: "chevron.right.circle.fill")
+                    .font(.title)
+            }
+            .disabled(currentHole == 18)
+        }
+        .padding()
+        .background(Theme.secondaryBackground)
+    }
+
+    private func finishRound() {
+        round.recalculateTotals()
+        round.isCompleted = true
+        Haptics.success()
+        dismiss()
+    }
+}
+
+=== FILE: ./TeeMetrics/Views/LiveRound/HoleLoggerView.swift ===
+// MARK: - Hole Logger View
+// Individual hole scoring: big tappable score, putts, penalties,
+// Fairway/GIR/Sand Save toggles, notes, shot tracker access
+
+import SwiftUI
+
+struct HoleLoggerView: View {
+    @Bindable var entry: HoleEntry
+    var onShowShotTracker: () -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 24) {
+                // MARK: - Hole Info
+                HStack {
+                    Text("Hole \(entry.holeNumber)")
+                        .font(.title2.bold())
+                    Spacer()
+                    Text("Par \(entry.par)")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                    if let info = entry.holeInfo {
+                        Text("\(info.yardage) yds")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                // MARK: - Score Stepper (big tappable)
+                VStack(spacing: 8) {
+                    Text("SCORE")
+                        .font(.caption.bold())
+                        .foregroundStyle(.secondary)
+
+                    HStack(spacing: 24) {
+                        Button {
+                            if entry.score > 0 { entry.score -= 1 }
+                            Haptics.light()
+                        } label: {
+                            Image(systemName: "minus.circle.fill")
+                                .font(.system(size: 44))
+                                .foregroundStyle(Theme.primary)
+                        }
+
+                        VStack(spacing: 4) {
+                            Text("\(entry.score)")
+                                .font(.system(size: 64, weight: .bold, design: .rounded))
+                            if entry.score > 0 {
+                                Text(entry.scoreLabel)
+                                    .font(.caption.bold())
+                                    .foregroundStyle(Theme.scoreColor(for: entry.scoreToPar))
+                            }
+                        }
+                        .frame(width: 100)
+
+                        Button {
+                            entry.score += 1
+                            Haptics.light()
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: 44))
+                                .foregroundStyle(Theme.primary)
+                        }
+                    }
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Score: \(entry.score)")
+                .accessibilityAdjustableAction { direction in
+                    switch direction {
+                    case .increment: entry.score += 1
+                    case .decrement: if entry.score > 0 { entry.score -= 1 }
+                    @unknown default: break
+                    }
+                }
+
+                // MARK: - Putts & Penalties
+                HStack(spacing: 32) {
+                    stepperColumn(label: "PUTTS", value: $entry.putts)
+                    stepperColumn(label: "PENALTIES", value: $entry.penalties)
+                }
+
+                // MARK: - Toggle Row
+                HStack(spacing: 12) {
+                    if entry.par >= 4 {
+                        toggleButton(
+                            label: "FW",
+                            isOn: Binding(
+                                get: { entry.fairwayHit ?? false },
+                                set: { entry.fairwayHit = $0 }
+                            ),
+                            icon: "leaf.fill"
+                        )
+                    }
+
+                    toggleButton(
+                        label: "GIR",
+                        isOn: $entry.greenInRegulation,
+                        icon: "target"
+                    )
+
+                    toggleButton(
+                        label: "Sand",
+                        isOn: Binding(
+                            get: { entry.sandSave ?? false },
+                            set: { entry.sandSave = $0 }
+                        ),
+                        icon: "sun.dust.fill"
+                    )
+
+                    toggleButton(
+                        label: "U&D",
+                        isOn: Binding(
+                            get: { entry.upAndDown ?? false },
+                            set: { entry.upAndDown = $0 }
+                        ),
+                        icon: "arrow.up.arrow.down"
+                    )
+                }
+
+                // MARK: - Shot Tracker
+                Button {
+                    onShowShotTracker()
+                } label: {
+                    Label("Track Shots (\(entry.shots.count))", systemImage: "scope")
+                        .font(.subheadline.bold())
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Theme.primary.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+
+                // MARK: - Notes
+                TextField("Hole notes...", text: $entry.notes, axis: .vertical)
+                    .textFieldStyle(.roundedBorder)
+                    .lineLimit(2...4)
+            }
+            .padding()
+        }
+    }
+
+    // MARK: - Mini Stepper
+    private func stepperColumn(label: String, value: Binding<Int>) -> some View {
+        VStack(spacing: 8) {
+            Text(label)
+                .font(.caption.bold())
+                .foregroundStyle(.secondary)
+            HStack(spacing: 16) {
+                Button {
+                    if value.wrappedValue > 0 { value.wrappedValue -= 1 }
+                    Haptics.light()
+                } label: {
+                    Image(systemName: "minus.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(Theme.primary)
+                }
+                Text("\(value.wrappedValue)")
+                    .font(.title.bold())
+                    .frame(width: 40)
+                Button {
+                    value.wrappedValue += 1
+                    Haptics.light()
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(Theme.primary)
+                }
+            }
+        }
+    }
+
+    // MARK: - Toggle Button
+    private func toggleButton(label: String, isOn: Binding<Bool>, icon: String) -> some View {
+        Button {
+            isOn.wrappedValue.toggle()
+            Haptics.selection()
+        } label: {
+            VStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.title3)
+                Text(label)
+                    .font(.caption2.bold())
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .background(isOn.wrappedValue ? Theme.primary : Color.gray.opacity(0.15))
+            .foregroundStyle(isOn.wrappedValue ? .white : .primary)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+        .accessibilityLabel("\(label): \(isOn.wrappedValue ? "on" : "off")")
+    }
+}
+
+=== FILE: ./TeeMetrics/Views/Dashboard/DashboardView.swift ===
+// MARK: - Home Dashboard
+// Quick-start round, last 5 rounds, key stats widgets, hot streaks, pro banner
+
+import SwiftUI
+import SwiftData
+
+struct DashboardView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \GolfRound.date, order: .reverse) private var allRounds: [GolfRound]
+    @Query private var golfers: [Golfer]
+    @State private var showNewRound = false
+
+    private var completedRounds: [GolfRound] {
+        allRounds.filter { $0.isCompleted }
+    }
+
+    private var activeRound: GolfRound? {
+        allRounds.first { !$0.isCompleted }
+    }
+
+    private var recentRounds: [GolfRound] {
+        Array(completedRounds.prefix(5))
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 20) {
+                    // MARK: - Quick Start / Resume
+                    quickStartSection
+
+                    // MARK: - Key Stats
+                    if !completedRounds.isEmpty {
+                        statsGrid
+                    }
+
+                    // MARK: - Recent Rounds
+                    if !recentRounds.isEmpty {
+                        recentRoundsSection
+                    }
+
+                    // MARK: - Hot Streaks
+                    if completedRounds.count >= 3 {
+                        hotStreaksSection
+                    }
+
+                    // MARK: - Pro Banner
+                    if !SubscriptionManager.shared.isProUser {
+                        proBanner
+                    }
+                }
+                .padding()
+            }
+            .navigationTitle("TeeMetrics")
+            .sheet(isPresented: $showNewRound) {
+                NewRoundView()
+            }
+        }
+    }
+
+    // MARK: - Quick Start Button
+    private var quickStartSection: some View {
+        VStack(spacing: 12) {
+            if let active = activeRound {
+                NavigationLink {
+                    LiveRoundView(round: active)
+                } label: {
+                    HStack {
+                        Image(systemName: "play.circle.fill")
+                            .font(.title2)
+                        VStack(alignment: .leading) {
+                            Text("Resume Round")
+                                .font(.headline)
+                            Text("Hole \(active.currentHole) \u{2022} \(active.course?.name ?? "Unknown")")
+                                .font(.caption)
+                                .foregroundStyle(.white.opacity(0.8))
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                    }
+                    .foregroundStyle(.white)
+                    .padding()
+                    .background(Theme.golfGradient)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+            } else {
+                Button {
+                    Haptics.medium()
+                    showNewRound = true
+                } label: {
+                    HStack {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                        Text("Start New Round")
+                            .font(.headline)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                    }
+                    .foregroundStyle(.white)
+                    .padding()
+                    .background(Theme.golfGradient)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+            }
+        }
+    }
+
+    // MARK: - Stats Grid
+    private var statsGrid: some View {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+            StatCard(
+                title: "Avg Score",
+                value: String(format: "%.1f", StatsCalculator.averageScore(rounds: completedRounds)),
+                icon: "number.circle.fill"
+            )
+            StatCard(
+                title: "Fairways",
+                value: String(format: "%.0f%%", StatsCalculator.averageFairways(rounds: completedRounds)),
+                icon: "leaf.fill"
+            )
+            StatCard(
+                title: "GIR",
+                value: String(format: "%.0f%%", StatsCalculator.averageGIR(rounds: completedRounds)),
+                icon: "target"
+            )
+            StatCard(
+                title: "Avg Putts",
+                value: String(format: "%.1f", StatsCalculator.averagePutts(rounds: completedRounds)),
+                icon: "circle.fill"
+            )
+        }
+    }
+
+    // MARK: - Recent Rounds
+    private var recentRoundsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Recent Rounds")
+                .font(.headline)
+
+            ForEach(recentRounds) { round in
+                NavigationLink {
+                    RoundDetailView(round: round)
+                } label: {
+                    RoundRowView(round: round)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    // MARK: - Hot Streaks
+    private var hotStreaksSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Hot Streaks")
+                .font(.headline)
+
+            let trend = StatsCalculator.scoreTrend(rounds: completedRounds)
+            if trend > 0 {
+                HStack {
+                    Image(systemName: "flame.fill")
+                        .foregroundStyle(.orange)
+                    Text("Scores improving by \(String(format: "%.1f", trend)) strokes on average!")
+                        .font(.subheadline)
+                }
+                .cardStyle()
+            } else if let best = StatsCalculator.bestScore(rounds: completedRounds) {
+                HStack {
+                    Image(systemName: "trophy.fill")
+                        .foregroundStyle(Theme.accent)
+                    Text("Personal best: \(best)")
+                        .font(.subheadline)
+                }
+                .cardStyle()
+            }
+        }
+    }
+
+    // MARK: - Pro Banner
+    private var proBanner: some View {
+        NavigationLink {
+            SubscriptionView()
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Unlock Pro")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                    Text("Advanced stats, strokes gained & more")
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.8))
+                }
+                Spacer()
+                Image(systemName: "crown.fill")
+                    .font(.title2)
+                    .foregroundStyle(Theme.accent)
+            }
+            .padding()
+            .background(Theme.primary.opacity(0.9))
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+        }
+    }
+}
+
+// MARK: - Stat Card
+struct StatCard: View {
+    let title: String
+    let value: String
+    let icon: String
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.title3)
+                .foregroundStyle(Theme.primary)
+            Text(value)
+                .font(.title2.bold())
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .cardStyle()
+    }
+}
+
+// MARK: - Round Row
+struct RoundRowView: View {
+    let round: GolfRound
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(round.course?.name ?? "Unknown Course")
+                    .font(.subheadline.bold())
+                Text(round.date.relativeFormatted)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            VStack(alignment: .trailing, spacing: 4) {
+                Text("\(round.totalScore)")
+                    .font(.title3.bold())
+                Text(round.scoreToParString)
+                    .font(.caption.bold())
+                    .foregroundStyle(Theme.scoreColor(for: round.scoreToPar))
+            }
+        }
+        .cardStyle()
+    }
+}
+
+=== FILE: ./TeeMetrics/Views/History/RoundHistoryView.swift ===
+// MARK: - Round History
+// Searchable list of all rounds, filterable by course/date
+
+import SwiftUI
+import SwiftData
+
+struct RoundHistoryView: View {
+    @Query(sort: \GolfRound.date, order: .reverse) private var rounds: [GolfRound]
+    @State private var searchText = ""
+    @State private var filterCourse: GolfCourse?
+
+    private var filteredRounds: [GolfRound] {
+        var result = rounds.filter { $0.isCompleted }
+        if !searchText.isEmpty {
+            result = result.filter {
+                $0.course?.name.localizedCaseInsensitiveContains(searchText) ?? false
+            }
+        }
+        if let course = filterCourse {
+            result = result.filter { $0.course?.id == course.id }
+        }
+        return result
+    }
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if filteredRounds.isEmpty {
+                    ContentUnavailableView(
+                        "No Rounds Yet",
+                        systemImage: "flag.fill",
+                        description: Text("Complete a round to see it here")
+                    )
+                } else {
+                    List {
+                        ForEach(filteredRounds) { round in
+                            NavigationLink {
+                                RoundDetailView(round: round)
+                            } label: {
+                                RoundHistoryRow(round: round)
+                            }
+                        }
+                    }
+                    .listStyle(.plain)
+                }
+            }
+            .navigationTitle("Rounds")
+            .searchable(text: $searchText, prompt: "Search by course")
+        }
+    }
+}
+
+// MARK: - Round History Row
+struct RoundHistoryRow: View {
+    let round: GolfRound
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(round.course?.name ?? "Unknown")
+                    .font(.headline)
+                Text(round.date.shortFormatted)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            VStack(alignment: .trailing, spacing: 4) {
+                Text("\(round.totalScore)")
+                    .font(.title3.bold())
+                Text(round.scoreToParString)
+                    .font(.caption.bold())
+                    .foregroundStyle(Theme.scoreColor(for: round.scoreToPar))
+            }
+            VStack(alignment: .trailing, spacing: 4) {
+                HStack(spacing: 8) {
+                    Label("\(round.totalPutts)", systemImage: "circle.fill")
+                    Label(String(format: "%.0f%%", round.fairwayPercentage), systemImage: "leaf.fill")
+                }
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+=== FILE: ./TeeMetrics/Views/History/RoundDetailView.swift ===
+// MARK: - Round Detail View
+// Full round recap: scorecard, stats summary, hole-by-hole breakdown, share
+
+import SwiftUI
+
+struct RoundDetailView: View {
+    let round: GolfRound
+    @State private var showShareSheet = false
+
+    private var sortedEntries: [HoleEntry] {
+        round.holeEntries.sorted { $0.holeNumber < $1.holeNumber }
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                // MARK: - Header Card
+                VStack(spacing: 8) {
+                    Text(round.course?.name ?? "Unknown Course")
+                        .font(.title2.bold())
+                    Text(round.date.shortFormatted)
+                        .foregroundStyle(.secondary)
+
+                    HStack(spacing: 32) {
+                        VStack {
+                            Text("\(round.totalScore)")
+                                .font(.system(size: 48, weight: .bold, design: .rounded))
+                            Text(round.scoreToParString)
+                                .font(.headline)
+                                .foregroundStyle(Theme.scoreColor(for: round.scoreToPar))
+                        }
+                        VStack(alignment: .leading, spacing: 6) {
+                            statLine("Front 9", value: "\(round.frontNine)")
+                            statLine("Back 9", value: "\(round.backNine)")
+                            statLine("Putts", value: "\(round.totalPutts)")
+                            statLine("FW%", value: String(format: "%.0f%%", round.fairwayPercentage))
+                            statLine("GIR%", value: String(format: "%.0f%%", round.girPercentage))
+                        }
+                    }
+                }
+                .cardStyle()
+
+                // MARK: - Strokes Gained (Pro)
+                if SubscriptionManager.shared.isProUser {
+                    strokesGainedCard
+                }
+
+                // MARK: - Scorecard Grid
+                scorecardSection
+
+                // MARK: - Hole Details
+                ForEach(sortedEntries) { entry in
+                    HoleDetailRow(entry: entry)
+                }
+
+                // MARK: - Notes
+                if !round.notes.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Notes")
+                            .font(.headline)
+                        Text(round.notes)
+                            .foregroundStyle(.secondary)
+                    }
+                    .cardStyle()
+                }
+            }
+            .padding()
+        }
+        .navigationTitle("Round Details")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                ShareLink(
+                    item: roundSummaryText,
+                    subject: Text("My Golf Round"),
+                    message: Text("Check out my round!")
+                )
+            }
+        }
+    }
+
+    // MARK: - Stat Line
+    private func statLine(_ label: String, value: String) -> some View {
+        HStack {
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(width: 50, alignment: .leading)
+            Text(value)
+                .font(.subheadline.bold())
+        }
+    }
+
+    // MARK: - Strokes Gained Card
+    private var strokesGainedCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Strokes Gained")
+                .font(.headline)
+
+            HStack(spacing: 16) {
+                sgItem("Off Tee", value: StatsCalculator.strokesGainedOffTee(round: round))
+                sgItem("Approach", value: StatsCalculator.strokesGainedApproach(round: round))
+                sgItem("Short", value: StatsCalculator.strokesGainedShortGame(round: round))
+                sgItem("Putting", value: StatsCalculator.strokesGainedPutting(round: round))
+            }
+        }
+        .cardStyle()
+    }
+
+    private func sgItem(_ label: String, value: Double) -> some View {
+        VStack(spacing: 4) {
+            Text(String(format: "%+.1f", value))
+                .font(.headline)
+                .foregroundStyle(value >= 0 ? .green : .red)
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    // MARK: - Scorecard
+    private var scorecardSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Scorecard")
+                .font(.headline)
+
+            // Front 9
+            scorecardRow(entries: sortedEntries.filter { $0.holeNumber <= 9 }, label: "OUT")
+            // Back 9
+            scorecardRow(entries: sortedEntries.filter { $0.holeNumber > 9 }, label: "IN")
+        }
+        .cardStyle()
+    }
+
+    private func scorecardRow(entries: [HoleEntry], label: String) -> some View {
+        VStack(spacing: 4) {
+            HStack(spacing: 0) {
+                ForEach(entries) { entry in
+                    VStack(spacing: 2) {
+                        Text("\(entry.holeNumber)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                        Text("\(entry.par)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                        Text("\(entry.score)")
+                            .font(.caption.bold())
+                            .frame(width: 26, height: 26)
+                            .background(scoreBackground(for: entry.scoreToPar))
+                            .clipShape(Circle())
+                            .foregroundStyle(entry.scoreToPar <= -1 ? .white : .primary)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                VStack(spacing: 2) {
+                    Text("")
+                    Text(label)
+                        .font(.caption2.bold())
+                    Text("\(entries.reduce(0) { $0 + $1.score })")
+                        .font(.caption.bold())
+                }
+                .frame(width: 36)
+            }
+        }
+    }
+
+    private func scoreBackground(for toPar: Int) -> Color {
+        switch toPar {
+        case ...(-2): return Theme.eagle
+        case -1: return Theme.birdie
+        case 0: return .clear
+        case 1: return Theme.bogey.opacity(0.2)
+        default: return Theme.doublePlus.opacity(0.2)
+        }
+    }
+
+    // MARK: - Share Text
+    private var roundSummaryText: String {
+        """
+        TeeMetrics Round Summary
+        \(round.course?.name ?? "Unknown") - \(round.date.shortFormatted)
+        Score: \(round.totalScore) (\(round.scoreToParString))
+        Front: \(round.frontNine) | Back: \(round.backNine)
+        Putts: \(round.totalPutts) | FW: \(String(format: "%.0f%%", round.fairwayPercentage)) | GIR: \(String(format: "%.0f%%", round.girPercentage))
+        """
+    }
+}
+
+// MARK: - Hole Detail Row
+struct HoleDetailRow: View {
+    let entry: HoleEntry
+
+    var body: some View {
+        HStack {
+            Text("#\(entry.holeNumber)")
+                .font(.caption.bold())
+                .frame(width: 30)
+
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 4) {
+                    Text("Par \(entry.par)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    if let info = entry.holeInfo {
+                        Text("\(info.yardage)y")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+
+            Spacer()
+
+            HStack(spacing: 12) {
+                if entry.fairwayHit == true {
+                    Image(systemName: "leaf.fill")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
+                if entry.greenInRegulation {
+                    Image(systemName: "target")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
+                Text("\(entry.putts)P")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Text("\(entry.score)")
+                    .font(.headline.bold())
+                    .foregroundStyle(Theme.scoreColor(for: entry.scoreToPar))
+            }
+        }
+        .padding(.vertical, 4)
+        .padding(.horizontal)
+    }
+}
+
+=== FILE: ./TeeMetrics/Views/Bag/BagManagerView.swift ===
+// MARK: - Bag Manager
+// Add/edit clubs, view avg distances, historical tracking per club
+
+import SwiftUI
+import SwiftData
+
+struct BagManagerView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query(filter: #Predicate<Bag> { $0.isDefault == true }) private var bags: [Bag]
+    @State private var showAddClub = false
+
+    private var bag: Bag? { bags.first }
+
+    private var sortedClubs: [Club] {
+        bag?.sortedClubs ?? []
+    }
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if let bag {
+                    List {
+                        ForEach(clubsByType) { group in
+                            Section(group.type.capitalized) {
+                                ForEach(group.clubs) { club in
+                                    NavigationLink {
+                                        ClubDetailView(club: club)
+                                    } label: {
+                                        ClubRow(club: club)
+                                    }
+                                }
+                                .onDelete { offsets in
+                                    deleteClubs(in: group, at: offsets)
+                                }
+                            }
+                        }
+                    }
+                    .listStyle(.insetGrouped)
+                } else {
+                    ContentUnavailableView(
+                        "No Bag",
+                        systemImage: "bag.fill",
+                        description: Text("Create a bag to get started")
+                    )
+                }
+            }
+            .navigationTitle("My Bag")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        showAddClub = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showAddClub) {
+                AddClubView(bag: bag)
+            }
+        }
+    }
+
+    private var clubsByType: [ClubGroup] {
+        let types = ["driver", "wood", "hybrid", "iron", "wedge", "putter"]
+        return types.compactMap { type in
+            let clubs = sortedClubs.filter { $0.clubType == type }
+            guard !clubs.isEmpty else { return nil }
+            return ClubGroup(type: type, clubs: clubs)
+        }
+    }
+
+    private func deleteClubs(in group: ClubGroup, at offsets: IndexSet) {
+        for index in offsets {
+            modelContext.delete(group.clubs[index])
+        }
+    }
+}
+
+struct ClubGroup: Identifiable {
+    let type: String
+    let clubs: [Club]
+    var id: String { type }
+}
+
+// MARK: - Club Row
+struct ClubRow: View {
+    let club: Club
+
+    var body: some View {
+        HStack {
+            Image(systemName: club.systemImage)
+                .foregroundStyle(Theme.primary)
+                .frame(width: 30)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(club.name)
+                    .font(.subheadline.bold())
+                if club.totalShots > 0 {
+                    Text("\(club.totalShots) shots tracked")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Spacer()
+            if club.avgDistance > 0 {
+                VStack(alignment: .trailing) {
+                    Text("\(club.avgDistance) yds")
+                        .font(.subheadline.bold())
+                    if club.minDistance != club.maxDistance {
+                        Text("\(club.minDistance)-\(club.maxDistance)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Club Detail View
+struct ClubDetailView: View {
+    @Bindable var club: Club
+
+    var body: some View {
+        Form {
+            Section("Club Info") {
+                TextField("Name", text: $club.name)
+                Picker("Type", selection: $club.clubType) {
+                    ForEach(ClubType.allCases) { type in
+                        Text(type.displayName).tag(type.rawValue)
+                    }
+                }
+            }
+
+            Section("Distances") {
+                HStack {
+                    Text("Average")
+                    Spacer()
+                    TextField("Yds", value: $club.avgDistance, format: .number)
+                        .keyboardType(.numberPad)
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 80)
+                }
+                if club.totalShots > 0 {
+                    HStack {
+                        Text("Min")
+                        Spacer()
+                        Text("\(club.minDistance) yds")
+                            .foregroundStyle(.secondary)
+                    }
+                    HStack {
+                        Text("Max")
+                        Spacer()
+                        Text("\(club.maxDistance) yds")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+
+            Section("Stats") {
+                HStack {
+                    Text("Total Shots")
+                    Spacer()
+                    Text("\(club.totalShots)")
+                        .foregroundStyle(.secondary)
+                }
+                if let lastUsed = club.lastUsed {
+                    HStack {
+                        Text("Last Used")
+                        Spacer()
+                        Text(lastUsed.shortFormatted)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        .navigationTitle(club.name)
+    }
+}
+
+// MARK: - Add Club View
+struct AddClubView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    let bag: Bag?
+
+    @State private var name = ""
+    @State private var clubType = "iron"
+    @State private var avgDistance = ""
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                TextField("Club Name", text: $name)
+                Picker("Type", selection: $clubType) {
+                    ForEach(ClubType.allCases) { type in
+                        Text(type.displayName).tag(type.rawValue)
+                    }
+                }
+                TextField("Average Distance (yards)", text: $avgDistance)
+                    .keyboardType(.numberPad)
+            }
+            .navigationTitle("Add Club")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Add") { addClub() }
+                        .disabled(name.isEmpty)
+                }
+            }
+        }
+    }
+
+    private func addClub() {
+        let club = Club(
+            name: name,
+            clubType: clubType,
+            avgDistance: Int(avgDistance) ?? 0,
+            sortOrder: (bag?.clubs.count ?? 0),
+            bag: bag
+        )
+        modelContext.insert(club)
+        Haptics.success()
+        dismiss()
+    }
+}
+
+=== FILE: ./TeeMetrics/Views/Round/AddCourseView.swift ===
+// MARK: - Add Course View
+// Create new course with name, location, hole-by-hole par/yardage, and MapKit pin
+
+import SwiftUI
+import SwiftData
+import MapKit
+
+struct AddCourseView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+
+    var onCourseCreated: ((GolfCourse) -> Void)?
+
+    @State private var name = ""
+    @State private var city = ""
+    @State private var state = ""
+    @State private var slopeRating = "113"
+    @State private var courseRating = "72.0"
+    @State private var holes: [EditableHole] = (1...18).map { EditableHole(number: $0) }
+    @State private var cameraPosition: MapCameraPosition = .automatic
+    @State private var pinLocation: CLLocationCoordinate2D?
+
+    struct EditableHole: Identifiable {
+        let id = UUID()
+        let number: Int
+        var par: Int = 4
+        var yardage: Int = 350
+        var handicapRating: Int = 1
+    }
+
+    var totalPar: Int { holes.reduce(0) { $0 + $1.par } }
+    var totalYardage: Int { holes.reduce(0) { $0 + $1.yardage } }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                // MARK: - Course Info
+                Section("Course Info") {
+                    TextField("Course Name", text: $name)
+                    TextField("City", text: $city)
+                    TextField("State", text: $state)
+                    HStack {
+                        TextField("Slope", text: $slopeRating)
+                            .keyboardType(.decimalPad)
+                        TextField("Rating", text: $courseRating)
+                            .keyboardType(.decimalPad)
+                    }
+                }
+
+                // MARK: - Map Pin
+                Section("Location") {
+                    Map(position: $cameraPosition) {
+                        if let pin = pinLocation {
+                            Marker("Course", coordinate: pin)
+                                .tint(Theme.primary)
+                        }
+                    }
+                    .frame(height: 200)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .onTapGesture { /* MapKit handles pin placement via long press */ }
+
+                    Text("Tap the map to set location (optional)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                // MARK: - Quick Par Setup
+                Section("Quick Setup") {
+                    HStack {
+                        Text("Par: \(totalPar)")
+                            .font(.headline)
+                        Spacer()
+                        Text("Yards: \(totalYardage)")
+                            .font(.headline)
+                    }
+
+                    Button("Set All Par 4") {
+                        for i in holes.indices { holes[i].par = 4 }
+                    }
+                    Button("Standard Par 72 Layout") {
+                        applyStandardLayout()
+                    }
+                }
+
+                // MARK: - Hole-by-Hole Editor
+                Section("Holes") {
+                    ForEach($holes) { $hole in
+                        HStack {
+                            Text("#\(hole.number)")
+                                .font(.caption.bold())
+                                .frame(width: 30)
+                            Picker("Par", selection: $hole.par) {
+                                ForEach(3...5, id: \.self) { Text("P\($0)").tag($0) }
+                            }
+                            .pickerStyle(.segmented)
+                            TextField("Yds", value: $hole.yardage, format: .number)
+                                .keyboardType(.numberPad)
+                                .frame(width: 60)
+                                .textFieldStyle(.roundedBorder)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Add Course")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") { saveCourse() }
+                        .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
+            }
+        }
+    }
+
+    private func applyStandardLayout() {
+        // Standard par 72: par 3 on holes 3, 7, 12, 16; par 5 on holes 2, 9, 13, 18
+        let par5s: Set<Int> = [2, 9, 13, 18]
+        let par3s: Set<Int> = [3, 7, 12, 16]
+        for i in holes.indices {
+            let num = holes[i].number
+            if par5s.contains(num) {
+                holes[i].par = 5
+                holes[i].yardage = 520
+            } else if par3s.contains(num) {
+                holes[i].par = 3
+                holes[i].yardage = 170
+            } else {
+                holes[i].par = 4
+                holes[i].yardage = 380
+            }
+            holes[i].handicapRating = i + 1
+        }
+    }
+
+    private func saveCourse() {
+        let course = GolfCourse(
+            name: name.trimmingCharacters(in: .whitespaces),
+            city: city,
+            state: state,
+            latitude: pinLocation?.latitude ?? 0,
+            longitude: pinLocation?.longitude ?? 0,
+            totalPar: totalPar,
+            totalYardage: totalYardage,
+            slopeRating: Double(slopeRating) ?? 113,
+            courseRating: Double(courseRating) ?? 72.0
+        )
+        modelContext.insert(course)
+
+        for hole in holes {
+            let holeInfo = HoleInfo(
+                holeNumber: hole.number,
+                par: hole.par,
+                yardage: hole.yardage,
+                handicapRating: hole.handicapRating,
+                course: course
+            )
+            modelContext.insert(holeInfo)
+        }
+
+        Haptics.success()
+        onCourseCreated?(course)
+        dismiss()
+    }
+}
+
+=== FILE: ./TeeMetrics/Views/Round/NewRoundView.swift ===
+// MARK: - New Round Flow
+// Course selection, multi-player toggle, bag selection, start round
+
+import SwiftUI
+import SwiftData
+
+struct NewRoundView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+
+    @Query(sort: \GolfCourse.name) private var courses: [GolfCourse]
+    @Query(filter: #Predicate<Bag> { $0.isDefault == true }) private var bags: [Bag]
+
+    @State private var selectedCourse: GolfCourse?
+    @State private var playerCount = 1
+    @State private var playerNames = ""
+    @State private var weatherNotes = ""
+    @State private var showAddCourse = false
+    @State private var searchText = ""
+    @State private var navigateToRound = false
+    @State private var createdRound: GolfRound?
+
+    private var filteredCourses: [GolfCourse] {
+        if searchText.isEmpty { return courses }
+        return courses.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                // MARK: - Course Selection
+                Section("Course") {
+                    if courses.isEmpty {
+                        Button("Add Your First Course") {
+                            showAddCourse = true
+                        }
+                    } else {
+                        Picker("Select Course", selection: $selectedCourse) {
+                            Text("Choose...").tag(nil as GolfCourse?)
+                            ForEach(filteredCourses) { course in
+                                Text(course.name).tag(course as GolfCourse?)
+                            }
+                        }
+                    }
+
+                    Button {
+                        showAddCourse = true
+                    } label: {
+                        Label("Add New Course", systemImage: "plus.circle")
+                    }
+                }
+
+                // MARK: - Players
+                Section("Players") {
+                    Stepper("Players: \(playerCount)", value: $playerCount, in: 1...4)
+                    if playerCount > 1 {
+                        TextField("Player names (comma separated)", text: $playerNames)
+                    }
+                }
+
+                // MARK: - Weather
+                Section("Conditions") {
+                    TextField("Weather notes (optional)", text: $weatherNotes)
+                }
+
+                // MARK: - Start Round
+                Section {
+                    Button {
+                        startRound()
+                    } label: {
+                        HStack {
+                            Spacer()
+                            Label("Start Round", systemImage: "flag.checkered")
+                                .font(.headline)
+                            Spacer()
+                        }
+                    }
+                    .disabled(selectedCourse == nil)
+                }
+            }
+            .navigationTitle("New Round")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+            .sheet(isPresented: $showAddCourse) {
+                AddCourseView { course in
+                    selectedCourse = course
+                }
+            }
+            .navigationDestination(isPresented: $navigateToRound) {
+                if let round = createdRound {
+                    LiveRoundView(round: round)
+                }
+            }
+            .searchable(text: $searchText, prompt: "Search courses")
+        }
+    }
+
+    private func startRound() {
+        guard let course = selectedCourse else { return }
+        Haptics.success()
+
+        let round = GolfRound(
+            course: course,
+            weatherNotes: weatherNotes,
+            playersCount: playerCount,
+            playerNames: playerNames
+        )
+        modelContext.insert(round)
+
+        // Pre-populate hole entries from course data
+        let sortedHoles = course.holes.sorted { $0.holeNumber < $1.holeNumber }
+        for i in 1...18 {
+            let holeInfo = sortedHoles.first { $0.holeNumber == i }
+            let entry = HoleEntry(
+                holeNumber: i,
+                par: holeInfo?.par ?? 4,
+                round: round,
+                holeInfo: holeInfo
+            )
+            modelContext.insert(entry)
+            round.holeEntries.append(entry)
+        }
+
+        createdRound = round
+        navigateToRound = true
+    }
+}
+
+=== FILE: ./TeeMetrics/Views/Stats/StatsView.swift ===
+// MARK: - Stats & Analytics Dashboard
+// Swift Charts: score trend, fairway %, GIR %, putts, club dispersion,
+// strokes gained breakdown, handicap progress, insight cards
+
+import SwiftUI
+import SwiftData
+import Charts
+
+struct StatsView: View {
+    @Query(sort: \GolfRound.date, order: .reverse) private var allRounds: [GolfRound]
+
+    private var completedRounds: [GolfRound] {
+        allRounds.filter { $0.isCompleted }
+    }
+
+    private var chronologicalRounds: [GolfRound] {
+        completedRounds.reversed()
+    }
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if completedRounds.isEmpty {
+                    ContentUnavailableView(
+                        "No Stats Yet",
+                        systemImage: "chart.bar.fill",
+                        description: Text("Complete a round to see analytics")
+                    )
+                } else {
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            overviewCards
+                            scoreTrendChart
+                            puttsTrendChart
+                            fairwayGIRChart
+
+                            if SubscriptionManager.shared.isProUser {
+                                strokesGainedChart
+                                handicapChart
+                            } else {
+                                proUpgradeCard
+                            }
+
+                            insightsSection
+                        }
+                        .padding()
+                    }
+                }
+            }
+            .navigationTitle("Stats")
+        }
+    }
+
+    // MARK: - Overview Cards
+    private var overviewCards: some View {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+            miniStat("Rounds", value: "\(completedRounds.count)")
+            miniStat("Best", value: StatsCalculator.bestScore(rounds: completedRounds).map { "\($0)" } ?? "-")
+            miniStat("Handicap", value: String(format: "%.1f", StatsCalculator.handicapIndex(rounds: completedRounds)))
+        }
+    }
+
+    private func miniStat(_ label: String, value: String) -> some View {
+        VStack(spacing: 4) {
+            Text(value)
+                .font(.title3.bold())
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .cardStyle()
+    }
+
+    // MARK: - Score Trend Chart
+    private var scoreTrendChart: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Score Trend")
+                .font(.headline)
+
+            Chart {
+                ForEach(Array(chronologicalRounds.suffix(20).enumerated()), id: \.offset) { index, round in
+                    LineMark(
+                        x: .value("Round", index + 1),
+                        y: .value("Score", round.totalScore)
+                    )
+                    .foregroundStyle(Theme.primary)
+
+                    PointMark(
+                        x: .value("Round", index + 1),
+                        y: .value("Score", round.totalScore)
+                    )
+                    .foregroundStyle(Theme.primary)
+
+                    if let course = round.course {
+                        RuleMark(y: .value("Par", course.totalPar))
+                            .foregroundStyle(.gray.opacity(0.3))
+                            .lineStyle(StrokeStyle(dash: [5, 5]))
+                    }
+                }
+            }
+            .frame(height: 200)
+            .chartYScale(domain: .automatic(includesZero: false))
+        }
+        .cardStyle()
+    }
+
+    // MARK: - Putts Trend
+    private var puttsTrendChart: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Putts Per Round")
+                .font(.headline)
+
+            Chart {
+                ForEach(Array(chronologicalRounds.suffix(20).enumerated()), id: \.offset) { index, round in
+                    BarMark(
+                        x: .value("Round", index + 1),
+                        y: .value("Putts", round.totalPutts)
+                    )
+                    .foregroundStyle(Theme.primary.gradient)
+                }
+            }
+            .frame(height: 160)
+        }
+        .cardStyle()
+    }
+
+    // MARK: - Fairway & GIR Chart
+    private var fairwayGIRChart: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Fairways & GIR")
+                .font(.headline)
+
+            Chart {
+                ForEach(Array(chronologicalRounds.suffix(20).enumerated()), id: \.offset) { index, round in
+                    LineMark(
+                        x: .value("Round", index + 1),
+                        y: .value("FW%", round.fairwayPercentage),
+                        series: .value("Stat", "Fairway")
+                    )
+                    .foregroundStyle(.green)
+
+                    LineMark(
+                        x: .value("Round", index + 1),
+                        y: .value("GIR%", round.girPercentage),
+                        series: .value("Stat", "GIR")
+                    )
+                    .foregroundStyle(.blue)
+                }
+            }
+            .frame(height: 180)
+            .chartForegroundStyleScale(["Fairway": .green, "GIR": .blue])
+        }
+        .cardStyle()
+    }
+
+    // MARK: - Strokes Gained Chart (Pro)
+    private var strokesGainedChart: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Strokes Gained (Last 10)")
+                .font(.headline)
+
+            let recent = Array(completedRounds.prefix(10))
+            let avgOffTee = recent.map { StatsCalculator.strokesGainedOffTee(round: $0) }.reduce(0, +) / max(1, Double(recent.count))
+            let avgApproach = recent.map { StatsCalculator.strokesGainedApproach(round: $0) }.reduce(0, +) / max(1, Double(recent.count))
+            let avgShort = recent.map { StatsCalculator.strokesGainedShortGame(round: $0) }.reduce(0, +) / max(1, Double(recent.count))
+            let avgPutt = recent.map { StatsCalculator.strokesGainedPutting(round: $0) }.reduce(0, +) / max(1, Double(recent.count))
+
+            let data: [(String, Double)] = [
+                ("Off Tee", avgOffTee),
+                ("Approach", avgApproach),
+                ("Short Game", avgShort),
+                ("Putting", avgPutt),
+            ]
+
+            Chart(data, id: \.0) { item in
+                BarMark(
+                    x: .value("Category", item.0),
+                    y: .value("SG", item.1)
+                )
+                .foregroundStyle(item.1 >= 0 ? Color.green : Color.red)
+            }
+            .frame(height: 180)
+        }
+        .cardStyle()
+    }
+
+    // MARK: - Handicap Chart (Pro)
+    private var handicapChart: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Handicap Progress")
+                .font(.headline)
+
+            // Calculate rolling handicap at each point
+            let rounds = chronologicalRounds
+            Chart {
+                ForEach(Array(rounds.enumerated()), id: \.offset) { index, _ in
+                    if index >= 2 {
+                        let subset = Array(rounds.prefix(index + 1))
+                        let hcp = StatsCalculator.handicapIndex(rounds: subset)
+                        LineMark(
+                            x: .value("Round", index + 1),
+                            y: .value("HCP", hcp)
+                        )
+                        .foregroundStyle(Theme.accent)
+                    }
+                }
+            }
+            .frame(height: 160)
+            .chartYScale(domain: .automatic(includesZero: false))
+        }
+        .cardStyle()
+    }
+
+    // MARK: - Insights (rule-based)
+    private var insightsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Insights")
+                .font(.headline)
+
+            let avgPutts = StatsCalculator.averagePutts(rounds: completedRounds)
+            let avgGIR = StatsCalculator.averageGIR(rounds: completedRounds)
+            let avgFW = StatsCalculator.averageFairways(rounds: completedRounds)
+
+            if avgPutts > 2.0 {
+                insightCard(
+                    icon: "circle.fill",
+                    color: .orange,
+                    text: "Putting is your biggest opportunity. Averaging \(String(format: "%.1f", avgPutts)) putts/hole — focus on lag putting."
+                )
+            }
+            if avgGIR < 35 {
+                insightCard(
+                    icon: "target",
+                    color: .blue,
+                    text: "GIR at \(String(format: "%.0f%%", avgGIR)). Dial in approach distances to save strokes."
+                )
+            }
+            if avgFW < 50 {
+                insightCard(
+                    icon: "leaf.fill",
+                    color: .green,
+                    text: "Fairways at \(String(format: "%.0f%%", avgFW)). Consider a more consistent tee shot strategy."
+                )
+            }
+            if completedRounds.count >= 10 {
+                let trend = StatsCalculator.scoreTrend(rounds: completedRounds)
+                if trend > 0 {
+                    insightCard(icon: "arrow.down.right", color: .green, text: "Great trend! Scores dropping by \(String(format: "%.1f", trend)) on average.")
+                }
+            }
+        }
+    }
+
+    private func insightCard(icon: String, color: Color, text: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .foregroundStyle(color)
+                .frame(width: 24)
+            Text(text)
+                .font(.subheadline)
+        }
+        .cardStyle()
+    }
+
+    // MARK: - Pro Upgrade
+    private var proUpgradeCard: some View {
+        NavigationLink {
+            SubscriptionView()
+        } label: {
+            HStack {
+                Image(systemName: "lock.fill")
+                    .foregroundStyle(Theme.accent)
+                VStack(alignment: .leading) {
+                    Text("Unlock Advanced Stats")
+                        .font(.subheadline.bold())
+                    Text("Strokes gained, handicap trends & more")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(.secondary)
+            }
+            .cardStyle()
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+=== FILE: ./TeeMetrics/Views/Onboarding/OnboardingView.swift ===
+// MARK: - Onboarding View
+// Welcome flow: golf-green gradient, animated flag, name & handicap entry
+
+import SwiftUI
+import SwiftData
+
+struct OnboardingView: View {
+    @Environment(\.modelContext) private var modelContext
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+
+    @State private var currentPage = 0
+    @State private var name = ""
+    @State private var handicap = ""
+    @State private var flagOffset: CGFloat = -20
+    @State private var showFlag = false
+
+    var body: some View {
+        ZStack {
+            Theme.golfGradient.ignoresSafeArea()
+
+            VStack(spacing: 32) {
+                Spacer()
+
+                // MARK: - Animated Flag
+                Image(systemName: "flag.fill")
+                    .font(.system(size: 80))
+                    .foregroundStyle(Theme.accent)
+                    .offset(y: flagOffset)
+                    .opacity(showFlag ? 1 : 0)
+                    .onAppear {
+                        withAnimation(.easeOut(duration: 0.8)) {
+                            showFlag = true
+                            flagOffset = 0
+                        }
+                    }
+
+                // MARK: - Welcome Text
+                VStack(spacing: 8) {
+                    Text("TeeMetrics")
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(.white)
+                    Text("Golf Stats Tracker & Round Analyzer")
+                        .font(.subheadline)
+                        .foregroundStyle(.white.opacity(0.8))
+                }
+
+                Spacer()
+
+                // MARK: - Input Fields
+                VStack(spacing: 16) {
+                    TextField("Your Name", text: $name)
+                        .textFieldStyle(.roundedBorder)
+                        .textContentType(.name)
+                        .autocorrectionDisabled()
+                        .padding(.horizontal)
+
+                    TextField("Handicap Index (optional)", text: $handicap)
+                        .textFieldStyle(.roundedBorder)
+                        .keyboardType(.decimalPad)
+                        .padding(.horizontal)
+                }
+                .padding()
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .padding(.horizontal)
+
+                // MARK: - Get Started Button
+                Button {
+                    completeOnboarding()
+                } label: {
+                    Text("Get Started")
+                        .font(.headline)
+                        .foregroundStyle(Theme.primary)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Theme.accent)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+                .padding(.horizontal, 32)
+                .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
+                .opacity(name.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1)
+
+                Spacer()
+            }
+            .padding()
+        }
+    }
+
+    private func completeOnboarding() {
+        Haptics.success()
+
+        let golfer = Golfer(
+            name: name.trimmingCharacters(in: .whitespaces),
+            handicapIndex: Double(handicap) ?? 0
+        )
+        modelContext.insert(golfer)
+
+        // Create default bag
+        let bag = Bag.createDefault()
+        modelContext.insert(bag)
+        golfer.defaultBagID = bag.id
+
+        hasCompletedOnboarding = true
+    }
+}
+
+=== FILE: ./TeeMetrics/Services/SubscriptionManager.swift ===
+// MARK: - Subscription Manager
+// StoreKit 2 integration for freemium Pro tier
+
+import SwiftUI
+import StoreKit
+
+@Observable
+final class SubscriptionManager {
+    static let shared = SubscriptionManager()
+
+    var isProUser: Bool = false
+    var products: [Product] = []
+    var purchasedProductIDs: Set<String> = []
+
+    static let monthlyID = "com.teemetrics.pro.monthly"
+    static let yearlyID = "com.teemetrics.pro.yearly"
+    static let lifetimeID = "com.teemetrics.pro.lifetime"
+
+    private var updateListenerTask: Task<Void, Error>?
+
+    init() {
+        updateListenerTask = listenForTransactions()
+        Task { await updatePurchasedProducts() }
+    }
+
+    deinit {
+        updateListenerTask?.cancel()
+    }
+
+    // MARK: - Load Products
+    @MainActor
+    func loadProducts() async {
+        do {
+            products = try await Product.products(for: [
+                Self.monthlyID,
+                Self.yearlyID,
+                Self.lifetimeID
+            ])
+        } catch {
+            print("Failed to load products: \(error)")
+        }
+    }
+
+    // MARK: - Purchase
+    @MainActor
+    func purchase(_ product: Product) async throws -> Bool {
+        let result = try await product.purchase()
+        switch result {
+        case .success(let verification):
+            let transaction = try checkVerified(verification)
+            await transaction.finish()
+            await updatePurchasedProducts()
+            return true
+        case .userCancelled:
+            return false
+        case .pending:
+            return false
+        @unknown default:
+            return false
+        }
+    }
+
+    // MARK: - Restore
+    @MainActor
+    func restore() async {
+        try? await AppStore.sync()
+        await updatePurchasedProducts()
+    }
+
+    // MARK: - Transaction Listener
+    private func listenForTransactions() -> Task<Void, Error> {
+        Task.detached {
+            for await result in Transaction.updates {
+                do {
+                    let transaction = try self.checkVerified(result)
+                    await self.updatePurchasedProducts()
+                    await transaction.finish()
+                } catch {
+                    print("Transaction failed verification: \(error)")
+                }
+            }
+        }
+    }
+
+    // MARK: - Update Purchased State
+    @MainActor
+    func updatePurchasedProducts() async {
+        var purchased: Set<String> = []
+        for await result in Transaction.currentEntitlements {
+            do {
+                let transaction = try checkVerified(result)
+                purchased.insert(transaction.productID)
+            } catch {
+                continue
+            }
+        }
+        purchasedProductIDs = purchased
+        isProUser = !purchased.isEmpty
+    }
+
+    private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
+        switch result {
+        case .unverified:
+            throw StoreError.failedVerification
+        case .verified(let safe):
+            return safe
+        }
+    }
+
+    enum StoreError: Error {
+        case failedVerification
+    }
+}
+
+=== FILE: ./TeeMetrics/Services/StatsCalculator.swift ===
+// MARK: - Stats Calculator
+// Pure functions for handicap, strokes gained, and aggregate stats
+// All calculations are rule-based and on-device
+
+import Foundation
+
+enum StatsCalculator {
+
+    // MARK: - Handicap Index (simplified USGA formula)
+    // Uses best 8 of last 20 score differentials
+    // Differential = (Score - Course Rating) * 113 / Slope Rating
+    static func handicapIndex(rounds: [GolfRound]) -> Double {
+        let completedRounds = rounds
+            .filter { $0.isCompleted && $0.course != nil }
+            .sorted { $0.date > $1.date }
+
+        let recentRounds = Array(completedRounds.prefix(20))
+        guard recentRounds.count >= 3 else { return 0 }
+
+        let differentials = recentRounds.compactMap { round -> Double? in
+            guard let course = round.course else { return nil }
+            return (Double(round.totalScore) - course.courseRating) * 113.0 / course.slopeRating
+        }
+
+        let count = differentials.count
+        let bestCount: Int
+        switch count {
+        case 3...4: bestCount = 1
+        case 5...6: bestCount = 2
+        case 7...8: bestCount = 3
+        case 9...10: bestCount = 4
+        case 11...12: bestCount = 5
+        case 13...14: bestCount = 6
+        case 15...16: bestCount = 7
+        case 17...20: bestCount = 8
+        default: bestCount = 1
+        }
+
+        let sorted = differentials.sorted()
+        let best = Array(sorted.prefix(bestCount))
+        let avg = best.reduce(0, +) / Double(best.count)
+        return (avg * 0.96 * 10).rounded() / 10 // Truncate to 1 decimal
+    }
+
+    // MARK: - Strokes Gained (simplified baseline model)
+    // Baseline putts/strokes from distance to hole, using PGA averages
+    static func strokesGainedPutting(round: GolfRound) -> Double {
+        // Simplified: compare actual putts to expected putts (1.8 per hole baseline)
+        let expectedPuttsPerHole = 1.8
+        let totalExpected = expectedPuttsPerHole * Double(round.holeEntries.count)
+        let actualPutts = Double(round.totalPutts)
+        return totalExpected - actualPutts // Positive = better than baseline
+    }
+
+    static func strokesGainedApproach(round: GolfRound) -> Double {
+        // Simplified: GIR-based proxy
+        // Average PGA GIR is ~65%, amateur baseline ~40%
+        let girCount = round.holeEntries.filter { $0.greenInRegulation }.count
+        let girRate = Double(girCount) / max(1, Double(round.holeEntries.count))
+        let baselineGIR = 0.40
+        return (girRate - baselineGIR) * Double(round.holeEntries.count) * 0.5
+    }
+
+    static func strokesGainedOffTee(round: GolfRound) -> Double {
+        // Simplified: fairway hit rate proxy for par 4+5 holes
+        let eligible = round.holeEntries.filter { $0.par >= 4 }
+        guard !eligible.isEmpty else { return 0 }
+        let fwHit = eligible.filter { $0.fairwayHit == true }.count
+        let fwRate = Double(fwHit) / Double(eligible.count)
+        let baseline = 0.50 // amateur baseline ~50%
+        return (fwRate - baseline) * Double(eligible.count) * 0.3
+    }
+
+    static func strokesGainedShortGame(round: GolfRound) -> Double {
+        // Simplified: up-and-down / scramble rate proxy
+        let missedGIR = round.holeEntries.filter { !$0.greenInRegulation }
+        guard !missedGIR.isEmpty else { return 0 }
+        let parOrBetter = missedGIR.filter { $0.scoreToPar <= 0 }.count
+        let scrambleRate = Double(parOrBetter) / Double(missedGIR.count)
+        let baseline = 0.25
+        return (scrambleRate - baseline) * Double(missedGIR.count) * 0.4
+    }
+
+    // MARK: - Aggregate Stats across rounds
+    static func averageScore(rounds: [GolfRound]) -> Double {
+        let completed = rounds.filter { $0.isCompleted }
+        guard !completed.isEmpty else { return 0 }
+        return Double(completed.reduce(0) { $0 + $1.totalScore }) / Double(completed.count)
+    }
+
+    static func averagePutts(rounds: [GolfRound]) -> Double {
+        let completed = rounds.filter { $0.isCompleted }
+        guard !completed.isEmpty else { return 0 }
+        return Double(completed.reduce(0) { $0 + $1.totalPutts }) / Double(completed.count)
+    }
+
+    static func averageFairways(rounds: [GolfRound]) -> Double {
+        let completed = rounds.filter { $0.isCompleted }
+        guard !completed.isEmpty else { return 0 }
+        return completed.reduce(0.0) { $0 + $1.fairwayPercentage } / Double(completed.count)
+    }
+
+    static func averageGIR(rounds: [GolfRound]) -> Double {
+        let completed = rounds.filter { $0.isCompleted }
+        guard !completed.isEmpty else { return 0 }
+        return completed.reduce(0.0) { $0 + $1.girPercentage } / Double(completed.count)
+    }
+
+    // MARK: - Best / Worst Round
+    static func bestScore(rounds: [GolfRound]) -> Int? {
+        rounds.filter { $0.isCompleted }.map(\.totalScore).min()
+    }
+
+    // MARK: - Trend (last 5 vs previous 5)
+    static func scoreTrend(rounds: [GolfRound]) -> Double {
+        let completed = rounds.filter { $0.isCompleted }.sorted { $0.date > $1.date }
+        guard completed.count >= 10 else { return 0 }
+        let recent5 = completed.prefix(5).reduce(0) { $0 + $1.totalScore }
+        let prev5 = completed.dropFirst(5).prefix(5).reduce(0) { $0 + $1.totalScore }
+        return Double(prev5 - recent5) / 5.0 // Positive = improving
+    }
+}
+
+=== FILE: ./TeeMetrics/Widgets/TeeMetricsWidgets.swift ===
+// MARK: - WidgetKit Extensions
+// "Today's Round" and "Last Round Stats" widgets
+
+import WidgetKit
+import SwiftUI
+
+// MARK: - Widget Timeline Entry
+struct RoundWidgetEntry: TimelineEntry {
+    let date: Date
+    let courseName: String
+    let score: Int
+    let scoreToPar: String
+    let putts: Int
+    let fairwayPct: String
+    let isActive: Bool
+    let currentHole: Int
+
+    static let placeholder = RoundWidgetEntry(
+        date: .now,
+        courseName: "Pine Valley GC",
+        score: 78,
+        scoreToPar: "+6",
+        putts: 32,
+        fairwayPct: "57%",
+        isActive: false,
+        currentHole: 0
+    )
+}
+
+// MARK: - Widget Timeline Provider
+struct RoundTimelineProvider: TimelineProvider {
+    func placeholder(in context: Context) -> RoundWidgetEntry {
+        .placeholder
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (RoundWidgetEntry) -> Void) {
+        completion(.placeholder)
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<RoundWidgetEntry>) -> Void) {
+        // In production, read from shared SwiftData container or App Group UserDefaults
+        let entry = RoundWidgetEntry.placeholder
+        let timeline = Timeline(entries: [entry], policy: .after(.now.addingTimeInterval(900)))
+        completion(timeline)
+    }
+}
+
+// MARK: - Last Round Widget View
+struct LastRoundWidgetView: View {
+    let entry: RoundWidgetEntry
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: "flag.fill")
+                    .foregroundStyle(Color(red: 0, green: 0.39, blue: 0))
+                Text("TeeMetrics")
+                    .font(.caption2.bold())
+                    .foregroundStyle(.secondary)
+            }
+
+            if entry.isActive {
+                Text("Hole \(entry.currentHole)")
+                    .font(.headline)
+                Text(entry.courseName)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text(entry.courseName)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+
+            HStack {
+                Text("\(entry.score)")
+                    .font(.title.bold())
+                Text(entry.scoreToPar)
+                    .font(.caption.bold())
+                    .foregroundStyle(entry.scoreToPar.hasPrefix("+") ? .red : .green)
+            }
+
+            HStack(spacing: 8) {
+                Label("\(entry.putts)", systemImage: "circle.fill")
+                Label(entry.fairwayPct, systemImage: "leaf.fill")
+            }
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+        }
+        .containerBackground(.fill.tertiary, for: .widget)
+    }
+}
+
+// MARK: - Widget Configuration
+struct TeeMetricsLastRoundWidget: Widget {
+    let kind = "TeeMetricsLastRound"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: RoundTimelineProvider()) { entry in
+            LastRoundWidgetView(entry: entry)
+        }
+        .configurationDisplayName("Last Round")
+        .description("Your most recent round stats at a glance.")
+        .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular])
+    }
+}
+
+// MARK: - Widget Bundle
+struct TeeMetricsWidgetBundle: WidgetBundle {
+    var body: some Widget {
+        TeeMetricsLastRoundWidget()
+    }
+}
+
+=== FILE: ./TeeMetricsWatch/App/TeeMetricsWatchApp.swift ===
+// MARK: - Apple Watch App Entry
+// Minimal Watch app for quick score entry during rounds
+
+import SwiftUI
+
+struct TeeMetricsWatchApp: App {
+    var body: some Scene {
+        WindowGroup {
+            WatchRoundView()
+        }
+    }
+}
+
+=== FILE: ./TeeMetricsWatch/Views/WatchRoundView.swift ===
+// MARK: - Watch Round View
+// Simplified per-hole scoring for Apple Watch
+// Quick score entry, putts, running total
+
+import SwiftUI
+
+struct WatchRoundView: View {
+    @State private var currentHole = 1
+    @State private var scores: [Int] = Array(repeating: 0, count: 18)
+    @State private var putts: [Int] = Array(repeating: 0, count: 18)
+    @State private var pars: [Int] = [4, 5, 3, 4, 4, 3, 4, 5, 4, 4, 5, 3, 4, 4, 3, 4, 5, 4] // default par 72
+
+    private var currentIndex: Int { currentHole - 1 }
+    private var runningScore: Int { scores.prefix(currentHole).reduce(0, +) }
+    private var runningPar: Int { pars.prefix(currentHole).reduce(0, +) }
+    private var toPar: Int { runningScore - runningPar }
+
+    var body: some View {
+        TabView(selection: $currentHole) {
+            ForEach(1...18, id: \.self) { hole in
+                watchHoleView(hole: hole)
+                    .tag(hole)
+            }
+        }
+        .tabViewStyle(.verticalPage)
+        .navigationTitle("Hole \(currentHole)")
+    }
+
+    private func watchHoleView(hole: Int) -> some View {
+        let idx = hole - 1
+        return VStack(spacing: 6) {
+            // Hole header
+            HStack {
+                Text("H\(hole)")
+                    .font(.headline)
+                Spacer()
+                Text("P\(pars[idx])")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            // Score
+            HStack {
+                Button {
+                    if scores[idx] > 0 { scores[idx] -= 1 }
+                } label: {
+                    Image(systemName: "minus.circle.fill")
+                        .font(.title3)
+                }
+                .buttonStyle(.plain)
+
+                Text("\(scores[idx])")
+                    .font(.system(size: 36, weight: .bold, design: .rounded))
+                    .frame(width: 50)
+
+                Button {
+                    scores[idx] += 1
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3)
+                }
+                .buttonStyle(.plain)
+            }
+
+            // Putts
+            HStack {
+                Text("Putts")
+                    .font(.caption2)
+                Spacer()
+                Button { if putts[idx] > 0 { putts[idx] -= 1 } } label: {
+                    Image(systemName: "minus.circle")
+                        .font(.caption)
+                }
+                .buttonStyle(.plain)
+                Text("\(putts[idx])")
+                    .font(.caption.bold())
+                Button { putts[idx] += 1 } label: {
+                    Image(systemName: "plus.circle")
+                        .font(.caption)
+                }
+                .buttonStyle(.plain)
+            }
+
+            // Running total
+            Divider()
+            HStack {
+                Text("Total: \(runningScore)")
+                    .font(.caption2)
+                Spacer()
+                Text(toPar == 0 ? "E" : (toPar > 0 ? "+\(toPar)" : "\(toPar)"))
+                    .font(.caption2.bold())
+                    .foregroundStyle(toPar <= 0 ? .green : .red)
+            }
+        }
+        .padding(.horizontal, 4)
+    }
+}
+
