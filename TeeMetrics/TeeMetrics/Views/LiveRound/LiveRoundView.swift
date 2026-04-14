@@ -25,6 +25,14 @@ struct LiveRoundView: View {
         sortedEntries.first { $0.holeNumber == currentHole }
     }
 
+    /// True when the round's course has at least one hole with green pins
+    /// placed. Used to decide whether to start high-accuracy GPS tracking
+    /// for this round — no pins anywhere means nothing to measure
+    /// distance to, so we keep the battery asleep.
+    private var anyHoleHasPins: Bool {
+        round.course?.holes.contains { $0.hasGreenPins } ?? false
+    }
+
     private var runningTotal: Int {
         sortedEntries.filter { $0.holeNumber <= currentHole && $0.score > 0 }
             .reduce(0) { $0 + $1.score }
@@ -80,7 +88,20 @@ struct LiveRoundView: View {
                 onDismiss: { dismiss() }
             )
         }
-        .onAppear { currentHole = round.currentHole }
+        .onAppear {
+            currentHole = round.currentHole
+            // Start high-accuracy GPS tracking only if there's something
+            // to measure — saves battery on rounds at courses with no pins.
+            if anyHoleHasPins {
+                RoundLocationManager.shared.startTracking()
+            }
+        }
+        .onDisappear {
+            // Guarantees the GPS stream is off when the user leaves the
+            // round view — handles backgrounding, navigating away, or any
+            // path that doesn't go through finishRound().
+            RoundLocationManager.shared.stopTracking()
+        }
         .onChange(of: currentHole) { _, newVal in
             round.currentHole = newVal
             Haptics.selection()
@@ -186,6 +207,10 @@ struct LiveRoundView: View {
     }
 
     private func finishRound() {
+        // Release GPS immediately — before any SwiftData / CloudKit work
+        // so the radio powers down as fast as possible.
+        RoundLocationManager.shared.stopTracking()
+
         round.recalculateTotals()
         round.isCompleted = true
 

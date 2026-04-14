@@ -34,6 +34,7 @@ targets:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
+        NSLocationWhenInUseUsageDescription: "TeeMetrics uses your location to show distances to the green and find nearby courses."
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.teemetrics.app.TeeMetrics

@@ -39,6 +39,16 @@ struct HoleLoggerView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
+                // MARK: - Distance to Green HUD (Phase 1C)
+                // Always rendered at the very top so golfers see yardage
+                // first. The card itself handles all five display states
+                // internally (pins / no pins / permission / acquiring /
+                // signal lost). Not pro-gated — free tier hook.
+                DistanceToGreenCard(
+                    course: entry.round?.course,
+                    holeInfo: entry.holeInfo
+                )
+
                 // MARK: - Hole Header
                 HStack(alignment: .bottom) {
                     VStack(alignment: .leading, spacing: 2) {

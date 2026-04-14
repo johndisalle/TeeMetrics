@@ -4,6 +4,149 @@ All notable changes to TeeMetrics are documented here. Newest entries on top.
 
 ---
 
+## 2026-04-14 — Phase 1C: Live distance-to-green HUD during rounds
+
+**Scope:** Wire up the payoff for Phase 1A (pin data model) + Phase 1B
+(pin placement UI). When a golfer starts a round on a course that has
+green pins placed, a compact glass-style card now sits at the top of
+every hole and shows live front / center / back yardages to the green,
+driven by high-accuracy GPS.
+
+### Added
+
+- **`TeeMetrics/Services/RoundLocationManager.swift`** — new
+  `@MainActor @Observable` singleton wrapping `CLLocationManager`:
+  - `desiredAccuracy = kCLLocationAccuracyBest` (±1 yard is the target)
+  - `activityType = .otherNavigation` and
+    `pausesLocationUpdatesAutomatically = true` for battery preservation
+  - `distanceFilter = 2.0` — cheap idle when the golfer isn't moving
+  - `startTracking()` — idempotent; requests "When In Use" authorization
+    on first call if not already granted
+  - `stopTracking()` — releases the radio and clears `currentLocation`
+    so the next round starts fresh rather than snapping to a stale fix
+  - `didUpdateLocations` discards stale readings (>15s old) and readings
+    with `horizontalAccuracy > 50m` — filters out cached or noisy fixes
+    that would produce wildly wrong distance numbers
+  - Delegate methods marked `nonisolated` + `Task { @MainActor in ... }`
+    per the same pattern as `CourseDetectionManager`
+  - Observable state: `currentLocation`, `authorizationStatus`, `isTracking`
+  - **Separate from `CourseDetectionManager`** (which uses
+    `kCLLocationAccuracyHundredMeters` for one-shot "which course am I
+    at?" detection) because round-scoped streaming with best accuracy
+    has very different battery characteristics.
+
+- **`TeeMetrics/Views/LiveRound/DistanceToGreenCard.swift`** — new view
+  with 5 display states, all handled internally:
+  1. **No pins on current hole** → tappable "Tap to set green pins"
+     placeholder with a chevron, outlined in `Theme.primary`, that
+     opens `HoleGPSEditorView` for the current course
+  2. **Permission denied / restricted** → "Location off" card with an
+     "Open" button that deep-links to `UIApplication.openSettingsURLString`
+  3. **Pins + no fix yet** → "Acquiring GPS..." with a `ProgressView`
+  4. **Pins + fix older than 30s** → "Signal lost" with a refresh hint.
+     A `TimelineView(.periodic(from: .now, by: 5))` wrapper re-evaluates
+     every 5 seconds so the state kicks in even when no new updates are
+     arriving, and exits as soon as a fresh fix comes in.
+  5. **Pins + fresh fix** → three numbers centered in a glass card:
+     F (22pt rounded medium, secondary) · C (44pt rounded semibold,
+     `Theme.primary`) · B (22pt rounded medium, secondary). Uses
+     `.contentTransition(.numericText())` for smooth digit changes.
+  - Uses `HoleInfo.distanceYards(from:)` from Phase 1A
+  - Rounded to whole yards in the display
+  - Accessibility label combines all three distances into one
+    VoiceOver string
+  - Glass-style background: `.ultraThinMaterial` + `Theme.cardBackground
+    .opacity(0.4)` overlay + 1pt white border stroke + soft shadow
+
+- **`LiveRoundView` GPS lifecycle hooks**:
+  - New `anyHoleHasPins` computed — walks `round.course?.holes` looking
+    for any hole with `hasGreenPins == true`. Prevents spinning up GPS
+    at all when the course has zero pins (e.g. a freshly-created custom
+    course the user hasn't mapped yet).
+  - `.onAppear` calls `RoundLocationManager.shared.startTracking()` only
+    if `anyHoleHasPins` is true
+  - `.onDisappear` unconditionally calls `stopTracking()` — guarantees
+    the GPS stream is off when the user leaves the round view via any
+    path (finish, navigate back, background + kill, etc.)
+  - `finishRound()` calls `stopTracking()` as its very first line so the
+    radio powers down before any SwiftData / CloudKit / notification
+    work runs
+
+- **`HoleLoggerView`** — `DistanceToGreenCard` inserted as the first
+  element inside the `VStack`, above the Hole Header and above the
+  quick-score buttons. Not pro-gated — distance-to-green is the free
+  tier hook that pulls users back to the app on-course.
+
+- **Privacy string update** — `NSLocationWhenInUseUsageDescription` now
+  reads:
+  > "TeeMetrics uses your location to show distances to the green and
+  > find nearby courses."
+  Updated in **both** `TeeMetrics/Info.plist` (the live plist) **and**
+  `TeeMetrics/project.yml` under `targets.TeeMetrics.info.properties`
+  so xcodegen regenerations don't silently wipe the Info.plist entry.
+
+### Battery & UX Strategy
+
+- GPS never runs outside an active round. No background modes are
+  declared. Backgrounding the app during a round uses iOS's automatic
+  pause (via `pausesLocationUpdatesAutomatically`).
+- GPS never runs on rounds at courses with zero pins — nothing to
+  measure, nothing to track.
+- `distanceFilter = 2m` keeps the delivery rate low while the golfer
+  is standing over a putt.
+- Stale (>15s) or inaccurate (>50m) fixes are dropped at the manager
+  level, not the view level, so views never display wrong numbers.
+- 30s signal-lost threshold is deliberately generous — GPS drops
+  routinely under tree canopy and we don't want the card flashing.
+- The card's `TimelineView` only polls every 5s, so the signal-lost
+  detection costs almost nothing.
+
+### Not Changed (intentional)
+
+- **`HoleGPSEditorView`** — the recenter button and progressive course
+  coordinate refinement from Phase 1B fix are untouched. Only thing
+  `DistanceToGreenCard` does with the editor is present it as a sheet
+  when the user taps the no-pins placeholder.
+- **Tee selection logic** (`CourseTee`, `TeeHole`, `round.teeName`,
+  `StatsCalculator` handicap calc) — distance-to-green is pin-based,
+  independent of which tee was played.
+- **Progressive refinement** — already lives in `HoleGPSEditorView`
+  and fires naturally when the user taps through to set pins from the
+  no-pins placeholder.
+
+### Build Verification
+
+Manual correctness pass (no `xcodebuild` in this sandbox):
+
+- Brace balance clean on all 4 modified/new Swift files
+  (`RoundLocationManager` 18/18, `DistanceToGreenCard` 46/46,
+  `LiveRoundView` 65/65, `HoleLoggerView` 61/61)
+- `Info.plist` parses via `plistlib` and contains the new privacy
+  string
+- `project.yml` parses via PyYAML and includes the new
+  `NSLocationWhenInUseUsageDescription` key under the TeeMetrics target
+- `HoleGPSEditorView` recenter button from Phase 1B fix still present
+  at line 256 with the same `centerCameraOnCourse()` call path
+
+**User should run the build on their Mac in Xcode after pulling:**
+- Clean build folder (Shift+Cmd+K)
+- Cmd+B
+- Run a round on a course with green pins placed to see the card live
+
+### Files Added
+
+- `TeeMetrics/TeeMetrics/Services/RoundLocationManager.swift`
+- `TeeMetrics/TeeMetrics/Views/LiveRound/DistanceToGreenCard.swift`
+
+### Files Modified
+
+- `TeeMetrics/TeeMetrics/Views/LiveRound/LiveRoundView.swift`
+- `TeeMetrics/TeeMetrics/Views/LiveRound/HoleLoggerView.swift`
+- `TeeMetrics/TeeMetrics/Info.plist`
+- `TeeMetrics/project.yml`
+
+---
+
 ## 2026-04-14 — Phase 2: Multi-tee schema + per-tee scorecards
 
 **Scope:** Upgrade the course/round schema so the app can model multiple
