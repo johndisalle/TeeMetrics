@@ -1,0 +1,5 @@
+
+tools/api_cache_index.json.tmp
+tools/*.bak
+courses.json.pass*.bak
+unmatched*.txt
