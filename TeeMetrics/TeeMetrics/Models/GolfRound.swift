@@ -19,13 +19,32 @@ final class GolfRound {
     var currentHole: Int
     var createdAt: Date
 
+    // MARK: - Tee (Phase 2)
+    /// Name of the tee box the golfer played from (e.g. "Blue", "White").
+    /// Optional so rounds created before Phase 2 still load. When nil, the
+    /// UI falls back to the course's default scorecard (HoleInfo).
+    var teeName: String?
+
     @Relationship(deleteRule: .cascade, inverse: \HoleEntry.round)
     var holeEntries: [HoleEntry] = []
 
+    // MARK: - Tee Resolution (Phase 2)
+    /// Returns the CourseTee the golfer selected for this round, if any.
+    /// Nil when `teeName` is unset or the course has no matching tee row.
+    var selectedTee: CourseTee? {
+        guard let name = teeName, let course else { return nil }
+        return course.tee(named: name)
+    }
+
+    /// Total par for scoring. Prefers the selected tee's par when set,
+    /// falling back to the course's default par.
+    var effectivePar: Int {
+        selectedTee?.par ?? course?.totalPar ?? 72
+    }
+
     // MARK: - Computed Stats
     var scoreToPar: Int {
-        guard let course else { return 0 }
-        return totalScore - course.totalPar
+        totalScore - effectivePar
     }
 
     var scoreToParString: String {
@@ -68,7 +87,8 @@ final class GolfRound {
         course: GolfCourse? = nil,
         weatherNotes: String = "",
         playersCount: Int = 1,
-        playerNames: String = ""
+        playerNames: String = "",
+        teeName: String? = nil
     ) {
         self.id = UUID()
         self.date = Date()
@@ -82,6 +102,7 @@ final class GolfRound {
         self.notes = ""
         self.currentHole = 1
         self.createdAt = Date()
+        self.teeName = teeName
     }
 
     // MARK: - Recalculate Totals

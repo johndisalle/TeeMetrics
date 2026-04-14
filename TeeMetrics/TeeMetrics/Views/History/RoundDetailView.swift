@@ -20,6 +20,13 @@ struct RoundDetailView: View {
                 VStack(spacing: 8) {
                     Text(round.course?.name ?? "Unknown Course")
                         .font(.title2.bold())
+                    // Phase 2: show tee name under course if the round was
+                    // started from a specific tee box.
+                    if let teeName = round.teeName {
+                        Text("\(teeName) tees")
+                            .font(.subheadline)
+                            .foregroundStyle(Theme.primary)
+                    }
                     Text(round.date.shortFormatted)
                         .foregroundStyle(.secondary)
 

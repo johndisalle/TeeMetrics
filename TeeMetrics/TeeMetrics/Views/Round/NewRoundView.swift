@@ -12,6 +12,7 @@ struct NewRoundView: View {
     @Query(filter: #Predicate<Bag> { $0.isDefault == true }) private var bags: [Bag]
 
     @State private var selectedCourse: GolfCourse?
+    @State private var selectedTeeName: String?
     @State private var playerCount = 1
     @State private var playerNames = ""
     @State private var weatherNotes = ""
@@ -25,6 +26,22 @@ struct NewRoundView: View {
     private var filteredCourses: [GolfCourse] {
         if searchText.isEmpty { return courses }
         return courses.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+    }
+
+    /// Tees for the currently selected course, sorted long-to-short so the
+    /// traditional "back tees first" order is preserved.
+    private var availableTees: [CourseTee] {
+        guard let course = selectedCourse else { return [] }
+        return course.tees.sorted { $0.yardage > $1.yardage }
+    }
+
+    /// Picks the tee closest to the median yardage — "the middle tee" —
+    /// as the default. Returns nil if there are no tees.
+    private func defaultTeeName(for tees: [CourseTee]) -> String? {
+        guard !tees.isEmpty else { return nil }
+        let sortedByYardage = tees.sorted { $0.yardage < $1.yardage }
+        let midIndex = sortedByYardage.count / 2
+        return sortedByYardage[midIndex].name
     }
 
     var body: some View {
@@ -95,6 +112,36 @@ struct NewRoundView: View {
                     }
                 }
 
+                // MARK: - Tees (Phase 2)
+                // Only shown when the selected course has tee data. Legacy
+                // courses with no tees array fall through to the default
+                // scorecard on HoleInfo.
+                if !availableTees.isEmpty {
+                    Section("Tees") {
+                        Picker("Tee Box", selection: $selectedTeeName) {
+                            ForEach(availableTees) { tee in
+                                Text("\(tee.name) · \(tee.yardage)y")
+                                    .tag(tee.name as String?)
+                            }
+                        }
+                        .pickerStyle(.menu)
+
+                        if let tee = availableTees.first(where: { $0.name == selectedTeeName }) {
+                            HStack {
+                                Text("Par \(tee.par)")
+                                Spacer()
+                                Text("Slope \(tee.slope)")
+                                    .foregroundStyle(.secondary)
+                                Text("·")
+                                    .foregroundStyle(.secondary)
+                                Text("Rating \(String(format: "%.1f", tee.rating))")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .font(.caption)
+                        }
+                    }
+                }
+
                 // MARK: - Players
                 Section("Players") {
                     Stepper("Players: \(playerCount)", value: $playerCount, in: 1...4)
@@ -157,6 +204,13 @@ struct NewRoundView: View {
                 CourseDetectionManager.shared.requestLocation()
                 CourseDetectionManager.shared.findNearbyCourses(from: courses)
             }
+            .onChange(of: selectedCourse) { _, newCourse in
+                // When the user picks a new course, reset the tee to the
+                // middle-by-yardage default. Avoids stale tee names from the
+                // previous selection leaking into the next round.
+                let tees = newCourse?.tees.sorted { $0.yardage > $1.yardage } ?? []
+                selectedTeeName = defaultTeeName(for: tees)
+            }
         }
     }
 
@@ -170,15 +224,27 @@ struct NewRoundView: View {
             playersCount: playerCount,
             playerNames: playerNames
         )
+        // Phase 2: remember which tee the golfer played from. When the
+        // course has no tees array, this stays nil and we fall back to
+        // the default scorecard on HoleInfo.
+        round.teeName = selectedTeeName
         modelContext.insert(round)
 
-        // Pre-populate hole entries from course data
+        // Pre-populate hole entries. Prefer the selected tee's per-hole
+        // par when available, else fall back to HoleInfo's default par.
+        let selectedTee: CourseTee? = {
+            guard let teeName = selectedTeeName else { return nil }
+            return course.tees.first { $0.name == teeName }
+        }()
         let sortedHoles = course.holes.sorted { $0.holeNumber < $1.holeNumber }
+
         for i in 1...18 {
             let holeInfo = sortedHoles.first { $0.holeNumber == i }
+            let teeHolePar = selectedTee?.hole(number: i)?.par
+            let par = teeHolePar ?? holeInfo?.par ?? 4
             let entry = HoleEntry(
                 holeNumber: i,
-                par: holeInfo?.par ?? 4,
+                par: par,
                 round: round,
                 holeInfo: holeInfo
             )

@@ -48,6 +48,20 @@ final class GolfCourse {
     @Relationship(deleteRule: .cascade, inverse: \GolfRound.course)
     var rounds: [GolfRound] = []
 
+    // MARK: - Tees (Phase 2)
+    /// Multi-tee scorecards (Blue, White, Gold, Red, etc.). Populated from
+    /// the GolfCourseAPI-sourced `tees` array in courses.json. Courses that
+    /// predate Phase 2 or that didn't match the API will have an empty
+    /// array — the UI falls back to the single default scorecard stored on
+    /// `HoleInfo` in that case.
+    @Relationship(deleteRule: .cascade, inverse: \CourseTee.course)
+    var tees: [CourseTee] = []
+
+    /// Returns the CourseTee with the given name, or nil if not found.
+    func tee(named name: String) -> CourseTee? {
+        tees.first { $0.name == name }
+    }
+
     init(
         name: String,
         city: String = "",

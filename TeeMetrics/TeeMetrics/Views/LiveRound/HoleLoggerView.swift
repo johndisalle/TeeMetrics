@@ -21,6 +21,21 @@ struct HoleLoggerView: View {
         )
     }
 
+    // MARK: - Tee-aware hole data (Phase 2)
+    /// The TeeHole row for the current hole if the round was started from a
+    /// specific tee box. Nil when the round has no tee selection or the
+    /// course has no tees array.
+    private var selectedTeeHole: TeeHole? {
+        entry.round?.selectedTee?.hole(number: entry.holeNumber)
+    }
+
+    /// Yardage to display: prefers the selected tee's yardage, falls back to
+    /// HoleInfo's default.
+    private var displayYardage: Int? {
+        if let y = selectedTeeHole?.yardage, y > 0 { return y }
+        return entry.holeInfo?.yardage
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
@@ -33,10 +48,15 @@ struct HoleLoggerView: View {
                             Text("Par \(entry.par)")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
-                            if let info = entry.holeInfo {
-                                Text("\u{2022} \(info.yardage) yds")
+                            if let yds = displayYardage {
+                                Text("\u{2022} \(yds) yds")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
+                            }
+                            if let teeName = entry.round?.teeName {
+                                Text("\u{2022} \(teeName)")
+                                    .font(.caption)
+                                    .foregroundStyle(Theme.primary)
                             }
                         }
                     }

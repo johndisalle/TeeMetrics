@@ -4,6 +4,163 @@ All notable changes to TeeMetrics are documented here. Newest entries on top.
 
 ---
 
+## 2026-04-14 — Phase 2: Multi-tee schema + per-tee scorecards
+
+**Scope:** Upgrade the course/round schema so the app can model multiple
+tee boxes per course (Blue, White, Gold, Red, etc.) with independent
+par/yardage/slope/rating, let the golfer pick which tee they played
+each round, and feed the correct per-tee rating/slope into the handicap
+calculator.
+
+### Environment note
+
+The task brief describes a `tools/api_cache/` directory with cached
+GolfCourseAPI responses that `tools/migrate_tees.py` should read from.
+**Those cache files are not committed to the repo** — they live on the
+original machine that ran the GolfCourseAPI rebuild. The migration
+script is written and committed, but it must be run on the machine
+that has the cache. This sandbox environment has no cache and no API
+access, so the data-side half of Phase 2 is deferred to the user.
+
+All Swift schema and UI changes are additive and backward-compatible:
+if `courses.json` has no `tees` array (legacy / pre-migration /
+unmatched), the tee picker is hidden and the app falls back to the
+existing default scorecard on `HoleInfo`.
+
+### Added
+
+- **`tools/migrate_tees.py`** — one-shot migration script (~200 LOC):
+  - Reads `tools/api_cache_index.json` and
+    `tools/api_cache/<course_id>.json` — no network calls
+  - For each course in `TeeMetrics/Resources/courses.json`, looks up
+    the cached API response, extracts `tees.male` and `tees.female`,
+    and writes a flattened `"tees"` array with our schema:
+    `name`, `gender`, `par`, `yardage`, `slope`, `rating`, `holes`
+  - Keeps the existing top-level `par / yardage / slope / rating /
+    holes` fields intact — the new `tees` array is additive
+  - Unmatched courses get `"tees": []`
+  - Backs up `courses.json` to `courses.json.tees-YYYYMMDD-HHMMSS.bak`
+    before writing
+  - Prints a summary: matched / unmatched / cache-missing / empty
+  - Pre-flight checks surface a clean error when the cache is missing
+    instead of crashing
+- **`TeeMetrics/Models/CourseTee.swift`** (new file, 2 new SwiftData
+  models):
+  - `@Model CourseTee` — `name`, `gender`, `par`, `yardage`, `slope`,
+    `rating` + `course: GolfCourse?` back-ref + cascading `holes:
+    [TeeHole]` relationship. Helper `hole(number:)` for lookup.
+  - `@Model TeeHole` — `num`, `par`, `yardage`, `handicap` + `tee:
+    CourseTee?` back-ref. Per-hole row because par/yardage varies
+    per tee box even though the green location is shared.
+- **`GolfCourse.tees: [CourseTee]`** — new cascading relationship.
+  `course.tee(named:)` helper for name-based lookup.
+- **`GolfRound.teeName: String?`** — optional (so pre-Phase-2 rounds
+  migrate cleanly). When set, `selectedTee` resolves the matching
+  `CourseTee` on the course and `effectivePar` prefers the tee's par.
+- **`GolfRound.selectedTee`**, **`effectivePar`** — new computed
+  properties. `scoreToPar` now uses `effectivePar` so every existing
+  call site (dashboard, history, celebration, round card, PDF,
+  comparison) picks up tee-aware math automatically.
+- **`GolfRound.init(teeName:)`** — new labeled parameter defaulted to
+  `nil`. Existing call sites (`NewRoundView`, `SampleDataSeeder`) use
+  labeled args and compile unchanged.
+- **`TeeMetricsApp` schema array** — now registers `CourseTee.self`
+  and `TeeHole.self` in the SwiftData `Schema([...])`.
+- **`BundledCourseImporter`** — new `BundledTee` / `BundledTeeHole`
+  Codable structs. On import, if the course has a `tees` array, each
+  tee becomes a `CourseTee` with 18 `TeeHole` children.
+  `BundledCourse.tees` is optional so files without the new field
+  still decode.
+- **`NewRoundView` tee picker**:
+  - Shown only when the selected course has at least one `CourseTee`
+  - `Picker` lists all tees sorted back-to-short, labeled
+    `"Blue · 6832y"`
+  - Selection row shows `"Par 72 · Slope 138 · Rating 73.5"` for the
+    chosen tee
+  - `onChange(of: selectedCourse)` resets the tee to the
+    middle-by-yardage default whenever the course changes
+  - `startRound()` writes `selectedTeeName` to `round.teeName` and
+    uses the tee's per-hole par when pre-populating `HoleEntry` rows
+- **`HoleLoggerView`**:
+  - New `selectedTeeHole` computed (`entry.round?.selectedTee?.hole
+    (number:)`) and `displayYardage` that prefers the tee-specific
+    yardage over `HoleInfo`'s default
+  - Hole header now shows `"Par 4 · 426 yds · Blue"` when a tee is
+    selected
+- **`RoundDetailView`** — header now shows `"{teeName} tees"` in
+  `Theme.primary` under the course name when `round.teeName` is set.
+- **`StatsCalculator.handicapIndex`** — when a round has a
+  `selectedTee`, uses the tee's `rating` and `slope` for the
+  differential calculation instead of the course's defaults. Falls
+  back to the course's `courseRating` / `slopeRating` for legacy
+  rounds or when the tee isn't found. Adds a guard against `slope == 0`.
+
+### Not Changed (intentional)
+
+- **`HoleGPSEditorView` and all green-pin logic** are untouched. Pins
+  live on `HoleInfo` and are tee-agnostic — the green is the green
+  regardless of which box you tee off from.
+- **`courses.json`** is not modified in this commit. The migration
+  script must be run locally on the machine with the `tools/api_cache/`
+  directory.
+
+### Migration Notes
+
+This is a mixed migration:
+
+1. **SwiftData** — two new `@Model` types (`CourseTee`, `TeeHole`) and
+   one new optional property (`GolfRound.teeName`). SwiftData handles
+   this as a lightweight migration automatically. No `VersionedSchema`
+   is required.
+
+2. **courses.json** — additive `tees` array. Existing `par / yardage /
+   slope / rating / holes` fields remain untouched so decoding continues
+   to work for courses without the new field. To populate the new
+   field:
+   ```
+   python3 tools/migrate_tees.py
+   git add TeeMetrics/TeeMetrics/Resources/courses.json
+   git commit -m "data: Populate multi-tee scorecards from API cache"
+   ```
+   Must be run on the machine with `tools/api_cache/` present.
+
+### Build Verification
+
+Attempted `xcodebuild` — not available in this sandbox environment
+(Linux container). Manual checks:
+
+- Brace balance on all 9 modified/created Swift files (all balanced)
+- All `GolfRound(...)` call sites use labeled parameters; new
+  `teeName` parameter has a `nil` default so `NewRoundView` and
+  `SampleDataSeeder` compile unchanged
+- All `scoreToPar` call sites (dashboard, history, celebration, round
+  card, PDF, comparison views) reach `GolfRound.scoreToPar` which now
+  reads from `effectivePar` — tee-awareness flows through transparently
+- `python3 tools/migrate_tees.py` runs and fails cleanly with a
+  helpful error about the missing cache, as expected in this
+  environment
+
+**User must run xcodebuild / Xcode build on their Mac to confirm
+zero compiler errors.**
+
+### Files Added
+
+- `tools/migrate_tees.py`
+- `TeeMetrics/TeeMetrics/Models/CourseTee.swift`
+
+### Files Modified
+
+- `TeeMetrics/TeeMetrics/Models/GolfCourse.swift`
+- `TeeMetrics/TeeMetrics/Models/GolfRound.swift`
+- `TeeMetrics/TeeMetrics/App/TeeMetricsApp.swift`
+- `TeeMetrics/TeeMetrics/Services/BundledCourseImporter.swift`
+- `TeeMetrics/TeeMetrics/Services/StatsCalculator.swift`
+- `TeeMetrics/TeeMetrics/Views/Round/NewRoundView.swift`
+- `TeeMetrics/TeeMetrics/Views/LiveRound/HoleLoggerView.swift`
+- `TeeMetrics/TeeMetrics/Views/History/RoundDetailView.swift`
+
+---
+
 ## 2026-04-09 — Phase 1B Fix: Center map on course coordinates
 
 **Scope:** Bug fix + small feature extension. Addresses two issues with

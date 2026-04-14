@@ -9,6 +9,12 @@ enum StatsCalculator {
     // MARK: - Handicap Index (simplified USGA formula)
     // Uses best 8 of last 20 score differentials
     // Differential = (Score - Course Rating) * 113 / Slope Rating
+    //
+    // Phase 2: when a round has a selected tee (round.teeName is set and
+    // matches a CourseTee on the course), use that tee's specific
+    // rating/slope — those are the USGA inputs that actually change by tee
+    // box. Fall back to the course defaults for legacy rounds or when the
+    // tee isn't found.
     static func handicapIndex(rounds: [GolfRound]) -> Double {
         let completedRounds = rounds
             .filter { $0.isCompleted && $0.course != nil }
@@ -19,7 +25,18 @@ enum StatsCalculator {
 
         let differentials = recentRounds.compactMap { round -> Double? in
             guard let course = round.course else { return nil }
-            return (Double(round.totalScore) - course.courseRating) * 113.0 / course.slopeRating
+            // Prefer tee-specific rating/slope when available.
+            let rating: Double
+            let slope: Double
+            if let tee = round.selectedTee {
+                rating = tee.rating
+                slope = Double(tee.slope)
+            } else {
+                rating = course.courseRating
+                slope = course.slopeRating
+            }
+            guard slope > 0 else { return nil }
+            return (Double(round.totalScore) - rating) * 113.0 / slope
         }
 
         let count = differentials.count

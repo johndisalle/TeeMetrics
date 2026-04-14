@@ -14,19 +14,28 @@
 //         "num": Int, "par": Int, "yds": Int, "hcp": Int,
 //
 //         // Optional green GPS pins (Phase 1A — not present in bundled file yet).
-//         // When a hole has at least greenC_lat / greenC_lon, the app can show
-//         // live distance-to-green during a round. Front/back are optional
-//         // refinements for F/C/B yardage displays.
 //         "greenF_lat": Double?, "greenF_lon": Double?,
 //         "greenC_lat": Double?, "greenC_lon": Double?,
 //         "greenB_lat": Double?, "greenB_lon": Double?
 //       }
+//     ],
+//
+//     // Phase 2: Multi-tee scorecards populated via tools/migrate_tees.py
+//     // from cached GolfCourseAPI responses. Empty array for courses that
+//     // didn't match the API or predate Phase 2.
+//     "tees": [
+//       {
+//         "name": String,        // "Blue", "White", "Gold", "Red"
+//         "gender": String,      // "male" or "female"
+//         "par": Int,
+//         "yardage": Int,
+//         "slope": Int,
+//         "rating": Double,
+//         "holes": [{ "num": Int, "par": Int, "yds": Int, "hcp": Int }]
+//       }
 //     ]
 //   }
 // ]
-//
-// Note: The current bundled courses.json does NOT include green pin fields.
-// They are reserved for future community-contributed pins via CloudKit.
 
 import Foundation
 import SwiftData
@@ -43,6 +52,9 @@ struct BundledCourse: Codable {
     let rating: Double
     let holes: [BundledHole]
     let verified: Bool
+    // Phase 2: Optional multi-tee scorecards. Missing in legacy files,
+    // empty when unmatched, populated when matched via migrate_tees.py.
+    let tees: [BundledTee]?
 }
 
 struct BundledHole: Codable {
@@ -57,6 +69,25 @@ struct BundledHole: Codable {
     let greenC_lon: Double?
     let greenB_lat: Double?
     let greenB_lon: Double?
+}
+
+// MARK: - Phase 2 Tee Decoding
+
+struct BundledTee: Codable {
+    let name: String
+    let gender: String
+    let par: Int
+    let yardage: Int
+    let slope: Int
+    let rating: Double
+    let holes: [BundledTeeHole]
+}
+
+struct BundledTeeHole: Codable {
+    let num: Int
+    let par: Int
+    let yds: Int
+    let hcp: Int
 }
 
 @MainActor
@@ -100,6 +131,35 @@ enum BundledCourseImporter {
                 greenBackLongitude: hole.greenB_lon
             )
             context.insert(holeInfo)
+        }
+
+        // Phase 2: import tee boxes if present. When absent (legacy file or
+        // unmatched course), the course gets no tees and the UI falls back
+        // to the default HoleInfo scorecard.
+        if let bundledTees = bundled.tees, !bundledTees.isEmpty {
+            for bt in bundledTees {
+                let tee = CourseTee(
+                    name: bt.name,
+                    gender: bt.gender,
+                    par: bt.par,
+                    yardage: bt.yardage,
+                    slope: bt.slope,
+                    rating: bt.rating,
+                    course: course
+                )
+                context.insert(tee)
+
+                for th in bt.holes {
+                    let teeHole = TeeHole(
+                        num: th.num,
+                        par: th.par,
+                        yardage: th.yds,
+                        handicap: th.hcp,
+                        tee: tee
+                    )
+                    context.insert(teeHole)
+                }
+            }
         }
 
         return course

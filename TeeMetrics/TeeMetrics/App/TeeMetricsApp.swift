@@ -14,6 +14,8 @@ struct TeeMetricsApp: App {
             Golfer.self,
             GolfCourse.self,
             HoleInfo.self,
+            CourseTee.self,      // Phase 2: multi-tee scorecards
+            TeeHole.self,        // Phase 2: per-tee hole data
             GolfRound.self,
             HoleEntry.self,
             ShotEntry.self,
