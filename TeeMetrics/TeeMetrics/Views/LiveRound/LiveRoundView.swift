@@ -102,7 +102,17 @@ struct LiveRoundView: View {
             // path that doesn't go through finishRound().
             RoundLocationManager.shared.stopTracking()
         }
-        .onChange(of: currentHole) { _, newVal in
+        .onChange(of: currentHole) { oldVal, newVal in
+            // Pro shot tracking: auto-close any open shot on the hole
+            // we're leaving with the current GPS fix. Handles "hole out"
+            // with zero extra taps. Skipped silently for non-Pro / no
+            // shots captured.
+            ShotTracker.closeOpenShot(
+                round: round,
+                holeNumber: oldVal,
+                with: RoundLocationManager.shared.currentLocation
+            )
+
             round.currentHole = newVal
             Haptics.selection()
             WidgetDataWriter.updateActiveRound(
@@ -207,6 +217,15 @@ struct LiveRoundView: View {
     }
 
     private func finishRound() {
+        // Pro shot tracking: close any still-open shot on the final hole
+        // BEFORE we release GPS, so the last shot of the round has a
+        // valid endpoint.
+        ShotTracker.closeOpenShot(
+            round: round,
+            holeNumber: currentHole,
+            with: RoundLocationManager.shared.currentLocation
+        )
+
         // Release GPS immediately — before any SwiftData / CloudKit work
         // so the radio powers down as fast as possible.
         RoundLocationManager.shared.stopTracking()

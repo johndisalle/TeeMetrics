@@ -69,6 +69,10 @@ final class GatingManager {
             // Pure Pro feature — elevation + wind adjusted "plays like"
             // yardage on the on-course HUD.
             return true
+        case .shotTracking:
+            // Pure Pro feature — manual-tap GPS shot capture during a
+            // round. Mirrors the playsLikeDistance gate exactly.
+            return true
         }
     }
 
@@ -102,6 +106,7 @@ enum ProFeature: String, CaseIterable {
     case pinEditing = "GPS Pin Editing"
     case hazardDistances = "Hazard Distances"
     case playsLikeDistance = "Plays-Like Distance"
+    case shotTracking = "Shot Tracking"
 }
 
 // MARK: - Pro Gate View Modifier

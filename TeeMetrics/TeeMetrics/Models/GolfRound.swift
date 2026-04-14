@@ -28,6 +28,13 @@ final class GolfRound {
     @Relationship(deleteRule: .cascade, inverse: \HoleEntry.round)
     var holeEntries: [HoleEntry] = []
 
+    // MARK: - GPS Shots (Pro shot tracking)
+    /// Manual-tap GPS shot captures. Independent from the per-hole
+    /// `ShotEntry` form-based shots. Cascades so the rows go away when
+    /// the round is deleted.
+    @Relationship(deleteRule: .cascade, inverse: \Shot.round)
+    var shots: [Shot] = []
+
     // MARK: - Tee Resolution (Phase 2)
     /// Returns the CourseTee the golfer selected for this round, if any.
     /// Nil when `teeName` is unset or the course has no matching tee row.

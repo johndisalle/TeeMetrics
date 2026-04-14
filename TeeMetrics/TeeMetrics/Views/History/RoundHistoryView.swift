@@ -91,9 +91,20 @@ struct RoundHistoryRow: View {
             }
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(round.course?.name ?? "Unknown")
-                    .font(.subheadline.bold())
-                    .lineLimit(1)
+                HStack(spacing: 6) {
+                    Text(round.course?.name ?? "Unknown")
+                        .font(.subheadline.bold())
+                        .lineLimit(1)
+                    // Subtle indicator for rounds that have GPS-captured
+                    // shots. Lets the user spot which rounds have
+                    // shot-by-shot detail before tapping in.
+                    if !round.shots.isEmpty {
+                        Image(systemName: "scope")
+                            .font(.caption2)
+                            .foregroundStyle(Theme.primary)
+                            .accessibilityLabel("Has shot tracking data")
+                    }
+                }
                 HStack(spacing: 6) {
                     Text(round.date.shortFormatted)
                     Text("\u{2022}")

@@ -13,6 +13,23 @@ struct HoleLoggerView: View {
     @State private var showDetailedMode = false
     @State private var scoreFlash = false
 
+    // MARK: - GPS Shot Tracking (Pro)
+    @Environment(\.modelContext) private var modelContext
+    @State private var showShotCaptureSheet = false
+
+    /// Pro gate — the GPS-tap "Record Shot" button is hidden entirely
+    /// for non-Pro users.
+    private var shotTrackingUnlocked: Bool {
+        !GatingManager.shared.requiresPro(feature: .shotTracking)
+    }
+
+    /// All GPS shots on this hole (vs HoleEntry.shots which is the
+    /// separate manual-entry ShotEntry feature).
+    private var gpsShotsOnHole: [Shot] {
+        guard let round = entry.round else { return [] }
+        return ShotTracker.shots(for: round, holeNumber: entry.holeNumber)
+    }
+
     private var clubTip: String? {
         ClubRecommendationEngine.suggestForHole(
             holeInfo: entry.holeInfo,
@@ -88,6 +105,56 @@ struct HoleLoggerView: View {
                             .clipShape(Capsule())
                             .scaleEffect(scoreFlash ? 1.15 : 1.0)
                             .animation(.spring(response: 0.3, dampingFraction: 0.5), value: scoreFlash)
+                    }
+                }
+
+                // MARK: - Record Shot (Pro — GPS tap capture)
+                // Hidden entirely for non-Pro users so there's no entry
+                // point to the GPS shot tracking flow when the gate is
+                // active. Includes an inline "Undo" link once at least
+                // one shot is on the hole.
+                if shotTrackingUnlocked, let round = entry.round {
+                    let shotCount = gpsShotsOnHole.count
+                    HStack(spacing: 10) {
+                        Button {
+                            showShotCaptureSheet = true
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "scope")
+                                    .font(.subheadline)
+                                Text("Record Shot \(shotCount + 1)")
+                                    .font(.subheadline.bold())
+                                Spacer(minLength: 0)
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 10)
+                            .background(Theme.primary.opacity(0.12))
+                            .foregroundStyle(Theme.primary)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Record shot \(shotCount + 1) with GPS")
+
+                        if shotCount >= 1 {
+                            Button {
+                                ShotTracker.undoLastShot(
+                                    round: round,
+                                    holeNumber: entry.holeNumber,
+                                    context: modelContext
+                                )
+                                Haptics.medium()
+                            } label: {
+                                Text("Undo")
+                                    .font(.caption.bold())
+                                    .foregroundStyle(.secondary)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 10)
+                                    .background(Color.gray.opacity(0.12))
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Undo last shot")
+                        }
                     }
                 }
 
@@ -226,6 +293,11 @@ struct HoleLoggerView: View {
             .padding()
         }
         .accessibilityElement(children: .contain)
+        .sheet(isPresented: $showShotCaptureSheet) {
+            if let round = entry.round {
+                ShotCaptureSheet(round: round, holeNumber: entry.holeNumber)
+            }
+        }
     }
 
     // MARK: - Quick Score Button

@@ -13,6 +13,15 @@ struct RoundDetailView: View {
         round.holeEntries.sorted { $0.holeNumber < $1.holeNumber }
     }
 
+    /// GPS shots captured on the given hole, ordered by shotNumber. Used
+    /// by `HoleDetailRow` to render the per-hole shot list under the
+    /// score summary.
+    private func gpsShots(forHole holeNumber: Int) -> [Shot] {
+        round.shots
+            .filter { $0.holeNumber == holeNumber }
+            .sorted { $0.shotNumber < $1.shotNumber }
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
@@ -59,7 +68,10 @@ struct RoundDetailView: View {
 
                 // MARK: - Hole Details
                 ForEach(sortedEntries) { entry in
-                    HoleDetailRow(entry: entry)
+                    HoleDetailRow(
+                        entry: entry,
+                        shots: gpsShots(forHole: entry.holeNumber)
+                    )
                 }
 
                 // MARK: - Notes
@@ -246,49 +258,82 @@ struct RoundDetailView: View {
 // MARK: - Hole Detail Row
 struct HoleDetailRow: View {
     let entry: HoleEntry
+    /// GPS-captured shots for this hole, already sorted by shotNumber.
+    /// Empty when the player didn't use the Pro shot tracker on this hole.
+    var shots: [Shot] = []
 
     var body: some View {
-        HStack {
-            Text("#\(entry.holeNumber)")
-                .font(.caption.bold())
-                .frame(width: 30)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("#\(entry.holeNumber)")
+                    .font(.caption.bold())
+                    .frame(width: 30)
 
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 4) {
-                    Text("Par \(entry.par)")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    if let info = entry.holeInfo {
-                        Text("\(info.yardage)y")
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 4) {
+                        Text("Par \(entry.par)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                        if let info = entry.holeInfo {
+                            Text("\(info.yardage)y")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
+                }
+
+                Spacer()
+
+                HStack(spacing: 12) {
+                    if entry.fairwayHit == true {
+                        Image(systemName: "leaf.fill")
+                            .font(.caption)
+                            .foregroundStyle(.green)
+                    }
+                    if entry.greenInRegulation {
+                        Image(systemName: "target")
+                            .font(.caption)
+                            .foregroundStyle(.green)
+                    }
+                    Text("\(entry.putts)P")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    Text("\(entry.score)")
+                        .font(.headline.bold())
+                        .foregroundStyle(Theme.scoreColor(for: entry.scoreToPar))
                 }
             }
 
-            Spacer()
-
-            HStack(spacing: 12) {
-                if entry.fairwayHit == true {
-                    Image(systemName: "leaf.fill")
-                        .font(.caption)
-                        .foregroundStyle(.green)
+            // Per-hole GPS shot list (Pro shot tracking). Indented under
+            // the row above. Each line: "Driver · 247 yds" or
+            // "Shot 3 · 32 yds" when no club was selected. Open shots
+            // (shouldn't happen post-round, but defensive) show "—".
+            if !shots.isEmpty {
+                VStack(alignment: .leading, spacing: 2) {
+                    ForEach(shots) { shot in
+                        HStack(spacing: 6) {
+                            Image(systemName: "scope")
+                                .font(.caption2)
+                                .foregroundStyle(Theme.primary.opacity(0.7))
+                            Text(shotLabel(shot))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
-                if entry.greenInRegulation {
-                    Image(systemName: "target")
-                        .font(.caption)
-                        .foregroundStyle(.green)
-                }
-                Text("\(entry.putts)P")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-
-                Text("\(entry.score)")
-                    .font(.headline.bold())
-                    .foregroundStyle(Theme.scoreColor(for: entry.scoreToPar))
+                .padding(.leading, 36)
             }
         }
         .padding(.vertical, 4)
         .padding(.horizontal)
+    }
+
+    private func shotLabel(_ shot: Shot) -> String {
+        let prefix = shot.clubName ?? "Shot \(shot.shotNumber)"
+        if let yards = shot.distanceYards {
+            return "\(prefix) · \(Int(yards.rounded())) yds"
+        }
+        return "\(prefix) · —"
     }
 }

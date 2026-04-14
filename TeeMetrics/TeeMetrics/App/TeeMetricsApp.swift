@@ -20,6 +20,7 @@ struct TeeMetricsApp: App {
             GolfRound.self,
             HoleEntry.self,
             ShotEntry.self,
+            Shot.self,             // Pro: GPS-tap shot tracking
             Club.self,
             Bag.self,
             Goal.self,
