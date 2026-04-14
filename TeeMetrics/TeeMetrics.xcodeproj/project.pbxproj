@@ -172,6 +172,7 @@
 		D7E4E9D682ED4B7E2F819219 /* ClubRecommendation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubRecommendation.swift; sourceTree = "<group>"; };
 		DD0AD36A488F32B7D0FB714B /* CloudKitCourseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitCourseService.swift; sourceTree = "<group>"; };
 		E0E0864A0A1222C09AD60F17 /* BundledCourseImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundledCourseImporter.swift; sourceTree = "<group>"; };
+		E74F776DBCE695F7DE7EB0F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E9C330B5A5D61F4900D7680F /* TeeMetricsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeeMetricsApp.swift; sourceTree = "<group>"; };
 		FFB79DB0BD05A615E7380040 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -180,6 +181,7 @@
 		0555C7EE88B6FF04F7EDCCEC /* Widgets */ = {
 			isa = PBXGroup;
 			children = (
+				E74F776DBCE695F7DE7EB0F6 /* Info.plist */,
 				CC7B4C190364C0C2E910725D /* TeeMetricsWidgets.swift */,
 			);
 			path = Widgets;
@@ -612,6 +614,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = KLSZXFN257;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_WKApplication = YES;
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.teemetrics.app.TeeMetrics;
@@ -660,7 +663,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = KLSZXFN257;
+				DEVELOPMENT_TEAM = RNPXAXRSJV;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -695,6 +698,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = KLSZXFN257;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_WKApplication = YES;
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.teemetrics.app.TeeMetrics;
@@ -712,6 +716,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = TeeMetrics/TeeMetrics.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = KLSZXFN257;
 				INFOPLIST_FILE = TeeMetrics/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -762,7 +767,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = KLSZXFN257;
+				DEVELOPMENT_TEAM = RNPXAXRSJV;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -790,8 +795,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = TeeMetrics/TeeMetricsWidgets.entitlements;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = TeeMetrics;
+				DEVELOPMENT_TEAM = KLSZXFN257;
+				INFOPLIST_FILE = TeeMetrics/Widgets/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -808,8 +813,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = TeeMetrics/TeeMetricsWidgets.entitlements;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = TeeMetrics;
+				DEVELOPMENT_TEAM = KLSZXFN257;
+				INFOPLIST_FILE = TeeMetrics/Widgets/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -828,6 +833,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = TeeMetrics/TeeMetrics.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = KLSZXFN257;
 				INFOPLIST_FILE = TeeMetrics/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
