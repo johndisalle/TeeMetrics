@@ -1,5 +1,32 @@
 // MARK: - Bundled Course Importer
-// Loads pre-bundled courses from JSON, imports into SwiftData with verification flag
+// Loads pre-bundled courses from JSON, imports into SwiftData with verification flag.
+//
+// JSON Schema (TeeMetrics/Resources/courses.json):
+// [
+//   {
+//     "name": String, "city": String, "state": String,
+//     "lat": Double, "lng": Double,
+//     "par": Int, "yardage": Int,
+//     "slope": Double, "rating": Double,
+//     "verified": Bool,
+//     "holes": [
+//       {
+//         "num": Int, "par": Int, "yds": Int, "hcp": Int,
+//
+//         // Optional green GPS pins (Phase 1A — not present in bundled file yet).
+//         // When a hole has at least greenC_lat / greenC_lon, the app can show
+//         // live distance-to-green during a round. Front/back are optional
+//         // refinements for F/C/B yardage displays.
+//         "greenF_lat": Double?, "greenF_lon": Double?,
+//         "greenC_lat": Double?, "greenC_lon": Double?,
+//         "greenB_lat": Double?, "greenB_lon": Double?
+//       }
+//     ]
+//   }
+// ]
+//
+// Note: The current bundled courses.json does NOT include green pin fields.
+// They are reserved for future community-contributed pins via CloudKit.
 
 import Foundation
 import SwiftData
@@ -23,6 +50,13 @@ struct BundledHole: Codable {
     let par: Int
     let yds: Int
     let hcp: Int
+    // Optional green GPS pins (Phase 1A — future-proofed, not populated in courses.json yet)
+    let greenF_lat: Double?
+    let greenF_lon: Double?
+    let greenC_lat: Double?
+    let greenC_lon: Double?
+    let greenB_lat: Double?
+    let greenB_lon: Double?
 }
 
 @MainActor
@@ -56,7 +90,13 @@ enum BundledCourseImporter {
                 par: hole.par,
                 yardage: hole.yds,
                 handicapRating: hole.hcp,
-                course: course
+                course: course,
+                greenFrontLatitude: hole.greenF_lat,
+                greenFrontLongitude: hole.greenF_lon,
+                greenCenterLatitude: hole.greenC_lat,
+                greenCenterLongitude: hole.greenC_lon,
+                greenBackLatitude: hole.greenB_lat,
+                greenBackLongitude: hole.greenB_lon
             )
             context.insert(holeInfo)
         }

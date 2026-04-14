@@ -18,7 +18,12 @@ struct SharedCourseRecord: Identifiable {
     let totalYardage: Int
     let slopeRating: Double
     let courseRating: Double
-    let holes: [[String: Int]] // [{num, par, yds, hcp}]
+    // Per-hole data stored as JSON inside CKRecord["holesJSON"].
+    // Each dictionary contains:
+    //   num (Int), par (Int), yds (Int), hcp (Int)
+    //   Optional green GPS pins (Phase 1A):
+    //   greenF_lat, greenF_lon, greenC_lat, greenC_lon, greenB_lat, greenB_lon (Double)
+    let holes: [[String: Any]]
     let contributorName: String
     let createdAt: Date
     let upvotes: Int
@@ -72,10 +77,22 @@ final class CloudKitCourseService {
         record["contributorName"] = contributorName
         record["upvotes"] = 0
 
-        // Encode holes as JSON data
+        // Encode holes as JSON data (includes optional green GPS pins — Phase 1A)
         let sortedHoles = course.holes.sorted { $0.holeNumber < $1.holeNumber }
-        let holesData = sortedHoles.map { hole -> [String: Int] in
-            ["num": hole.holeNumber, "par": hole.par, "yds": hole.yardage, "hcp": hole.handicapRating]
+        let holesData = sortedHoles.map { hole -> [String: Any] in
+            var dict: [String: Any] = [
+                "num": hole.holeNumber,
+                "par": hole.par,
+                "yds": hole.yardage,
+                "hcp": hole.handicapRating
+            ]
+            if let v = hole.greenFrontLatitude { dict["greenF_lat"] = v }
+            if let v = hole.greenFrontLongitude { dict["greenF_lon"] = v }
+            if let v = hole.greenCenterLatitude { dict["greenC_lat"] = v }
+            if let v = hole.greenCenterLongitude { dict["greenC_lon"] = v }
+            if let v = hole.greenBackLatitude { dict["greenB_lat"] = v }
+            if let v = hole.greenBackLongitude { dict["greenB_lon"] = v }
+            return dict
         }
         if let jsonData = try? JSONSerialization.data(withJSONObject: holesData),
            let jsonString = String(data: jsonData, encoding: .utf8) {
@@ -197,11 +214,17 @@ final class CloudKitCourseService {
 
         for holeData in shared.holes {
             let holeInfo = HoleInfo(
-                holeNumber: holeData["num"] ?? 1,
-                par: holeData["par"] ?? 4,
-                yardage: holeData["yds"] ?? 350,
-                handicapRating: holeData["hcp"] ?? 1,
-                course: course
+                holeNumber: holeData["num"] as? Int ?? 1,
+                par: holeData["par"] as? Int ?? 4,
+                yardage: holeData["yds"] as? Int ?? 350,
+                handicapRating: holeData["hcp"] as? Int ?? 1,
+                course: course,
+                greenFrontLatitude: holeData["greenF_lat"] as? Double,
+                greenFrontLongitude: holeData["greenF_lon"] as? Double,
+                greenCenterLatitude: holeData["greenC_lat"] as? Double,
+                greenCenterLongitude: holeData["greenC_lon"] as? Double,
+                greenBackLatitude: holeData["greenB_lat"] as? Double,
+                greenBackLongitude: holeData["greenB_lon"] as? Double
             )
             context.insert(holeInfo)
         }
@@ -213,10 +236,10 @@ final class CloudKitCourseService {
     private func parseRecord(_ record: CKRecord) -> SharedCourseRecord? {
         guard let name = record["name"] as? String else { return nil }
 
-        var holes: [[String: Int]] = []
+        var holes: [[String: Any]] = []
         if let json = record["holesJSON"] as? String,
            let data = json.data(using: .utf8),
-           let parsed = try? JSONSerialization.jsonObject(with: data) as? [[String: Int]] {
+           let parsed = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
             holes = parsed
         }
 

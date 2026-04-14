@@ -63,12 +63,51 @@ final class HoleInfo {
     var handicapRating: Int
     var course: GolfCourse?
 
+    // MARK: - Green GPS Pins (Phase 1A)
+    // Optional green front/center/back coordinates for on-course GPS distances.
+    // All existing courses work without these — absence of pins simply disables
+    // the GPS distance HUD for that hole.
+    var greenFrontLatitude: Double?
+    var greenFrontLongitude: Double?
+    var greenCenterLatitude: Double?
+    var greenCenterLongitude: Double?
+    var greenBackLatitude: Double?
+    var greenBackLongitude: Double?
+
+    /// Returns true only if the green **center** coordinates are both set.
+    /// Center is the minimum viable pin — front/back are optional refinements.
+    var hasGreenPins: Bool {
+        greenCenterLatitude != nil && greenCenterLongitude != nil
+    }
+
+    /// Returns distance in yards from a given location to the front, center,
+    /// and back of the green. Any coordinate that is nil returns nil.
+    /// Conversion: 1 meter = 1.09361 yards.
+    func distanceYards(from location: CLLocation) -> (front: Double?, center: Double?, back: Double?) {
+        func distanceYd(lat: Double?, lon: Double?) -> Double? {
+            guard let lat, let lon else { return nil }
+            let target = CLLocation(latitude: lat, longitude: lon)
+            return location.distance(from: target) * 1.09361
+        }
+        return (
+            front: distanceYd(lat: greenFrontLatitude, lon: greenFrontLongitude),
+            center: distanceYd(lat: greenCenterLatitude, lon: greenCenterLongitude),
+            back: distanceYd(lat: greenBackLatitude, lon: greenBackLongitude)
+        )
+    }
+
     init(
         holeNumber: Int,
         par: Int = 4,
         yardage: Int = 350,
         handicapRating: Int = 1,
-        course: GolfCourse? = nil
+        course: GolfCourse? = nil,
+        greenFrontLatitude: Double? = nil,
+        greenFrontLongitude: Double? = nil,
+        greenCenterLatitude: Double? = nil,
+        greenCenterLongitude: Double? = nil,
+        greenBackLatitude: Double? = nil,
+        greenBackLongitude: Double? = nil
     ) {
         self.id = UUID()
         self.holeNumber = holeNumber
@@ -76,5 +115,11 @@ final class HoleInfo {
         self.yardage = yardage
         self.handicapRating = handicapRating
         self.course = course
+        self.greenFrontLatitude = greenFrontLatitude
+        self.greenFrontLongitude = greenFrontLongitude
+        self.greenCenterLatitude = greenCenterLatitude
+        self.greenCenterLongitude = greenCenterLongitude
+        self.greenBackLatitude = greenBackLatitude
+        self.greenBackLongitude = greenBackLongitude
     }
 }
