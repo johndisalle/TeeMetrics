@@ -244,6 +244,9 @@ struct LiveRoundView: View {
         }
         NotificationManager.scheduleInactivityReminder(lastRoundDate: round.date)
 
+        // Tell the Watch the round is over so it returns to its idle screen.
+        WatchSyncManager.shared.sendRoundEnd()
+
         // Show celebration instead of dismiss
         showCelebration = true
     }

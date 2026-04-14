@@ -1,6 +1,21 @@
 // MARK: - Watch Round View
-// Simplified per-hole scoring with phone sync via shared UserDefaults
-// Quick score entry, putts, running total
+// Tee-aware per-hole scoring on the Apple Watch.
+//
+// Rounds are started from the iPhone only — this view shows an idle
+// "Start your round on iPhone first." screen until the Phone pushes a
+// round-start payload via WatchConnectivity. The Watch never creates a
+// round on its own.
+//
+// Synced payload from `WatchSyncManager` (Phone side):
+//   isActive:    Bool       — true when a round is in progress
+//   courseName:  String     — display name
+//   teeName:     String?    — e.g. "White" (omitted when no tee selected)
+//   holePars:    [Int]      — 18-element par array for the active tee
+//   startedAt:   TimeInterval — bumped on every fresh round start
+//
+// Persistence: the active payload is mirrored into UserDefaults so a
+// force-quit + relaunch mid-round restores tee + pars without needing the
+// Phone to be reachable.
 
 import SwiftUI
 import Combine
@@ -13,7 +28,18 @@ struct WatchRoundView: View {
     @State private var putts: [Int] = Array(repeating: 0, count: 18)
     @State private var pars: [Int] = Array(repeating: 4, count: 18)
     @State private var courseName: String = "TeeMetrics"
+    @State private var teeName: String? = nil
     @State private var isRoundActive = false
+
+    // UserDefaults keys for mid-round persistence.
+    private let kPars = "watch.holePars"
+    private let kCourse = "watch.courseName"
+    private let kTee = "watch.teeName"
+    private let kActive = "watch.isActive"
+    private let kStartedAt = "watch.startedAt"
+    private let kScores = "watch.scores"
+    private let kPutts = "watch.putts"
+    private let kCurrentHole = "watch.currentHole"
 
     private var currentIndex: Int { currentHole - 1 }
     private var runningScore: Int { scores.prefix(currentHole).reduce(0, +) }
@@ -31,7 +57,7 @@ struct WatchRoundView: View {
                     }
                 }
                 .tabViewStyle(.verticalPage)
-                .navigationTitle("H\(currentHole)")
+                .navigationTitle(headerTitle)
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
                         Button("End") {
@@ -41,23 +67,19 @@ struct WatchRoundView: View {
                     }
                 }
             } else {
-                // Start screen
+                // Idle screen — Watch cannot start its own round.
                 VStack(spacing: 12) {
-                    Image(systemName: "flag.fill")
+                    Image(systemName: "iphone.and.arrow.forward")
                         .font(.title)
                         .foregroundStyle(.green)
-                    Text("TeeMetrics")
-                        .font(.headline)
-                    Text("Start scoring when you begin your round on iPhone")
+                    Text("Start your round on iPhone first.")
+                        .font(.caption)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.primary)
+                    Text("This Watch will follow along automatically once you tee off.")
                         .font(.caption2)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.secondary)
-
-                    Button("Quick Round") {
-                        startQuickRound()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.green)
                 }
                 .padding()
             }
@@ -66,16 +88,34 @@ struct WatchRoundView: View {
             connector.onDataReceived = { data in
                 handlePhoneData(data)
             }
+            restoreFromDefaults()
         }
+    }
+
+    /// Compact title that shows hole number plus tee name when available.
+    private var headerTitle: String {
+        if let teeName, !teeName.isEmpty {
+            return "H\(currentHole) · \(teeName)"
+        }
+        return "H\(currentHole)"
     }
 
     private func watchHoleView(hole: Int) -> some View {
         let idx = hole - 1
         return VStack(spacing: 4) {
-            // Header
-            HStack {
-                Text("H\(hole)")
-                    .font(.headline)
+            // Header — course + tee subtitle + par chip
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(courseName)
+                        .font(.caption2.bold())
+                        .lineLimit(1)
+                    if let teeName, !teeName.isEmpty {
+                        Text("\(teeName) tees")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                }
                 Spacer()
                 Text("P\(pars[idx])")
                     .font(.caption)
@@ -140,8 +180,9 @@ struct WatchRoundView: View {
             }
         }
         .padding(.horizontal, 4)
-        .onChange(of: scores[idx]) { _, _ in syncToPhone() }
-        .onChange(of: putts[idx]) { _, _ in syncToPhone() }
+        .onChange(of: scores[idx]) { _, _ in persistAndSync() }
+        .onChange(of: putts[idx]) { _, _ in persistAndSync() }
+        .onChange(of: currentHole) { _, _ in persistAndSync() }
     }
 
     private func scoreColor(score: Int, par: Int) -> Color {
@@ -153,7 +194,12 @@ struct WatchRoundView: View {
     }
 
     // MARK: - Phone Sync
-    private func syncToPhone() {
+
+    private func persistAndSync() {
+        let d = UserDefaults.standard
+        d.set(scores, forKey: kScores)
+        d.set(putts, forKey: kPutts)
+        d.set(currentHole, forKey: kCurrentHole)
         connector.send([
             "scores": scores,
             "putts": putts,
@@ -162,21 +208,90 @@ struct WatchRoundView: View {
     }
 
     private func handlePhoneData(_ data: [String: Any]) {
-        if let p = data["pars"] as? [Int] { pars = p }
-        if let name = data["courseName"] as? String { courseName = name }
-        if let active = data["isActive"] as? Bool { isRoundActive = active }
+        let d = UserDefaults.standard
+
+        if let p = data["holePars"] as? [Int], p.count == 18 {
+            pars = p
+            d.set(p, forKey: kPars)
+        }
+        if let name = data["courseName"] as? String {
+            courseName = name
+            d.set(name, forKey: kCourse)
+        }
+        // teeName may be absent (course has no tees) — only overwrite when
+        // the key is actually present in the payload.
+        if data.keys.contains("teeName") {
+            let name = data["teeName"] as? String
+            teeName = name
+            if let name { d.set(name, forKey: kTee) } else { d.removeObject(forKey: kTee) }
+        }
+        if let started = data["startedAt"] as? TimeInterval {
+            let lastStarted = d.double(forKey: kStartedAt)
+            if started > lastStarted {
+                // Fresh round — reset local scoring buffers.
+                scores = Array(repeating: 0, count: 18)
+                putts = Array(repeating: 0, count: 18)
+                currentHole = 1
+                d.set(scores, forKey: kScores)
+                d.set(putts, forKey: kPutts)
+                d.set(currentHole, forKey: kCurrentHole)
+                d.set(started, forKey: kStartedAt)
+            }
+        }
+        if let active = data["isActive"] as? Bool {
+            isRoundActive = active
+            d.set(active, forKey: kActive)
+            if !active {
+                // Round ended on Phone — clear persisted state so a relaunch
+                // returns to the idle screen.
+                clearDefaults()
+            }
+        }
     }
 
-    private func startQuickRound() {
-        isRoundActive = true
-        scores = Array(repeating: 0, count: 18)
-        putts = Array(repeating: 0, count: 18)
-        currentHole = 1
+    /// Restores any in-progress round state from UserDefaults so a
+    /// force-quit + relaunch lands the user back on their current hole
+    /// with the correct pars and tee name.
+    private func restoreFromDefaults() {
+        let d = UserDefaults.standard
+        if let p = d.array(forKey: kPars) as? [Int], p.count == 18 {
+            pars = p
+        }
+        if let name = d.string(forKey: kCourse) {
+            courseName = name
+        }
+        if let name = d.string(forKey: kTee) {
+            teeName = name
+        }
+        if let s = d.array(forKey: kScores) as? [Int], s.count == 18 {
+            scores = s
+        }
+        if let p = d.array(forKey: kPutts) as? [Int], p.count == 18 {
+            putts = p
+        }
+        let hole = d.integer(forKey: kCurrentHole)
+        if hole >= 1 && hole <= 18 {
+            currentHole = hole
+        }
+        isRoundActive = d.bool(forKey: kActive)
+    }
+
+    private func clearDefaults() {
+        let d = UserDefaults.standard
+        for key in [kPars, kCourse, kTee, kActive, kStartedAt, kScores, kPutts, kCurrentHole] {
+            d.removeObject(forKey: key)
+        }
     }
 
     private func endRound() {
         isRoundActive = false
-        syncToPhone()
+        connector.send([
+            "scores": scores,
+            "putts": putts,
+            "currentHole": currentHole,
+            "isActive": false,
+        ])
+        clearDefaults()
     }
 }
 
@@ -198,11 +313,27 @@ final class WatchConnector: NSObject, ObservableObject, WCSessionDelegate {
         WCSession.default.sendMessage(data, replyHandler: nil)
     }
 
-    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {}
+    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        // Once activated, replay any previously delivered application
+        // context so a cold-launched Watch app picks up an in-progress
+        // round without needing a fresh Phone push.
+        let context = session.receivedApplicationContext
+        if !context.isEmpty {
+            DispatchQueue.main.async {
+                self.onDataReceived?(context)
+            }
+        }
+    }
 
     func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
         DispatchQueue.main.async {
             self.onDataReceived?(message)
+        }
+    }
+
+    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
+        DispatchQueue.main.async {
+            self.onDataReceived?(applicationContext)
         }
     }
 }

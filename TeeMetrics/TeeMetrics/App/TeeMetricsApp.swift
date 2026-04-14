@@ -51,6 +51,9 @@ struct TeeMetricsApp: App {
                             NotificationManager.requestPermission()
                             NotificationManager.scheduleWeeklySummary()
                             CourseDetectionManager.shared.requestLocation()
+                            // Activate WatchConnectivity so round-start
+                            // payloads can reach the paired Apple Watch.
+                            WatchSyncManager.shared.activate()
                         }
                 } else {
                     OnboardingView()

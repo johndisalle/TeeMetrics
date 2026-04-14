@@ -254,5 +254,10 @@ struct NewRoundView: View {
 
         createdRound = round
         navigateToRound = true
+
+        // Push the new round (course, tee, per-hole pars) to the paired
+        // Apple Watch so it can switch from idle to active scoring with
+        // the correct par values for this tee.
+        WatchSyncManager.shared.sendRoundStart(round: round)
     }
 }
