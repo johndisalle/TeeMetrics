@@ -49,6 +49,13 @@ struct HoleLoggerView: View {
                     holeInfo: entry.holeInfo
                 )
 
+                // MARK: - Next Hazard HUD (Phase 2 GPS — Pro)
+                // Self-hiding Garmin-style card for the upcoming bunker or
+                // water hazard along the aim line. Returns EmptyView when
+                // there's nothing to show so the layout stays stable as
+                // the golfer walks past hazards.
+                HazardCard(holeInfo: entry.holeInfo)
+
                 // MARK: - Hole Header
                 HStack(alignment: .bottom) {
                     VStack(alignment: .leading, spacing: 2) {

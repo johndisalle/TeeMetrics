@@ -16,6 +16,7 @@ struct TeeMetricsApp: App {
             HoleInfo.self,
             CourseTee.self,      // Phase 2: multi-tee scorecards
             TeeHole.self,        // Phase 2: per-tee hole data
+            HazardPin.self,      // Phase 2 GPS: bunker + water hazard pins
             GolfRound.self,
             HoleEntry.self,
             ShotEntry.self,

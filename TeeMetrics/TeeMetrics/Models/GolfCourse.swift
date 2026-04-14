@@ -105,6 +105,14 @@ final class HoleInfo {
     var handicapRating: Int
     var course: GolfCourse?
 
+    // MARK: - Hazard Pins (Phase 2 GPS)
+    /// Bunker and water hazard pins placed on this hole. Cascades so
+    /// deleting a hole or course tears them down. Inverse is
+    /// `HazardPin.hole`. Empty array for holes that haven't been
+    /// mapped — the HazardCard self-hides in that case.
+    @Relationship(deleteRule: .cascade, inverse: \HazardPin.hole)
+    var hazards: [HazardPin] = []
+
     // MARK: - Green GPS Pins (Phase 1A)
     // Optional green front/center/back coordinates for on-course GPS distances.
     // All existing courses work without these — absence of pins simply disables

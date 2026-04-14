@@ -4,6 +4,181 @@ All notable changes to TeeMetrics are documented here. Newest entries on top.
 
 ---
 
+## 2026-04-14 — Phase 2 GPS: Hazard pins + next-hazard live HUD (Pro)
+
+**Scope:** Extend the GPS stack with bunker and water hazard pin
+placement in `HoleGPSEditorView`, and add a Garmin-style "next hazard"
+card (carry / into distances for the single upcoming hazard on the aim
+line) that renders during active rounds just below `DistanceToGreenCard`.
+Hazard editing and the live HUD are both gated behind Pro.
+
+### Added
+
+- **`TeeMetrics/Models/HazardPin.swift`** — new `@Model HazardPin`:
+  - `id: UUID`, `kind: String`, `latitude: Double`, `longitude: Double`
+  - `hole: HoleInfo?` back-reference (inverse side)
+  - `hazardKind: HazardKind?` typed accessor over the stored rawValue
+  - **`HazardKind` enum**: `.bunker` (sand-dust SF Symbol), `.water`
+    (water drop SF Symbol). `CaseIterable`, `Identifiable`. Kept
+    UIKit/SwiftUI-free so services and models can import cleanly.
+  - Single-point hazards only in this phase. Carry and "into" distances
+    are computed from the same lat/lng. Polygon hazards (with proper
+    near/far edges) can come in a later phase without schema changes.
+
+- **`HoleInfo.hazards: [HazardPin]`** — new cascading relationship with
+  `inverse: \HazardPin.hole`. Defaults to `[]` so every existing
+  `HoleInfo(...)` call site compiles unchanged. Legacy holes without
+  mapped hazards get an empty array and `HazardCard` self-hides.
+
+- **`TeeMetrics/Services/HazardCalculator.swift`** — pure-function
+  namespace matching the `StatsCalculator` pattern:
+  - `NextHazard` result struct: `kind` / `carryDistance` /
+    `intoDistance`
+  - `nextHazard(in hole: HoleInfo, from playerLocation: CLLocation) ->
+    NextHazard?` picks the closest qualifying hazard with three
+    filters applied to the aim line (player → green center, falling
+    back to green front):
+    1. **In front**: dot product `(player→target) · (player→hazard)
+       > 0` (hazard is ahead along the aim axis)
+    2. **Cone**: angle between `(player→target)` and `(player→hazard)`
+       ≤ `±20°` (tight enough to ignore adjacent-hole hazards)
+    3. **Distance**: ≤ 350 yards straight-line
+  - Uses an equirectangular local-meters approximation for the vector
+    math. Sub-yard error at golf-course scale, well below consumer GPS
+    precision, and much simpler than full-blown geodesics.
+  - Tunables as public constants (`maxDistanceYards`,
+    `coneHalfAngleDegrees`).
+
+- **`TeeMetrics/Views/LiveRound/HazardCard.swift`** — live HUD view,
+  Pro-gated, self-hiding. Display rules:
+  1. Hole has **zero** mapped hazards → hide entirely (so non-Pro
+     users don't see upgrade teasers on every pinless hole)
+  2. Non-Pro + hole has any hazards → `.proGated(.hazardDistances)`
+     teaser card
+  3. Pro + no GPS fix → hide (don't double up with
+     `DistanceToGreenCard`'s spinner)
+  4. Pro + no hazard in the forward cone → hide silently so the
+     layout doesn't jitter when walking past hazards
+  5. Pro + hazard ahead → glass card with hazard icon, kind label in
+     small caps, and `Carry | Into` number pair
+  - Uses the same `TimelineView(.periodic(from: .now, by: 5))`
+    mechanism as `DistanceToGreenCard` so the state flips as the
+    golfer walks without needing a continuous update stream.
+  - `.contentTransition(.numericText())` for smooth digit changes.
+
+- **`HoleGPSEditorView` hazard editing**:
+  - New state: `activeHazardKind: HazardKind?` (mutually exclusive
+    with `activePin` — selecting one clears the other), plus
+    `hazardPendingDelete: HazardPin?` and `showDeleteHazardAlert`
+  - New `canEditHazards` computed (`GatingManager.shared.isProUser`)
+  - New `hazardButton(kind:hole:)` — shows a lock icon instead of
+    the kind icon for non-Pro users. Tapping a locked button triggers
+    the existing `showPaywall` sheet. Shows a `(N)` count when
+    hazards of that kind already exist on the current hole.
+  - New `hazardPinView(kind:)` for map annotations — white circle with
+    tinted SF Symbol
+  - New `hazardTint(for:)` returning a sand-beige or pool-blue
+    `Color`. Kept in the view layer so `HazardPin.swift` stays
+    SwiftUI-free.
+  - New `addHazard(kind:at:)` — creates and inserts a `HazardPin`
+    linked to the current `HoleInfo`, clears placement mode
+  - New `handleHazardTap(_:)` — when no placement mode is active,
+    stages the tapped hazard for deletion via a confirm alert
+  - New `deletePendingHazard()` — deletes via `modelContext.delete`
+  - Map's `onTapGesture` extended to handle both `activePin` (F/C/B
+    drop) and `activeHazardKind` (bunker/water drop)
+  - Placement-mode banner extended to handle hazard placement
+    (orange/blue background instead of green/red/blue)
+  - `onChange(of: selectedHoleNumber)` now clears `activeHazardKind`
+    alongside `activePin`
+
+- **`GatingManager.ProFeature.hazardDistances`** — new enum case with
+  label "Hazard Distances". `requiresPro(feature:)` returns `true`
+  for all non-Pro users on every course — hazards are a pure Pro
+  feature with no progressive unlock.
+
+- **`HoleLoggerView`** — `HazardCard(holeInfo:)` inserted directly
+  below `DistanceToGreenCard(course:holeInfo:)` in the top `VStack`.
+  Because `HazardCard` returns `EmptyView` in all the silent states,
+  the layout is stable on holes without hazards and between
+  encounters during a round.
+
+- **`TeeMetricsApp` schema** — `HazardPin.self` registered in the
+  `Schema([...])` array next to `TeeHole.self`. Lightweight SwiftData
+  migration; no `VersionedSchema` needed.
+
+### Battery & UX Strategy
+
+- Zero additional GPS cost. `RoundLocationManager` already streams
+  during the round (Phase 1C), and `HazardCalculator` is a pure
+  function on existing location data — no new CoreLocation calls.
+- `HazardCard` only runs its TimelineView when the hole has hazards.
+  On every other hole it's `EmptyView`, so zero CPU.
+- The 5-second TimelineView cadence matches `DistanceToGreenCard`, so
+  a hole render produces a single coalesced redraw instead of two
+  staggered ones.
+- Non-Pro users never see the editing UI spin up — tapping a hazard
+  button goes straight to the paywall sheet.
+
+### Not Touched (intentional)
+
+- **`DistanceToGreenCard`** and `RoundLocationManager` — untouched
+- **`CourseTee`, `TeeHole`, multi-tee logic** — hazards are pin-based
+  and independent of tee selection
+- **Progressive course coordinate refinement** — still lives in
+  `HoleGPSEditorView.savePins` from Phase 1B fix
+- **Phase 1B recenter button** — verified still at line ~256 of
+  `HoleGPSEditorView.swift`
+
+### Known Limitations
+
+- **Placement-on-top-of-existing-hazard**: the Annotation's tap
+  gesture consumes the touch before the map's placement gesture, so
+  tapping exactly on an existing hazard during placement mode won't
+  drop a new pin there. User can place slightly offset. Acceptable
+  edge case.
+- **Single-point hazards only**: the carry and into distances are
+  identical for each hazard. Polygon support is the follow-up.
+- **No "walked past" haptic yet**: skipped per task "optional polish"
+  — can be added later with a simple last-seen-hazard-id tracker.
+
+### Build Verification
+
+Manual correctness pass (no `xcodebuild` in this sandbox):
+
+- Brace balance clean on all 8 modified/new Swift files (HazardPin
+  11/11, GolfCourse 11/11, TeeMetricsApp 12/12, GatingManager 25/25,
+  HazardCalculator 19/19, HoleGPSEditorView 147/147, HazardCard
+  18/18, HoleLoggerView 61/61)
+- `GatingManager.requiresPro(feature:)` switch is exhaustive over the
+  new `hazardDistances` case
+- `ForEach(hole.hazards)` pattern matches the existing
+  `ForEach(sortedHoles)` usage in `CourseLibraryView.swift:198`
+  (SwiftData `@Model` classes are `Identifiable` via
+  `PersistentModel`)
+- No existing `HoleInfo(...)` call sites need updating — the new
+  `hazards` relationship defaults to `[]`
+
+**User should build in Xcode on their Mac after pulling and test by
+placing a bunker or water hazard in HoleGPSEditorView, then starting
+a round to verify the HazardCard appears along the aim line.**
+
+### Files Added
+
+- `TeeMetrics/TeeMetrics/Models/HazardPin.swift`
+- `TeeMetrics/TeeMetrics/Services/HazardCalculator.swift`
+- `TeeMetrics/TeeMetrics/Views/LiveRound/HazardCard.swift`
+
+### Files Modified
+
+- `TeeMetrics/TeeMetrics/Models/GolfCourse.swift`
+- `TeeMetrics/TeeMetrics/App/TeeMetricsApp.swift`
+- `TeeMetrics/TeeMetrics/Services/GatingManager.swift`
+- `TeeMetrics/TeeMetrics/Views/Course/HoleGPSEditorView.swift`
+- `TeeMetrics/TeeMetrics/Views/LiveRound/HoleLoggerView.swift`
+
+---
+
 ## 2026-04-14 — Phase 1C: Live distance-to-green HUD during rounds
 
 **Scope:** Wire up the payoff for Phase 1A (pin data model) + Phase 1B

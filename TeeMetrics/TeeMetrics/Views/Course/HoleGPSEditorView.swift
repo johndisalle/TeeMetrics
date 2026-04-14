@@ -27,6 +27,14 @@ struct HoleGPSEditorView: View {
 
     @State private var selectedHoleNumber: Int = 1
     @State private var activePin: PinKind? = nil
+    /// Active hazard placement mode (Phase 2 GPS). Mutually exclusive with
+    /// `activePin` — selecting one clears the other so the map never has
+    /// two "what to drop next" intents at once.
+    @State private var activeHazardKind: HazardKind? = nil
+    /// Hazard staged for deletion by tapping an existing map annotation.
+    /// When non-nil, triggers the confirm-delete alert.
+    @State private var hazardPendingDelete: HazardPin? = nil
+    @State private var showDeleteHazardAlert = false
     @State private var cameraPosition: MapCameraPosition = .automatic
     @State private var showShareAlert = false
     @State private var showPaywall = false
@@ -74,6 +82,15 @@ struct HoleGPSEditorView: View {
         GatingManager.shared.canEditPins(for: course)
     }
 
+    // MARK: - Hazard editing gate (Phase 2 GPS)
+    /// Hazard editing is a pure Pro feature on every course, on top of
+    /// the regular pin-edit gate. Non-Pro users see the hazard buttons
+    /// but tapping one presents the paywall instead of entering
+    /// placement mode.
+    private var canEditHazards: Bool {
+        GatingManager.shared.isProUser
+    }
+
     // MARK: - Body
     var body: some View {
         NavigationStack {
@@ -105,6 +122,15 @@ struct HoleGPSEditorView: View {
             } message: {
                 Text("Your GPS pins will be uploaded to the TeeMetrics community so other players at \(course.name) get accurate distances.")
             }
+            .alert(
+                "Delete \(hazardPendingDelete?.hazardKind?.label.lowercased() ?? "hazard")?",
+                isPresented: $showDeleteHazardAlert
+            ) {
+                Button("Delete", role: .destructive) { deletePendingHazard() }
+                Button("Cancel", role: .cancel) { hazardPendingDelete = nil }
+            } message: {
+                Text("Remove this hazard pin from the current hole.")
+            }
         }
     }
 
@@ -126,6 +152,7 @@ struct HoleGPSEditorView: View {
         }
         .onChange(of: selectedHoleNumber) { _, _ in
             activePin = nil
+            activeHazardKind = nil
         }
     }
 
@@ -222,13 +249,32 @@ struct HoleGPSEditorView: View {
                                 pinView(kind: .back)
                             }
                         }
+
+                        // Hazard pins for the current hole (Phase 2 GPS).
+                        // Tapping an existing hazard stages it for delete
+                        // when no placement mode is active.
+                        ForEach(hole.hazards) { hazard in
+                            let coord = CLLocationCoordinate2D(
+                                latitude: hazard.latitude,
+                                longitude: hazard.longitude
+                            )
+                            Annotation(hazard.hazardKind?.label ?? "Hazard", coordinate: coord) {
+                                hazardPinView(kind: hazard.hazardKind ?? .bunker)
+                                    .onTapGesture {
+                                        handleHazardTap(hazard)
+                                    }
+                            }
+                        }
                     }
                 }
                 .mapStyle(.hybrid(elevation: .realistic))
                 .onTapGesture(coordinateSpace: .local) { screenPoint in
-                    guard let pin = activePin else { return }
-                    if let coord = proxy.convert(screenPoint, from: .local) {
+                    if let pin = activePin,
+                       let coord = proxy.convert(screenPoint, from: .local) {
                         setPin(pin, coordinate: coord)
+                    } else if let kind = activeHazardKind,
+                              let coord = proxy.convert(screenPoint, from: .local) {
+                        addHazard(kind: kind, at: coord)
                     }
                 }
             }
@@ -244,6 +290,23 @@ struct HoleGPSEditorView: View {
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
                             .background(pin.color.opacity(0.9))
+                            .clipShape(Capsule())
+                            .padding(.top, 12)
+                            .padding(.trailing, 12)
+                            .shadow(radius: 4)
+                    }
+                    Spacer()
+                }
+            } else if let kind = activeHazardKind {
+                VStack {
+                    HStack {
+                        Spacer()
+                        Text("Tap the map to place \(kind.label.uppercased())")
+                            .font(.caption.bold())
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(hazardTint(for: kind).opacity(0.9))
                             .clipShape(Capsule())
                             .padding(.top, 12)
                             .padding(.trailing, 12)
@@ -284,11 +347,17 @@ struct HoleGPSEditorView: View {
     private var controlsPanel: some View {
         VStack(spacing: 10) {
             if let hole = currentHole {
-                // Three pin buttons
+                // Three pin buttons (F / C / B)
                 HStack(spacing: 8) {
                     pinButton(kind: .front, isSet: hole.greenFrontLatitude != nil)
                     pinButton(kind: .center, isSet: hole.greenCenterLatitude != nil)
                     pinButton(kind: .back, isSet: hole.greenBackLatitude != nil)
+                }
+
+                // Hazard pin buttons (Phase 2 GPS — Pro)
+                HStack(spacing: 8) {
+                    hazardButton(kind: .bunker, hole: hole)
+                    hazardButton(kind: .water, hole: hole)
                 }
 
                 // Use my location button
@@ -387,6 +456,114 @@ struct HoleGPSEditorView: View {
                 .background(kind.color)
                 .clipShape(Capsule())
         }
+    }
+
+    // MARK: - Hazard Button (Phase 2 GPS)
+    private func hazardButton(kind: HazardKind, hole: HoleInfo) -> some View {
+        let count = hole.hazards.filter { $0.hazardKind == kind }.count
+        let tint = hazardTint(for: kind)
+        let isActive = activeHazardKind == kind
+        let locked = !canEditHazards
+
+        return Button {
+            // Pro gate: non-Pro users get the paywall instead of placement mode.
+            if locked {
+                showPaywall = true
+                Haptics.selection()
+                return
+            }
+
+            // Toggle placement mode; clear F/C/B mode since they're mutually
+            // exclusive.
+            if activeHazardKind == kind {
+                activeHazardKind = nil
+            } else {
+                activeHazardKind = kind
+                activePin = nil
+            }
+            Haptics.selection()
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: locked ? "lock.fill" : kind.systemImage)
+                    .font(.title3)
+                Text(kind.label)
+                    .font(.caption2.bold())
+                if count > 0 && !locked {
+                    Text("(\(count))")
+                        .font(.caption2)
+                        .opacity(0.8)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(isActive ? tint : tint.opacity(0.12))
+            .foregroundStyle(isActive ? .white : tint)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(isActive ? Color.clear : tint.opacity(0.4), lineWidth: 1)
+            )
+            .opacity(locked ? 0.75 : 1.0)
+        }
+        .accessibilityLabel("\(kind.label) hazard placement\(locked ? ", locked — Pro feature" : "")")
+    }
+
+    /// UI tint color for a hazard kind. Kept here rather than on
+    /// HazardKind so the model file doesn't need SwiftUI.
+    private func hazardTint(for kind: HazardKind) -> Color {
+        switch kind {
+        case .bunker: return Color(red: 0.82, green: 0.68, blue: 0.35) // sand beige
+        case .water: return Color(red: 0.20, green: 0.55, blue: 0.85)  // pool blue
+        }
+    }
+
+    // MARK: - Hazard Annotation View
+    private func hazardPinView(kind: HazardKind) -> some View {
+        let tint = hazardTint(for: kind)
+        return ZStack {
+            Circle()
+                .fill(.white)
+                .frame(width: 32, height: 32)
+                .shadow(radius: 3)
+            Image(systemName: kind.systemImage)
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(tint)
+        }
+    }
+
+    // MARK: - Hazard Mutations
+    /// Create a HazardPin at the given coordinate for the current hole.
+    /// Clears placement mode afterwards so the user can preview the result.
+    private func addHazard(kind: HazardKind, at coordinate: CLLocationCoordinate2D) {
+        guard let hole = currentHole else { return }
+        let hazard = HazardPin(
+            kind: kind,
+            latitude: coordinate.latitude,
+            longitude: coordinate.longitude,
+            hole: hole
+        )
+        modelContext.insert(hazard)
+        activeHazardKind = nil
+        Haptics.success()
+    }
+
+    /// Called when a hazard annotation is tapped. Stages the hazard for
+    /// delete only when no placement mode is active — otherwise falls
+    /// through so the placement tap can land nearby (note: the Annotation
+    /// tap still consumes the gesture, so placement-on-top-of-hazard is
+    /// a minor known limitation).
+    private func handleHazardTap(_ hazard: HazardPin) {
+        guard activePin == nil, activeHazardKind == nil else { return }
+        hazardPendingDelete = hazard
+        showDeleteHazardAlert = true
+    }
+
+    /// Delete the staged hazard from SwiftData.
+    private func deletePendingHazard() {
+        guard let hazard = hazardPendingDelete else { return }
+        modelContext.delete(hazard)
+        hazardPendingDelete = nil
+        Haptics.medium()
     }
 
     // MARK: - Helpers

@@ -63,6 +63,10 @@ final class GatingManager {
             // Gated at the call site based on course origin (community/bundled)
             // via canEditPins(for:) below.
             return true
+        case .hazardDistances:
+            // Pure Pro feature — hazard editing and live hazard HUD are
+            // locked for every non-Pro user on every course.
+            return true
         }
     }
 
@@ -95,6 +99,7 @@ enum ProFeature: String, CaseIterable {
     case roundComparison = "Round Comparison"
     case clubRecommendation = "Club Recommendation"
     case pinEditing = "GPS Pin Editing"
+    case hazardDistances = "Hazard Distances"
 }
 
 // MARK: - Pro Gate View Modifier
