@@ -1,0 +1,14 @@
+{
+  "id": 20800,
+  "club_name": "Sleepy Hollow Country Club",
+  "course_name": "Sleepy Hollow Country Club",
+  "location": {
+    "address": "9334, 8600 Country Club Dr, Rome, NY 13440, United States",
+    "city": "Rome",
+    "state": "NY",
+    "country": "United States",
+    "latitude": 43.28091,
+    "longitude": -75.49719
+  },
+  "tees": {}
+}

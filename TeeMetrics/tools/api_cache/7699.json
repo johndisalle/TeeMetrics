@@ -1,0 +1,379 @@
+{
+  "id": 7699,
+  "club_name": "Janesville Blackhawk Golf Course",
+  "course_name": "Janesville Blackhawk Golf Course",
+  "location": {
+    "address": "2100 Palmer Dr, Janesville, WI 53545, USA",
+    "city": "Janesville",
+    "state": "WI",
+    "country": "United States",
+    "latitude": 42.673573,
+    "longitude": -88.99729
+  },
+  "tees": {
+    "female": [
+      {
+        "tee_name": "White",
+        "course_rating": 71.2,
+        "slope_rating": 111,
+        "bogey_rating": 97.4,
+        "total_yards": 5346,
+        "total_meters": 4888,
+        "number_of_holes": 18,
+        "par_total": 68,
+        "front_course_rating": 35.6,
+        "front_slope_rating": 111,
+        "front_bogey_rating": 48.7,
+        "back_course_rating": 35.6,
+        "back_slope_rating": 111,
+        "back_bogey_rating": 48.7,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 365
+          },
+          {
+            "par": 3,
+            "yardage": 135
+          },
+          {
+            "par": 4,
+            "yardage": 321
+          },
+          {
+            "par": 3,
+            "yardage": 177
+          },
+          {
+            "par": 5,
+            "yardage": 468
+          },
+          {
+            "par": 4,
+            "yardage": 313
+          },
+          {
+            "par": 3,
+            "yardage": 149
+          },
+          {
+            "par": 4,
+            "yardage": 364
+          },
+          {
+            "par": 4,
+            "yardage": 381
+          },
+          {
+            "par": 4,
+            "yardage": 365
+          },
+          {
+            "par": 3,
+            "yardage": 135
+          },
+          {
+            "par": 4,
+            "yardage": 321
+          },
+          {
+            "par": 3,
+            "yardage": 177
+          },
+          {
+            "par": 5,
+            "yardage": 468
+          },
+          {
+            "par": 4,
+            "yardage": 313
+          },
+          {
+            "par": 3,
+            "yardage": 149
+          },
+          {
+            "par": 4,
+            "yardage": 364
+          },
+          {
+            "par": 4,
+            "yardage": 381
+          }
+        ]
+      },
+      {
+        "tee_name": "Red",
+        "course_rating": 66,
+        "slope_rating": 100,
+        "bogey_rating": 89.6,
+        "total_yards": 4400,
+        "total_meters": 4023,
+        "number_of_holes": 18,
+        "par_total": 68,
+        "front_course_rating": 33,
+        "front_slope_rating": 100,
+        "front_bogey_rating": 44.8,
+        "back_course_rating": 33,
+        "back_slope_rating": 100,
+        "back_bogey_rating": 44.8,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 253
+          },
+          {
+            "par": 3,
+            "yardage": 124
+          },
+          {
+            "par": 4,
+            "yardage": 261
+          },
+          {
+            "par": 3,
+            "yardage": 159
+          },
+          {
+            "par": 5,
+            "yardage": 422
+          },
+          {
+            "par": 4,
+            "yardage": 261
+          },
+          {
+            "par": 3,
+            "yardage": 141
+          },
+          {
+            "par": 4,
+            "yardage": 292
+          },
+          {
+            "par": 4,
+            "yardage": 287
+          },
+          {
+            "par": 4,
+            "yardage": 253
+          },
+          {
+            "par": 3,
+            "yardage": 124
+          },
+          {
+            "par": 4,
+            "yardage": 261
+          },
+          {
+            "par": 3,
+            "yardage": 159
+          },
+          {
+            "par": 5,
+            "yardage": 422
+          },
+          {
+            "par": 4,
+            "yardage": 261
+          },
+          {
+            "par": 3,
+            "yardage": 141
+          },
+          {
+            "par": 4,
+            "yardage": 292
+          },
+          {
+            "par": 4,
+            "yardage": 287
+          }
+        ]
+      }
+    ],
+    "male": [
+      {
+        "tee_name": "Blue",
+        "course_rating": 67.8,
+        "slope_rating": 107,
+        "bogey_rating": 87.6,
+        "total_yards": 5660,
+        "total_meters": 5176,
+        "number_of_holes": 18,
+        "par_total": 68,
+        "front_course_rating": 33.9,
+        "front_slope_rating": 107,
+        "front_bogey_rating": 43.8,
+        "back_course_rating": 33.9,
+        "back_slope_rating": 107,
+        "back_bogey_rating": 43.8,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 379
+          },
+          {
+            "par": 3,
+            "yardage": 145
+          },
+          {
+            "par": 4,
+            "yardage": 336
+          },
+          {
+            "par": 3,
+            "yardage": 221
+          },
+          {
+            "par": 5,
+            "yardage": 484
+          },
+          {
+            "par": 4,
+            "yardage": 330
+          },
+          {
+            "par": 3,
+            "yardage": 157
+          },
+          {
+            "par": 4,
+            "yardage": 384
+          },
+          {
+            "par": 4,
+            "yardage": 394
+          },
+          {
+            "par": 4,
+            "yardage": 379
+          },
+          {
+            "par": 3,
+            "yardage": 145
+          },
+          {
+            "par": 4,
+            "yardage": 336
+          },
+          {
+            "par": 3,
+            "yardage": 221
+          },
+          {
+            "par": 5,
+            "yardage": 484
+          },
+          {
+            "par": 4,
+            "yardage": 330
+          },
+          {
+            "par": 3,
+            "yardage": 157
+          },
+          {
+            "par": 4,
+            "yardage": 384
+          },
+          {
+            "par": 4,
+            "yardage": 394
+          }
+        ]
+      },
+      {
+        "tee_name": "White",
+        "course_rating": 66.4,
+        "slope_rating": 104,
+        "bogey_rating": 85.7,
+        "total_yards": 5346,
+        "total_meters": 4888,
+        "number_of_holes": 18,
+        "par_total": 68,
+        "front_course_rating": 33.2,
+        "front_slope_rating": 104,
+        "front_bogey_rating": 42.8,
+        "back_course_rating": 33.2,
+        "back_slope_rating": 104,
+        "back_bogey_rating": 42.8,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 365
+          },
+          {
+            "par": 3,
+            "yardage": 135
+          },
+          {
+            "par": 4,
+            "yardage": 321
+          },
+          {
+            "par": 3,
+            "yardage": 177
+          },
+          {
+            "par": 5,
+            "yardage": 468
+          },
+          {
+            "par": 4,
+            "yardage": 313
+          },
+          {
+            "par": 3,
+            "yardage": 149
+          },
+          {
+            "par": 4,
+            "yardage": 364
+          },
+          {
+            "par": 4,
+            "yardage": 381
+          },
+          {
+            "par": 4,
+            "yardage": 365
+          },
+          {
+            "par": 3,
+            "yardage": 135
+          },
+          {
+            "par": 4,
+            "yardage": 321
+          },
+          {
+            "par": 3,
+            "yardage": 177
+          },
+          {
+            "par": 5,
+            "yardage": 468
+          },
+          {
+            "par": 4,
+            "yardage": 313
+          },
+          {
+            "par": 3,
+            "yardage": 149
+          },
+          {
+            "par": 4,
+            "yardage": 364
+          },
+          {
+            "par": 4,
+            "yardage": 381
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,1531 @@
+{
+  "id": 21246,
+  "club_name": "Whispering Pines Golf Club",
+  "course_name": "Whispering Pines Golf Club",
+  "location": {
+    "address": "1532 Whispering Pines Dr, Trinity, TX 75862, USA",
+    "city": "Trinity",
+    "state": "TX",
+    "country": "United States",
+    "latitude": 30.945557,
+    "longitude": -95.25026
+  },
+  "tees": {
+    "female": [
+      {
+        "tee_name": "Spirit",
+        "course_rating": 84.1,
+        "slope_rating": 155,
+        "bogey_rating": 122.4,
+        "total_yards": 7468,
+        "total_meters": 6829,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 41.8,
+        "front_slope_rating": 155,
+        "front_bogey_rating": 60.4,
+        "back_course_rating": 42.3,
+        "back_slope_rating": 155,
+        "back_bogey_rating": 62,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 388,
+            "handicap": 17
+          },
+          {
+            "par": 5,
+            "yardage": 560,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 208,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 488,
+            "handicap": 3
+          },
+          {
+            "par": 5,
+            "yardage": 574,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 391,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 472,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 194,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 429,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 426,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 411,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 535,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 468,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 370,
+            "handicap": 16
+          },
+          {
+            "par": 3,
+            "yardage": 178,
+            "handicap": 10
+          },
+          {
+            "par": 3,
+            "yardage": 252,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 629,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 495,
+            "handicap": 2
+          }
+        ]
+      },
+      {
+        "tee_name": "1 Pine",
+        "course_rating": 80.7,
+        "slope_rating": 153,
+        "bogey_rating": 117.2,
+        "total_yards": 6842,
+        "total_meters": 6256,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 40.1,
+        "front_slope_rating": 150,
+        "front_bogey_rating": 57.8,
+        "back_course_rating": 40.6,
+        "back_slope_rating": 155,
+        "back_bogey_rating": 59.4,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 371,
+            "handicap": 17
+          },
+          {
+            "par": 5,
+            "yardage": 517,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 195,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 428,
+            "handicap": 3
+          },
+          {
+            "par": 5,
+            "yardage": 509,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 357,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 416,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 182,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 413,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 402,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 391,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 508,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 432,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 360,
+            "handicap": 16
+          },
+          {
+            "par": 3,
+            "yardage": 164,
+            "handicap": 10
+          },
+          {
+            "par": 3,
+            "yardage": 207,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 554,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 436,
+            "handicap": 2
+          }
+        ]
+      },
+      {
+        "tee_name": "1 & 2 Pines Combo",
+        "course_rating": 79.7,
+        "slope_rating": 152,
+        "bogey_rating": 115.6,
+        "total_yards": 6653,
+        "total_meters": 6084,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 39.8,
+        "front_slope_rating": 148,
+        "front_bogey_rating": 57.3,
+        "back_course_rating": 39.9,
+        "back_slope_rating": 155,
+        "back_bogey_rating": 58.3,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 371,
+            "handicap": 17
+          },
+          {
+            "par": 5,
+            "yardage": 517,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 182,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 407,
+            "handicap": 3
+          },
+          {
+            "par": 5,
+            "yardage": 509,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 357,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 397,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 182,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 413,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 381,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 391,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 508,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 411,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 360,
+            "handicap": 16
+          },
+          {
+            "par": 3,
+            "yardage": 164,
+            "handicap": 10
+          },
+          {
+            "par": 3,
+            "yardage": 207,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 494,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 402,
+            "handicap": 2
+          }
+        ]
+      },
+      {
+        "tee_name": "2 Pines",
+        "course_rating": 78.4,
+        "slope_rating": 150,
+        "bogey_rating": 113.7,
+        "total_yards": 6420,
+        "total_meters": 5870,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 39.1,
+        "front_slope_rating": 146,
+        "front_bogey_rating": 56.3,
+        "back_course_rating": 39.3,
+        "back_slope_rating": 153,
+        "back_bogey_rating": 57.4,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 340,
+            "handicap": 17
+          },
+          {
+            "par": 5,
+            "yardage": 489,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 182,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 407,
+            "handicap": 3
+          },
+          {
+            "par": 5,
+            "yardage": 497,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 343,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 397,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 161,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 388,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 381,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 371,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 487,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 411,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 346,
+            "handicap": 16
+          },
+          {
+            "par": 3,
+            "yardage": 141,
+            "handicap": 10
+          },
+          {
+            "par": 3,
+            "yardage": 183,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 494,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 402,
+            "handicap": 2
+          }
+        ]
+      },
+      {
+        "tee_name": "2 & 3 Pines Combo",
+        "course_rating": 76.8,
+        "slope_rating": 147,
+        "bogey_rating": 111.4,
+        "total_yards": 6141,
+        "total_meters": 5615,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 38.3,
+        "front_slope_rating": 143,
+        "front_bogey_rating": 55.2,
+        "back_course_rating": 38.5,
+        "back_slope_rating": 150,
+        "back_bogey_rating": 56.2,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 340,
+            "handicap": 17
+          },
+          {
+            "par": 5,
+            "yardage": 489,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 157,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 355,
+            "handicap": 3
+          },
+          {
+            "par": 5,
+            "yardage": 497,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 343,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 342,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 161,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 388,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 351,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 371,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 487,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 360,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 346,
+            "handicap": 16
+          },
+          {
+            "par": 3,
+            "yardage": 141,
+            "handicap": 10
+          },
+          {
+            "par": 3,
+            "yardage": 183,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 476,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 354,
+            "handicap": 2
+          }
+        ]
+      },
+      {
+        "tee_name": "3 Pines",
+        "course_rating": 75.3,
+        "slope_rating": 144,
+        "bogey_rating": 109.1,
+        "total_yards": 5876,
+        "total_meters": 5373,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 37.6,
+        "front_slope_rating": 140,
+        "front_bogey_rating": 54.1,
+        "back_course_rating": 37.7,
+        "back_slope_rating": 147,
+        "back_bogey_rating": 55,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 301,
+            "handicap": 17
+          },
+          {
+            "par": 5,
+            "yardage": 475,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 157,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 355,
+            "handicap": 3
+          },
+          {
+            "par": 5,
+            "yardage": 485,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 315,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 342,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 146,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 370,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 351,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 306,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 479,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 360,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 313,
+            "handicap": 16
+          },
+          {
+            "par": 3,
+            "yardage": 133,
+            "handicap": 10
+          },
+          {
+            "par": 3,
+            "yardage": 158,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 476,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 354,
+            "handicap": 2
+          }
+        ]
+      },
+      {
+        "tee_name": "4 Pines",
+        "course_rating": 70.5,
+        "slope_rating": 129,
+        "bogey_rating": 100.9,
+        "total_yards": 4996,
+        "total_meters": 4568,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 35.5,
+        "front_slope_rating": 127,
+        "front_bogey_rating": 50.5,
+        "back_course_rating": 35,
+        "back_slope_rating": 131,
+        "back_bogey_rating": 50.4,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 260,
+            "handicap": 17
+          },
+          {
+            "par": 5,
+            "yardage": 402,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 138,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 310,
+            "handicap": 3
+          },
+          {
+            "par": 5,
+            "yardage": 425,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 265,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 303,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 133,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 304,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 277,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 286,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 416,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 306,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 271,
+            "handicap": 16
+          },
+          {
+            "par": 3,
+            "yardage": 78,
+            "handicap": 10
+          },
+          {
+            "par": 3,
+            "yardage": 89,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 418,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 315,
+            "handicap": 2
+          }
+        ]
+      }
+    ],
+    "male": [
+      {
+        "tee_name": "Spirit",
+        "course_rating": 77,
+        "slope_rating": 150,
+        "bogey_rating": 104.8,
+        "total_yards": 7468,
+        "total_meters": 6829,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 38.2,
+        "front_slope_rating": 146,
+        "front_bogey_rating": 51.8,
+        "back_course_rating": 38.8,
+        "back_slope_rating": 153,
+        "back_bogey_rating": 53,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 388,
+            "handicap": 17
+          },
+          {
+            "par": 5,
+            "yardage": 560,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 208,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 488,
+            "handicap": 3
+          },
+          {
+            "par": 5,
+            "yardage": 574,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 391,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 472,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 194,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 429,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 426,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 411,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 535,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 468,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 370,
+            "handicap": 16
+          },
+          {
+            "par": 3,
+            "yardage": 178,
+            "handicap": 10
+          },
+          {
+            "par": 3,
+            "yardage": 252,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 629,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 495,
+            "handicap": 2
+          }
+        ]
+      },
+      {
+        "tee_name": "1 Pine",
+        "course_rating": 74.1,
+        "slope_rating": 145,
+        "bogey_rating": 101,
+        "total_yards": 6842,
+        "total_meters": 6256,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 36.7,
+        "front_slope_rating": 140,
+        "front_bogey_rating": 49.7,
+        "back_course_rating": 37.4,
+        "back_slope_rating": 150,
+        "back_bogey_rating": 51.3,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 371,
+            "handicap": 17
+          },
+          {
+            "par": 5,
+            "yardage": 517,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 195,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 428,
+            "handicap": 3
+          },
+          {
+            "par": 5,
+            "yardage": 509,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 357,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 416,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 182,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 413,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 402,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 391,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 508,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 432,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 360,
+            "handicap": 16
+          },
+          {
+            "par": 3,
+            "yardage": 164,
+            "handicap": 10
+          },
+          {
+            "par": 3,
+            "yardage": 207,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 554,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 436,
+            "handicap": 2
+          }
+        ]
+      },
+      {
+        "tee_name": "1 & 2 Pines Combo",
+        "course_rating": 72.8,
+        "slope_rating": 143,
+        "bogey_rating": 99.3,
+        "total_yards": 6653,
+        "total_meters": 6084,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 36.3,
+        "front_slope_rating": 138,
+        "front_bogey_rating": 49.1,
+        "back_course_rating": 36.5,
+        "back_slope_rating": 147,
+        "back_bogey_rating": 50.2,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 371,
+            "handicap": 17
+          },
+          {
+            "par": 5,
+            "yardage": 517,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 182,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 407,
+            "handicap": 3
+          },
+          {
+            "par": 5,
+            "yardage": 509,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 357,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 397,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 182,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 413,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 381,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 391,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 508,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 411,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 360,
+            "handicap": 16
+          },
+          {
+            "par": 3,
+            "yardage": 164,
+            "handicap": 10
+          },
+          {
+            "par": 3,
+            "yardage": 207,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 494,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 402,
+            "handicap": 2
+          }
+        ]
+      },
+      {
+        "tee_name": "2 Pines",
+        "course_rating": 71.7,
+        "slope_rating": 139,
+        "bogey_rating": 97.5,
+        "total_yards": 6420,
+        "total_meters": 5870,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 35.7,
+        "front_slope_rating": 132,
+        "front_bogey_rating": 48,
+        "back_course_rating": 36,
+        "back_slope_rating": 145,
+        "back_bogey_rating": 49.5,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 340,
+            "handicap": 17
+          },
+          {
+            "par": 5,
+            "yardage": 489,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 182,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 407,
+            "handicap": 3
+          },
+          {
+            "par": 5,
+            "yardage": 497,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 343,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 397,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 161,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 388,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 381,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 371,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 487,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 411,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 346,
+            "handicap": 16
+          },
+          {
+            "par": 3,
+            "yardage": 141,
+            "handicap": 10
+          },
+          {
+            "par": 3,
+            "yardage": 183,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 494,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 402,
+            "handicap": 2
+          }
+        ]
+      },
+      {
+        "tee_name": "2 & 3 Pines Combo",
+        "course_rating": 70.6,
+        "slope_rating": 136,
+        "bogey_rating": 95.9,
+        "total_yards": 6141,
+        "total_meters": 5615,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 35.2,
+        "front_slope_rating": 130,
+        "front_bogey_rating": 47.3,
+        "back_course_rating": 35.4,
+        "back_slope_rating": 142,
+        "back_bogey_rating": 48.6,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 340,
+            "handicap": 17
+          },
+          {
+            "par": 5,
+            "yardage": 489,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 157,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 355,
+            "handicap": 3
+          },
+          {
+            "par": 5,
+            "yardage": 497,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 343,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 342,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 161,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 388,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 351,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 371,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 487,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 360,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 346,
+            "handicap": 16
+          },
+          {
+            "par": 3,
+            "yardage": 141,
+            "handicap": 10
+          },
+          {
+            "par": 3,
+            "yardage": 183,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 476,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 354,
+            "handicap": 2
+          }
+        ]
+      },
+      {
+        "tee_name": "3 Pines",
+        "course_rating": 69.5,
+        "slope_rating": 134,
+        "bogey_rating": 94.3,
+        "total_yards": 5876,
+        "total_meters": 5373,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 34.7,
+        "front_slope_rating": 128,
+        "front_bogey_rating": 46.6,
+        "back_course_rating": 34.8,
+        "back_slope_rating": 139,
+        "back_bogey_rating": 47.7,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 301,
+            "handicap": 17
+          },
+          {
+            "par": 5,
+            "yardage": 475,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 157,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 355,
+            "handicap": 3
+          },
+          {
+            "par": 5,
+            "yardage": 485,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 315,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 342,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 146,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 370,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 351,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 306,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 479,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 360,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 313,
+            "handicap": 16
+          },
+          {
+            "par": 3,
+            "yardage": 133,
+            "handicap": 10
+          },
+          {
+            "par": 3,
+            "yardage": 158,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 476,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 354,
+            "handicap": 2
+          }
+        ]
+      },
+      {
+        "tee_name": "4 Pines",
+        "course_rating": 65.5,
+        "slope_rating": 126,
+        "bogey_rating": 88.8,
+        "total_yards": 4996,
+        "total_meters": 4568,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 32.9,
+        "front_slope_rating": 121,
+        "front_bogey_rating": 44.1,
+        "back_course_rating": 32.6,
+        "back_slope_rating": 130,
+        "back_bogey_rating": 44.7,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 260,
+            "handicap": 17
+          },
+          {
+            "par": 5,
+            "yardage": 402,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 138,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 310,
+            "handicap": 3
+          },
+          {
+            "par": 5,
+            "yardage": 425,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 265,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 303,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 133,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 304,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 277,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 286,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 416,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 306,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 271,
+            "handicap": 16
+          },
+          {
+            "par": 3,
+            "yardage": 78,
+            "handicap": 10
+          },
+          {
+            "par": 3,
+            "yardage": 89,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 418,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 315,
+            "handicap": 2
+          }
+        ]
+      }
+    ]
+  }
+}

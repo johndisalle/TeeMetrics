@@ -1,0 +1,14 @@
+{
+  "id": 24877,
+  "club_name": "Aberdeen Country Club",
+  "course_name": "Meadows / Woodlands",
+  "location": {
+    "address": "701 Buck Trail, Longs, SC 29568, USA",
+    "city": "Longs",
+    "state": "SC",
+    "country": "United States",
+    "latitude": 33.92898,
+    "longitude": -78.7267
+  },
+  "tees": {}
+}

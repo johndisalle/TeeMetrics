@@ -1,0 +1,289 @@
+{
+  "id": 8082,
+  "club_name": "Prairie View Country Club",
+  "course_name": "Prairie View Country Club",
+  "location": {
+    "address": "48585 184th Ave, Gary, SD 57227, USA",
+    "city": "Gary",
+    "state": "SD",
+    "country": "United States",
+    "latitude": 44.717422,
+    "longitude": -96.482704
+  },
+  "tees": {
+    "female": [
+      {
+        "tee_name": "RED",
+        "course_rating": 70.6,
+        "slope_rating": 112,
+        "bogey_rating": 97,
+        "total_yards": 5258,
+        "total_meters": 4808,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 35.3,
+        "front_slope_rating": 112,
+        "front_bogey_rating": 48.5,
+        "back_course_rating": 35.3,
+        "back_slope_rating": 112,
+        "back_bogey_rating": 48.5,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 270
+          },
+          {
+            "par": 4,
+            "yardage": 300
+          },
+          {
+            "par": 3,
+            "yardage": 132
+          },
+          {
+            "par": 4,
+            "yardage": 345
+          },
+          {
+            "par": 3,
+            "yardage": 118
+          },
+          {
+            "par": 4,
+            "yardage": 240
+          },
+          {
+            "par": 5,
+            "yardage": 462
+          },
+          {
+            "par": 4,
+            "yardage": 283
+          },
+          {
+            "par": 5,
+            "yardage": 479
+          },
+          {
+            "par": 4,
+            "yardage": 270
+          },
+          {
+            "par": 4,
+            "yardage": 300
+          },
+          {
+            "par": 3,
+            "yardage": 132
+          },
+          {
+            "par": 4,
+            "yardage": 345
+          },
+          {
+            "par": 3,
+            "yardage": 118
+          },
+          {
+            "par": 4,
+            "yardage": 240
+          },
+          {
+            "par": 5,
+            "yardage": 462
+          },
+          {
+            "par": 4,
+            "yardage": 283
+          },
+          {
+            "par": 5,
+            "yardage": 479
+          }
+        ]
+      }
+    ],
+    "male": [
+      {
+        "tee_name": "BLUE",
+        "course_rating": 73.2,
+        "slope_rating": 111,
+        "bogey_rating": 93.8,
+        "total_yards": 6752,
+        "total_meters": 6174,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 36.6,
+        "front_slope_rating": 111,
+        "front_bogey_rating": 46.9,
+        "back_course_rating": 36.6,
+        "back_slope_rating": 111,
+        "back_bogey_rating": 46.9,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 342
+          },
+          {
+            "par": 4,
+            "yardage": 391
+          },
+          {
+            "par": 3,
+            "yardage": 204
+          },
+          {
+            "par": 4,
+            "yardage": 413
+          },
+          {
+            "par": 3,
+            "yardage": 220
+          },
+          {
+            "par": 4,
+            "yardage": 378
+          },
+          {
+            "par": 5,
+            "yardage": 553
+          },
+          {
+            "par": 4,
+            "yardage": 351
+          },
+          {
+            "par": 5,
+            "yardage": 524
+          },
+          {
+            "par": 4,
+            "yardage": 342
+          },
+          {
+            "par": 4,
+            "yardage": 391
+          },
+          {
+            "par": 3,
+            "yardage": 204
+          },
+          {
+            "par": 4,
+            "yardage": 413
+          },
+          {
+            "par": 3,
+            "yardage": 220
+          },
+          {
+            "par": 4,
+            "yardage": 378
+          },
+          {
+            "par": 5,
+            "yardage": 553
+          },
+          {
+            "par": 4,
+            "yardage": 351
+          },
+          {
+            "par": 5,
+            "yardage": 524
+          }
+        ]
+      },
+      {
+        "tee_name": "WHITE",
+        "course_rating": 69.4,
+        "slope_rating": 114,
+        "bogey_rating": 90.6,
+        "total_yards": 6080,
+        "total_meters": 5560,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 34.7,
+        "front_slope_rating": 114,
+        "front_bogey_rating": 45.3,
+        "back_course_rating": 34.7,
+        "back_slope_rating": 114,
+        "back_bogey_rating": 45.3,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 303
+          },
+          {
+            "par": 4,
+            "yardage": 336
+          },
+          {
+            "par": 3,
+            "yardage": 167
+          },
+          {
+            "par": 4,
+            "yardage": 381
+          },
+          {
+            "par": 3,
+            "yardage": 192
+          },
+          {
+            "par": 4,
+            "yardage": 335
+          },
+          {
+            "par": 5,
+            "yardage": 508
+          },
+          {
+            "par": 4,
+            "yardage": 320
+          },
+          {
+            "par": 5,
+            "yardage": 498
+          },
+          {
+            "par": 4,
+            "yardage": 303
+          },
+          {
+            "par": 4,
+            "yardage": 336
+          },
+          {
+            "par": 3,
+            "yardage": 167
+          },
+          {
+            "par": 4,
+            "yardage": 381
+          },
+          {
+            "par": 3,
+            "yardage": 192
+          },
+          {
+            "par": 4,
+            "yardage": 335
+          },
+          {
+            "par": 5,
+            "yardage": 508
+          },
+          {
+            "par": 4,
+            "yardage": 320
+          },
+          {
+            "par": 5,
+            "yardage": 498
+          }
+        ]
+      }
+    ]
+  }
+}

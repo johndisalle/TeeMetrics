@@ -1,0 +1,14 @@
+{
+  "id": 7858,
+  "club_name": "Marshfield Cc",
+  "course_name": "Marshfield Cc",
+  "location": {
+    "address": "2000 W 5th St, Marshfield, WI 54449, USA",
+    "city": "Marshfield",
+    "state": "WI",
+    "country": "United States",
+    "latitude": 44.665363,
+    "longitude": -90.20557
+  },
+  "tees": {}
+}

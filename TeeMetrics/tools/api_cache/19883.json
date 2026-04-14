@@ -1,0 +1,1099 @@
+{
+  "id": 19883,
+  "club_name": "Dragon At Nakoma Gr",
+  "course_name": "Dragon At Nakoma Gr",
+  "location": {
+    "address": "348 Bear Run, Clio, CA 96106, USA",
+    "city": "Clio",
+    "state": "CA",
+    "country": "United States",
+    "latitude": 39.768883,
+    "longitude": -120.52443
+  },
+  "tees": {
+    "female": [
+      {
+        "tee_name": "#4 Dragon Blue",
+        "course_rating": 77.2,
+        "slope_rating": 149,
+        "bogey_rating": 112.3,
+        "total_yards": 6566,
+        "total_meters": 6004,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 38.2,
+        "front_slope_rating": 149,
+        "front_bogey_rating": 55.8,
+        "back_course_rating": 39,
+        "back_slope_rating": 148,
+        "back_bogey_rating": 56.5,
+        "holes": [
+          {
+            "par": 5,
+            "yardage": 509,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 414,
+            "handicap": 3
+          },
+          {
+            "par": 4,
+            "yardage": 370,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 301,
+            "handicap": 13
+          },
+          {
+            "par": 3,
+            "yardage": 144,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 399,
+            "handicap": 1
+          },
+          {
+            "par": 5,
+            "yardage": 474,
+            "handicap": 9
+          },
+          {
+            "par": 3,
+            "yardage": 167,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 373,
+            "handicap": 5
+          },
+          {
+            "par": 4,
+            "yardage": 414,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 534,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 345,
+            "handicap": 8
+          },
+          {
+            "par": 3,
+            "yardage": 184,
+            "handicap": 12
+          },
+          {
+            "par": 4,
+            "yardage": 433,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 370,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 447,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 160,
+            "handicap": 18
+          },
+          {
+            "par": 5,
+            "yardage": 528,
+            "handicap": 16
+          }
+        ]
+      },
+      {
+        "tee_name": "#3 Dragon  White",
+        "course_rating": 74.5,
+        "slope_rating": 144,
+        "bogey_rating": 108.4,
+        "total_yards": 6065,
+        "total_meters": 5546,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 37,
+        "front_slope_rating": 143,
+        "front_bogey_rating": 53.9,
+        "back_course_rating": 37.5,
+        "back_slope_rating": 144,
+        "back_bogey_rating": 54.5,
+        "holes": [
+          {
+            "par": 5,
+            "yardage": 478,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 380,
+            "handicap": 3
+          },
+          {
+            "par": 4,
+            "yardage": 357,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 286,
+            "handicap": 13
+          },
+          {
+            "par": 3,
+            "yardage": 124,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 376,
+            "handicap": 1
+          },
+          {
+            "par": 5,
+            "yardage": 447,
+            "handicap": 9
+          },
+          {
+            "par": 3,
+            "yardage": 147,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 344,
+            "handicap": 5
+          },
+          {
+            "par": 4,
+            "yardage": 391,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 499,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 324,
+            "handicap": 8
+          },
+          {
+            "par": 3,
+            "yardage": 153,
+            "handicap": 12
+          },
+          {
+            "par": 4,
+            "yardage": 397,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 352,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 403,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 123,
+            "handicap": 18
+          },
+          {
+            "par": 5,
+            "yardage": 484,
+            "handicap": 16
+          }
+        ]
+      },
+      {
+        "tee_name": "#2 Dragon Red",
+        "course_rating": 71,
+        "slope_rating": 136,
+        "bogey_rating": 103,
+        "total_yards": 5380,
+        "total_meters": 4919,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 35.2,
+        "front_slope_rating": 132,
+        "front_bogey_rating": 50.8,
+        "back_course_rating": 35.8,
+        "back_slope_rating": 139,
+        "back_bogey_rating": 52.2,
+        "holes": [
+          {
+            "par": 5,
+            "yardage": 447,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 362,
+            "handicap": 3
+          },
+          {
+            "par": 4,
+            "yardage": 249,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 267,
+            "handicap": 13
+          },
+          {
+            "par": 3,
+            "yardage": 108,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 306,
+            "handicap": 1
+          },
+          {
+            "par": 5,
+            "yardage": 417,
+            "handicap": 9
+          },
+          {
+            "par": 3,
+            "yardage": 107,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 321,
+            "handicap": 5
+          },
+          {
+            "par": 4,
+            "yardage": 362,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 477,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 217,
+            "handicap": 8
+          },
+          {
+            "par": 3,
+            "yardage": 120,
+            "handicap": 12
+          },
+          {
+            "par": 4,
+            "yardage": 369,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 336,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 373,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 97,
+            "handicap": 18
+          },
+          {
+            "par": 5,
+            "yardage": 445,
+            "handicap": 16
+          }
+        ]
+      },
+      {
+        "tee_name": "#1 Dragon Gold",
+        "course_rating": 67,
+        "slope_rating": 128,
+        "bogey_rating": 97.1,
+        "total_yards": 4811,
+        "total_meters": 4399,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 33.2,
+        "front_slope_rating": 127,
+        "front_bogey_rating": 48.2,
+        "back_course_rating": 33.8,
+        "back_slope_rating": 128,
+        "back_bogey_rating": 48.9,
+        "holes": [
+          {
+            "par": 5,
+            "yardage": 411,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 323,
+            "handicap": 3
+          },
+          {
+            "par": 4,
+            "yardage": 235,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 188,
+            "handicap": 13
+          },
+          {
+            "par": 3,
+            "yardage": 90,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 254,
+            "handicap": 1
+          },
+          {
+            "par": 5,
+            "yardage": 400,
+            "handicap": 9
+          },
+          {
+            "par": 3,
+            "yardage": 86,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 259,
+            "handicap": 5
+          },
+          {
+            "par": 4,
+            "yardage": 346,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 433,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 204,
+            "handicap": 8
+          },
+          {
+            "par": 3,
+            "yardage": 94,
+            "handicap": 12
+          },
+          {
+            "par": 4,
+            "yardage": 321,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 311,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 356,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 77,
+            "handicap": 18
+          },
+          {
+            "par": 5,
+            "yardage": 423,
+            "handicap": 16
+          }
+        ]
+      }
+    ],
+    "male": [
+      {
+        "tee_name": "5 Dragon",
+        "course_rating": 73.4,
+        "slope_rating": 141,
+        "bogey_rating": 99.6,
+        "total_yards": 6952,
+        "total_meters": 6357,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 36.3,
+        "front_slope_rating": 133,
+        "front_bogey_rating": 48.7,
+        "back_course_rating": 37.1,
+        "back_slope_rating": 149,
+        "back_bogey_rating": 50.9,
+        "holes": [
+          {
+            "par": 5,
+            "yardage": 527,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 456,
+            "handicap": 3
+          },
+          {
+            "par": 4,
+            "yardage": 399,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 313,
+            "handicap": 15
+          },
+          {
+            "par": 3,
+            "yardage": 163,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 426,
+            "handicap": 1
+          },
+          {
+            "par": 5,
+            "yardage": 502,
+            "handicap": 13
+          },
+          {
+            "par": 3,
+            "yardage": 188,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 396,
+            "handicap": 5
+          },
+          {
+            "par": 4,
+            "yardage": 428,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 549,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 361,
+            "handicap": 12
+          },
+          {
+            "par": 3,
+            "yardage": 214,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 446,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 377,
+            "handicap": 16
+          },
+          {
+            "par": 4,
+            "yardage": 473,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 173,
+            "handicap": 18
+          },
+          {
+            "par": 5,
+            "yardage": 561,
+            "handicap": 14
+          }
+        ]
+      },
+      {
+        "tee_name": "5 Dragon - Short",
+        "course_rating": 73.2,
+        "slope_rating": 140,
+        "bogey_rating": 99.3,
+        "total_yards": 6899,
+        "total_meters": 6308,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 36.1,
+        "front_slope_rating": 132,
+        "front_bogey_rating": 48.4,
+        "back_course_rating": 37.1,
+        "back_slope_rating": 148,
+        "back_bogey_rating": 50.9,
+        "holes": [
+          {
+            "par": 5,
+            "yardage": 527,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 436,
+            "handicap": 3
+          },
+          {
+            "par": 4,
+            "yardage": 383,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 313,
+            "handicap": 15
+          },
+          {
+            "par": 3,
+            "yardage": 163,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 426,
+            "handicap": 1
+          },
+          {
+            "par": 5,
+            "yardage": 502,
+            "handicap": 13
+          },
+          {
+            "par": 3,
+            "yardage": 188,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 396,
+            "handicap": 5
+          },
+          {
+            "par": 4,
+            "yardage": 428,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 549,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 361,
+            "handicap": 12
+          },
+          {
+            "par": 3,
+            "yardage": 214,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 446,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 377,
+            "handicap": 16
+          },
+          {
+            "par": 4,
+            "yardage": 473,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 173,
+            "handicap": 18
+          },
+          {
+            "par": 5,
+            "yardage": 544,
+            "handicap": 14
+          }
+        ]
+      },
+      {
+        "tee_name": "4 Dragon",
+        "course_rating": 72,
+        "slope_rating": 135,
+        "bogey_rating": 97.1,
+        "total_yards": 6566,
+        "total_meters": 6004,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 35.4,
+        "front_slope_rating": 128,
+        "front_bogey_rating": 47.3,
+        "back_course_rating": 36.6,
+        "back_slope_rating": 142,
+        "back_bogey_rating": 49.8,
+        "holes": [
+          {
+            "par": 5,
+            "yardage": 509,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 414,
+            "handicap": 3
+          },
+          {
+            "par": 4,
+            "yardage": 370,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 301,
+            "handicap": 15
+          },
+          {
+            "par": 3,
+            "yardage": 144,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 399,
+            "handicap": 1
+          },
+          {
+            "par": 5,
+            "yardage": 474,
+            "handicap": 13
+          },
+          {
+            "par": 3,
+            "yardage": 167,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 373,
+            "handicap": 5
+          },
+          {
+            "par": 4,
+            "yardage": 414,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 534,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 345,
+            "handicap": 12
+          },
+          {
+            "par": 3,
+            "yardage": 184,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 433,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 370,
+            "handicap": 16
+          },
+          {
+            "par": 4,
+            "yardage": 447,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 160,
+            "handicap": 18
+          },
+          {
+            "par": 5,
+            "yardage": 528,
+            "handicap": 14
+          }
+        ]
+      },
+      {
+        "tee_name": "3 Dragon",
+        "course_rating": 69.8,
+        "slope_rating": 130,
+        "bogey_rating": 93.8,
+        "total_yards": 6065,
+        "total_meters": 5546,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 34.8,
+        "front_slope_rating": 123,
+        "front_bogey_rating": 46.1,
+        "back_course_rating": 35,
+        "back_slope_rating": 137,
+        "back_bogey_rating": 47.7,
+        "holes": [
+          {
+            "par": 5,
+            "yardage": 478,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 380,
+            "handicap": 3
+          },
+          {
+            "par": 4,
+            "yardage": 357,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 286,
+            "handicap": 15
+          },
+          {
+            "par": 3,
+            "yardage": 124,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 376,
+            "handicap": 1
+          },
+          {
+            "par": 5,
+            "yardage": 447,
+            "handicap": 13
+          },
+          {
+            "par": 3,
+            "yardage": 147,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 344,
+            "handicap": 5
+          },
+          {
+            "par": 4,
+            "yardage": 391,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 499,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 324,
+            "handicap": 12
+          },
+          {
+            "par": 3,
+            "yardage": 153,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 397,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 352,
+            "handicap": 16
+          },
+          {
+            "par": 4,
+            "yardage": 403,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 123,
+            "handicap": 18
+          },
+          {
+            "par": 5,
+            "yardage": 484,
+            "handicap": 14
+          }
+        ]
+      },
+      {
+        "tee_name": "2 Dragon",
+        "course_rating": 67,
+        "slope_rating": 122,
+        "bogey_rating": 89.7,
+        "total_yards": 5380,
+        "total_meters": 4919,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 33.3,
+        "front_slope_rating": 118,
+        "front_bogey_rating": 44.2,
+        "back_course_rating": 33.7,
+        "back_slope_rating": 126,
+        "back_bogey_rating": 45.5,
+        "holes": [
+          {
+            "par": 5,
+            "yardage": 447,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 362,
+            "handicap": 3
+          },
+          {
+            "par": 4,
+            "yardage": 249,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 267,
+            "handicap": 15
+          },
+          {
+            "par": 3,
+            "yardage": 108,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 306,
+            "handicap": 1
+          },
+          {
+            "par": 5,
+            "yardage": 417,
+            "handicap": 13
+          },
+          {
+            "par": 3,
+            "yardage": 107,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 321,
+            "handicap": 5
+          },
+          {
+            "par": 4,
+            "yardage": 362,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 477,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 217,
+            "handicap": 12
+          },
+          {
+            "par": 3,
+            "yardage": 120,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 369,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 336,
+            "handicap": 16
+          },
+          {
+            "par": 4,
+            "yardage": 373,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 97,
+            "handicap": 18
+          },
+          {
+            "par": 5,
+            "yardage": 445,
+            "handicap": 14
+          }
+        ]
+      },
+      {
+        "tee_name": "1 Dragon",
+        "course_rating": 64.5,
+        "slope_rating": 112,
+        "bogey_rating": 85.4,
+        "total_yards": 4811,
+        "total_meters": 4399,
+        "number_of_holes": 18,
+        "par_total": 71,
+        "front_course_rating": 31.9,
+        "front_slope_rating": 110,
+        "front_bogey_rating": 42.2,
+        "back_course_rating": 32.6,
+        "back_slope_rating": 114,
+        "back_bogey_rating": 43.2,
+        "holes": [
+          {
+            "par": 5,
+            "yardage": 411,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 323,
+            "handicap": 3
+          },
+          {
+            "par": 4,
+            "yardage": 235,
+            "handicap": 9
+          },
+          {
+            "par": 3,
+            "yardage": 188,
+            "handicap": 15
+          },
+          {
+            "par": 3,
+            "yardage": 90,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 254,
+            "handicap": 1
+          },
+          {
+            "par": 5,
+            "yardage": 400,
+            "handicap": 13
+          },
+          {
+            "par": 3,
+            "yardage": 86,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 259,
+            "handicap": 5
+          },
+          {
+            "par": 4,
+            "yardage": 346,
+            "handicap": 6
+          },
+          {
+            "par": 5,
+            "yardage": 433,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 204,
+            "handicap": 12
+          },
+          {
+            "par": 3,
+            "yardage": 94,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 321,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 311,
+            "handicap": 16
+          },
+          {
+            "par": 4,
+            "yardage": 356,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 77,
+            "handicap": 18
+          },
+          {
+            "par": 5,
+            "yardage": 423,
+            "handicap": 14
+          }
+        ]
+      }
+    ]
+  }
+}

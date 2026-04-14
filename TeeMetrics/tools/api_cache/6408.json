@@ -1,0 +1,991 @@
+{
+  "id": 6408,
+  "club_name": "Grayhawk",
+  "course_name": "Raptor",
+  "location": {
+    "address": "8620 E Thompson Peak Pkwy, Scottsdale, AZ 85255, USA",
+    "city": "Scottsdale",
+    "state": "AZ",
+    "country": "United States",
+    "latitude": 33.67805,
+    "longitude": -111.89714
+  },
+  "tees": {
+    "female": [
+      {
+        "tee_name": "Terra Cotta",
+        "course_rating": 74.9,
+        "slope_rating": 135,
+        "bogey_rating": 106.6,
+        "total_yards": 6018,
+        "total_meters": 5503,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 37.7,
+        "front_slope_rating": 132,
+        "front_bogey_rating": 53.3,
+        "back_course_rating": 37.2,
+        "back_slope_rating": 137,
+        "back_bogey_rating": 53.3,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 353,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 336,
+            "handicap": 16
+          },
+          {
+            "par": 4,
+            "yardage": 392,
+            "handicap": 4
+          },
+          {
+            "par": 5,
+            "yardage": 500,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 170,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 312,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 443,
+            "handicap": 8
+          },
+          {
+            "par": 3,
+            "yardage": 149,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 394,
+            "handicap": 6
+          },
+          {
+            "par": 4,
+            "yardage": 331,
+            "handicap": 9
+          },
+          {
+            "par": 5,
+            "yardage": 510,
+            "handicap": 1
+          },
+          {
+            "par": 4,
+            "yardage": 416,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 183,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 371,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 369,
+            "handicap": 11
+          },
+          {
+            "par": 3,
+            "yardage": 93,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 266,
+            "handicap": 15
+          },
+          {
+            "par": 5,
+            "yardage": 430,
+            "handicap": 3
+          }
+        ]
+      },
+      {
+        "tee_name": "Terra/Heather",
+        "course_rating": 72.6,
+        "slope_rating": 128,
+        "bogey_rating": 102.7,
+        "total_yards": 5617,
+        "total_meters": 5136,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 36.2,
+        "front_slope_rating": 126,
+        "front_bogey_rating": 51.1,
+        "back_course_rating": 36.4,
+        "back_slope_rating": 129,
+        "back_bogey_rating": 51.6,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 353,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 336,
+            "handicap": 16
+          },
+          {
+            "par": 4,
+            "yardage": 288,
+            "handicap": 4
+          },
+          {
+            "par": 5,
+            "yardage": 440,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 133,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 312,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 443,
+            "handicap": 8
+          },
+          {
+            "par": 3,
+            "yardage": 149,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 358,
+            "handicap": 6
+          },
+          {
+            "par": 4,
+            "yardage": 331,
+            "handicap": 9
+          },
+          {
+            "par": 5,
+            "yardage": 465,
+            "handicap": 1
+          },
+          {
+            "par": 4,
+            "yardage": 390,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 144,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 371,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 369,
+            "handicap": 11
+          },
+          {
+            "par": 3,
+            "yardage": 83,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 222,
+            "handicap": 15
+          },
+          {
+            "par": 5,
+            "yardage": 430,
+            "handicap": 3
+          }
+        ]
+      },
+      {
+        "tee_name": "Heather",
+        "course_rating": 70.1,
+        "slope_rating": 120,
+        "bogey_rating": 98.3,
+        "total_yards": 5175,
+        "total_meters": 4732,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 34.9,
+        "front_slope_rating": 121,
+        "front_bogey_rating": 49.2,
+        "back_course_rating": 35.2,
+        "back_slope_rating": 118,
+        "back_bogey_rating": 49.1,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 297,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 286,
+            "handicap": 16
+          },
+          {
+            "par": 4,
+            "yardage": 288,
+            "handicap": 4
+          },
+          {
+            "par": 5,
+            "yardage": 440,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 133,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 285,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 382,
+            "handicap": 8
+          },
+          {
+            "par": 3,
+            "yardage": 131,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 358,
+            "handicap": 6
+          },
+          {
+            "par": 4,
+            "yardage": 274,
+            "handicap": 9
+          },
+          {
+            "par": 5,
+            "yardage": 465,
+            "handicap": 1
+          },
+          {
+            "par": 4,
+            "yardage": 390,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 144,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 342,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 294,
+            "handicap": 11
+          },
+          {
+            "par": 3,
+            "yardage": 83,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 222,
+            "handicap": 15
+          },
+          {
+            "par": 5,
+            "yardage": 361,
+            "handicap": 3
+          }
+        ]
+      }
+    ],
+    "male": [
+      {
+        "tee_name": "Raptor",
+        "course_rating": 74.2,
+        "slope_rating": 140,
+        "bogey_rating": 100.1,
+        "total_yards": 7080,
+        "total_meters": 6474,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 36.9,
+        "front_slope_rating": 137,
+        "front_bogey_rating": 49.6,
+        "back_course_rating": 37.3,
+        "back_slope_rating": 142,
+        "back_bogey_rating": 50.5,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 413,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 395,
+            "handicap": 16
+          },
+          {
+            "par": 4,
+            "yardage": 460,
+            "handicap": 4
+          },
+          {
+            "par": 5,
+            "yardage": 562,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 203,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 345,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 502,
+            "handicap": 8
+          },
+          {
+            "par": 3,
+            "yardage": 174,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 464,
+            "handicap": 6
+          },
+          {
+            "par": 4,
+            "yardage": 390,
+            "handicap": 9
+          },
+          {
+            "par": 5,
+            "yardage": 615,
+            "handicap": 1
+          },
+          {
+            "par": 4,
+            "yardage": 468,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 230,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 429,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 431,
+            "handicap": 11
+          },
+          {
+            "par": 3,
+            "yardage": 149,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 329,
+            "handicap": 15
+          },
+          {
+            "par": 5,
+            "yardage": 521,
+            "handicap": 3
+          }
+        ]
+      },
+      {
+        "tee_name": "Raptor/Palo Verde",
+        "course_rating": 72.5,
+        "slope_rating": 137,
+        "bogey_rating": 97.9,
+        "total_yards": 6785,
+        "total_meters": 6204,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 36.2,
+        "front_slope_rating": 135,
+        "front_bogey_rating": 48.7,
+        "back_course_rating": 36.3,
+        "back_slope_rating": 139,
+        "back_bogey_rating": 49.2,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 413,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 395,
+            "handicap": 16
+          },
+          {
+            "par": 4,
+            "yardage": 419,
+            "handicap": 4
+          },
+          {
+            "par": 5,
+            "yardage": 530,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 180,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 345,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 502,
+            "handicap": 8
+          },
+          {
+            "par": 3,
+            "yardage": 174,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 427,
+            "handicap": 6
+          },
+          {
+            "par": 4,
+            "yardage": 390,
+            "handicap": 9
+          },
+          {
+            "par": 5,
+            "yardage": 539,
+            "handicap": 1
+          },
+          {
+            "par": 4,
+            "yardage": 441,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 200,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 429,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 402,
+            "handicap": 11
+          },
+          {
+            "par": 3,
+            "yardage": 149,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 329,
+            "handicap": 15
+          },
+          {
+            "par": 5,
+            "yardage": 521,
+            "handicap": 3
+          }
+        ]
+      },
+      {
+        "tee_name": "Palo Verde",
+        "course_rating": 71.2,
+        "slope_rating": 135,
+        "bogey_rating": 96.2,
+        "total_yards": 6503,
+        "total_meters": 5946,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 35.6,
+        "front_slope_rating": 133,
+        "front_bogey_rating": 48,
+        "back_course_rating": 35.6,
+        "back_slope_rating": 136,
+        "back_bogey_rating": 48.2,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 380,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 360,
+            "handicap": 16
+          },
+          {
+            "par": 4,
+            "yardage": 419,
+            "handicap": 4
+          },
+          {
+            "par": 5,
+            "yardage": 530,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 180,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 334,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 474,
+            "handicap": 8
+          },
+          {
+            "par": 3,
+            "yardage": 156,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 427,
+            "handicap": 6
+          },
+          {
+            "par": 4,
+            "yardage": 359,
+            "handicap": 9
+          },
+          {
+            "par": 5,
+            "yardage": 539,
+            "handicap": 1
+          },
+          {
+            "par": 4,
+            "yardage": 441,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 200,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 379,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 402,
+            "handicap": 11
+          },
+          {
+            "par": 3,
+            "yardage": 134,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 295,
+            "handicap": 15
+          },
+          {
+            "par": 5,
+            "yardage": 494,
+            "handicap": 3
+          }
+        ]
+      },
+      {
+        "tee_name": "Palo Verde/Terra Cotta",
+        "course_rating": 70,
+        "slope_rating": 131,
+        "bogey_rating": 94.3,
+        "total_yards": 6262,
+        "total_meters": 5726,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 35.1,
+        "front_slope_rating": 132,
+        "front_bogey_rating": 47.4,
+        "back_course_rating": 34.9,
+        "back_slope_rating": 129,
+        "back_bogey_rating": 46.9,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 380,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 360,
+            "handicap": 16
+          },
+          {
+            "par": 4,
+            "yardage": 392,
+            "handicap": 4
+          },
+          {
+            "par": 5,
+            "yardage": 500,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 170,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 334,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 474,
+            "handicap": 8
+          },
+          {
+            "par": 3,
+            "yardage": 156,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 394,
+            "handicap": 6
+          },
+          {
+            "par": 4,
+            "yardage": 359,
+            "handicap": 9
+          },
+          {
+            "par": 5,
+            "yardage": 510,
+            "handicap": 1
+          },
+          {
+            "par": 4,
+            "yardage": 416,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 183,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 379,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 402,
+            "handicap": 11
+          },
+          {
+            "par": 3,
+            "yardage": 93,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 266,
+            "handicap": 15
+          },
+          {
+            "par": 5,
+            "yardage": 494,
+            "handicap": 3
+          }
+        ]
+      },
+      {
+        "tee_name": "Terra Cotta",
+        "course_rating": 69,
+        "slope_rating": 128,
+        "bogey_rating": 92.8,
+        "total_yards": 6023,
+        "total_meters": 5507,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 34.6,
+        "front_slope_rating": 129,
+        "front_bogey_rating": 46.6,
+        "back_course_rating": 34.4,
+        "back_slope_rating": 127,
+        "back_bogey_rating": 46.2,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 353,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 336,
+            "handicap": 16
+          },
+          {
+            "par": 4,
+            "yardage": 392,
+            "handicap": 4
+          },
+          {
+            "par": 5,
+            "yardage": 500,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 170,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 312,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 443,
+            "handicap": 8
+          },
+          {
+            "par": 3,
+            "yardage": 149,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 394,
+            "handicap": 6
+          },
+          {
+            "par": 4,
+            "yardage": 331,
+            "handicap": 9
+          },
+          {
+            "par": 5,
+            "yardage": 510,
+            "handicap": 1
+          },
+          {
+            "par": 4,
+            "yardage": 416,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 183,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 371,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 374,
+            "handicap": 11
+          },
+          {
+            "par": 3,
+            "yardage": 93,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 266,
+            "handicap": 15
+          },
+          {
+            "par": 5,
+            "yardage": 430,
+            "handicap": 3
+          }
+        ]
+      },
+      {
+        "tee_name": "Terra Cotta/Heather",
+        "course_rating": 67.2,
+        "slope_rating": 123,
+        "bogey_rating": 90,
+        "total_yards": 5618,
+        "total_meters": 5137,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 33.5,
+        "front_slope_rating": 125,
+        "front_bogey_rating": 45.1,
+        "back_course_rating": 33.7,
+        "back_slope_rating": 121,
+        "back_bogey_rating": 44.9,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 353,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 336,
+            "handicap": 16
+          },
+          {
+            "par": 4,
+            "yardage": 288,
+            "handicap": 4
+          },
+          {
+            "par": 5,
+            "yardage": 440,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 133,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 312,
+            "handicap": 12
+          },
+          {
+            "par": 5,
+            "yardage": 443,
+            "handicap": 8
+          },
+          {
+            "par": 3,
+            "yardage": 149,
+            "handicap": 18
+          },
+          {
+            "par": 4,
+            "yardage": 359,
+            "handicap": 6
+          },
+          {
+            "par": 4,
+            "yardage": 331,
+            "handicap": 9
+          },
+          {
+            "par": 5,
+            "yardage": 465,
+            "handicap": 1
+          },
+          {
+            "par": 4,
+            "yardage": 390,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 144,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 371,
+            "handicap": 13
+          },
+          {
+            "par": 4,
+            "yardage": 369,
+            "handicap": 11
+          },
+          {
+            "par": 3,
+            "yardage": 83,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 222,
+            "handicap": 15
+          },
+          {
+            "par": 5,
+            "yardage": 430,
+            "handicap": 3
+          }
+        ]
+      }
+    ]
+  }
+}

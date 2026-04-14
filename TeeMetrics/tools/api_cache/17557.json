@@ -1,0 +1,14 @@
+{
+  "id": 17557,
+  "club_name": "The Carolina",
+  "course_name": "The Carolina",
+  "location": {
+    "address": "Ave of the Carolinas, Whispering Pines, NC 28327, USA",
+    "city": "Whispering Pines",
+    "state": "NC",
+    "country": "United States",
+    "latitude": 35.2337,
+    "longitude": -79.38637
+  },
+  "tees": {}
+}

@@ -1,0 +1,14 @@
+{
+  "id": 27706,
+  "club_name": "Bayside Golf  Club",
+  "course_name": "Bayside Golf  Club",
+  "location": {
+    "address": "865 Lakeview West Rd, Brule, NE 69127, USA",
+    "city": "Brule",
+    "state": "NE",
+    "country": "United States",
+    "latitude": 41.250916,
+    "longitude": -101.8837
+  },
+  "tees": {}
+}

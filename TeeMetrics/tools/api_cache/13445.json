@@ -1,0 +1,199 @@
+{
+  "id": 13445,
+  "club_name": "Bunker Hills Golf Club",
+  "course_name": "Executive Nine",
+  "location": {
+    "address": "12800 Bunker Prairie Rd NW, Coon Rapids, MN 55448, USA",
+    "city": "Coon Rapids",
+    "state": "MN",
+    "country": "United States",
+    "latitude": 45.202484,
+    "longitude": -93.28857
+  },
+  "tees": {
+    "female": [
+      {
+        "tee_name": "White",
+        "course_rating": 30.6,
+        "slope_rating": 95,
+        "bogey_rating": 41.8,
+        "total_yards": 1875,
+        "total_meters": 1714,
+        "number_of_holes": 9,
+        "par_total": 31,
+        "front_course_rating": 30.6,
+        "front_slope_rating": 95,
+        "front_bogey_rating": 41.8,
+        "holes": [
+          {
+            "par": 3,
+            "yardage": 155,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 360,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 155,
+            "handicap": 7
+          },
+          {
+            "par": 3,
+            "yardage": 140,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 330,
+            "handicap": 2
+          },
+          {
+            "par": 4,
+            "yardage": 240,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 125,
+            "handicap": 6
+          },
+          {
+            "par": 4,
+            "yardage": 260,
+            "handicap": 3
+          },
+          {
+            "par": 3,
+            "yardage": 110,
+            "handicap": 9
+          }
+        ]
+      },
+      {
+        "tee_name": "Red",
+        "course_rating": 29.7,
+        "slope_rating": 91,
+        "bogey_rating": 40.4,
+        "total_yards": 1665,
+        "total_meters": 1522,
+        "number_of_holes": 9,
+        "par_total": 31,
+        "front_course_rating": 29.7,
+        "front_slope_rating": 91,
+        "front_bogey_rating": 40.4,
+        "holes": [
+          {
+            "par": 3,
+            "yardage": 145,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 325,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 145,
+            "handicap": 7
+          },
+          {
+            "par": 3,
+            "yardage": 130,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 255,
+            "handicap": 2
+          },
+          {
+            "par": 4,
+            "yardage": 220,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 115,
+            "handicap": 6
+          },
+          {
+            "par": 4,
+            "yardage": 240,
+            "handicap": 3
+          },
+          {
+            "par": 3,
+            "yardage": 90,
+            "handicap": 9
+          }
+        ]
+      }
+    ],
+    "male": [
+      {
+        "tee_name": "White",
+        "course_rating": 29.9,
+        "slope_rating": 96,
+        "bogey_rating": 38.8,
+        "total_yards": 1875,
+        "total_meters": 1714,
+        "number_of_holes": 9,
+        "par_total": 31,
+        "front_course_rating": 29.9,
+        "front_slope_rating": 96,
+        "front_bogey_rating": 38.8,
+        "holes": [
+          {
+            "par": 3,
+            "yardage": 155,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 360,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 155,
+            "handicap": 7
+          },
+          {
+            "par": 3,
+            "yardage": 140,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 330,
+            "handicap": 2
+          },
+          {
+            "par": 4,
+            "yardage": 240,
+            "handicap": 5
+          },
+          {
+            "par": 3,
+            "yardage": 125,
+            "handicap": 6
+          },
+          {
+            "par": 4,
+            "yardage": 260,
+            "handicap": 3
+          },
+          {
+            "par": 3,
+            "yardage": 110,
+            "handicap": 9
+          }
+        ]
+      }
+    ]
+  }
+}

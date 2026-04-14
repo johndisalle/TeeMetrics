@@ -1,0 +1,223 @@
+{
+  "id": 8119,
+  "club_name": "Menomonie Golf & Country Club",
+  "course_name": "Menomonie Golf & Country Club",
+  "location": {
+    "address": "802 Heller Rd, Menomonie, WI 54751, USA",
+    "city": "Menomonie",
+    "state": "WI",
+    "country": "United States",
+    "latitude": 44.899696,
+    "longitude": -91.940285
+  },
+  "tees": {
+    "female": [
+      {
+        "tee_name": "White",
+        "course_rating": 31,
+        "slope_rating": 96,
+        "bogey_rating": 42.3,
+        "total_yards": 1885,
+        "total_meters": 1724,
+        "number_of_holes": 9,
+        "par_total": 30,
+        "front_course_rating": 31,
+        "front_slope_rating": 96,
+        "front_bogey_rating": 42.3,
+        "holes": [
+          {
+            "par": 3,
+            "yardage": 142
+          },
+          {
+            "par": 4,
+            "yardage": 339
+          },
+          {
+            "par": 3,
+            "yardage": 128
+          },
+          {
+            "par": 3,
+            "yardage": 173
+          },
+          {
+            "par": 3,
+            "yardage": 151
+          },
+          {
+            "par": 3,
+            "yardage": 183
+          },
+          {
+            "par": 4,
+            "yardage": 337
+          },
+          {
+            "par": 3,
+            "yardage": 78
+          },
+          {
+            "par": 4,
+            "yardage": 354
+          }
+        ]
+      },
+      {
+        "tee_name": "Red",
+        "course_rating": 30.4,
+        "slope_rating": 91,
+        "bogey_rating": 41.1,
+        "total_yards": 1728,
+        "total_meters": 1580,
+        "number_of_holes": 9,
+        "par_total": 30,
+        "front_course_rating": 30.4,
+        "front_slope_rating": 91,
+        "front_bogey_rating": 41.1,
+        "holes": [
+          {
+            "par": 3,
+            "yardage": 133
+          },
+          {
+            "par": 4,
+            "yardage": 284
+          },
+          {
+            "par": 3,
+            "yardage": 115
+          },
+          {
+            "par": 3,
+            "yardage": 163
+          },
+          {
+            "par": 3,
+            "yardage": 139
+          },
+          {
+            "par": 3,
+            "yardage": 167
+          },
+          {
+            "par": 4,
+            "yardage": 324
+          },
+          {
+            "par": 3,
+            "yardage": 69
+          },
+          {
+            "par": 4,
+            "yardage": 334
+          }
+        ]
+      }
+    ],
+    "male": [
+      {
+        "tee_name": "Blue",
+        "course_rating": 30.7,
+        "slope_rating": 101,
+        "bogey_rating": 40.1,
+        "total_yards": 2047,
+        "total_meters": 1872,
+        "number_of_holes": 9,
+        "par_total": 30,
+        "front_course_rating": 30.7,
+        "front_slope_rating": 101,
+        "front_bogey_rating": 40.1,
+        "holes": [
+          {
+            "par": 3,
+            "yardage": 151
+          },
+          {
+            "par": 4,
+            "yardage": 346
+          },
+          {
+            "par": 3,
+            "yardage": 140
+          },
+          {
+            "par": 3,
+            "yardage": 183
+          },
+          {
+            "par": 3,
+            "yardage": 157
+          },
+          {
+            "par": 3,
+            "yardage": 209
+          },
+          {
+            "par": 4,
+            "yardage": 349
+          },
+          {
+            "par": 3,
+            "yardage": 87
+          },
+          {
+            "par": 4,
+            "yardage": 425
+          }
+        ]
+      },
+      {
+        "tee_name": "White",
+        "course_rating": 30.2,
+        "slope_rating": 100,
+        "bogey_rating": 39.5,
+        "total_yards": 1885,
+        "total_meters": 1724,
+        "number_of_holes": 9,
+        "par_total": 30,
+        "front_course_rating": 30.2,
+        "front_slope_rating": 100,
+        "front_bogey_rating": 39.5,
+        "holes": [
+          {
+            "par": 3,
+            "yardage": 142
+          },
+          {
+            "par": 4,
+            "yardage": 339
+          },
+          {
+            "par": 3,
+            "yardage": 128
+          },
+          {
+            "par": 3,
+            "yardage": 173
+          },
+          {
+            "par": 3,
+            "yardage": 151
+          },
+          {
+            "par": 3,
+            "yardage": 183
+          },
+          {
+            "par": 4,
+            "yardage": 337
+          },
+          {
+            "par": 3,
+            "yardage": 78
+          },
+          {
+            "par": 4,
+            "yardage": 354
+          }
+        ]
+      }
+    ]
+  }
+}

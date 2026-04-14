@@ -1,0 +1,14 @@
+{
+  "id": 18217,
+  "club_name": "Badlands Golf Club",
+  "course_name": "Desperado Outlaw",
+  "location": {
+    "address": "9119 Alta Dr, Las Vegas, NV 89145, USA",
+    "city": "Las Vegas",
+    "state": "NV",
+    "country": "United States",
+    "latitude": 36.166294,
+    "longitude": -115.29526
+  },
+  "tees": {}
+}

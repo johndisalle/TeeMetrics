@@ -1,0 +1,559 @@
+{
+  "id": 18763,
+  "club_name": "Big Creek Golf & Country Club",
+  "course_name": "Big Creek Golf & Country Club",
+  "location": {
+    "address": "452 Country Club Dr, Mountain Home, AR 72653, USA",
+    "city": "Mountain Home",
+    "state": "AR",
+    "country": "United States",
+    "latitude": 36.320553,
+    "longitude": -92.42231
+  },
+  "tees": {
+    "female": [
+      {
+        "tee_name": "Red",
+        "course_rating": 69.8,
+        "slope_rating": 122,
+        "bogey_rating": 98.4,
+        "total_yards": 5051,
+        "total_meters": 4619,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 34.7,
+        "front_slope_rating": 119,
+        "front_bogey_rating": 48.7,
+        "back_course_rating": 35.1,
+        "back_slope_rating": 124,
+        "back_bogey_rating": 49.7,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 275,
+            "handicap": 15
+          },
+          {
+            "par": 5,
+            "yardage": 404,
+            "handicap": 3
+          },
+          {
+            "par": 4,
+            "yardage": 225,
+            "handicap": 13
+          },
+          {
+            "par": 3,
+            "yardage": 82,
+            "handicap": 11
+          },
+          {
+            "par": 5,
+            "yardage": 437,
+            "handicap": 1
+          },
+          {
+            "par": 3,
+            "yardage": 98,
+            "handicap": 17
+          },
+          {
+            "par": 4,
+            "yardage": 350,
+            "handicap": 7
+          },
+          {
+            "par": 4,
+            "yardage": 306,
+            "handicap": 9
+          },
+          {
+            "par": 4,
+            "yardage": 351,
+            "handicap": 5
+          },
+          {
+            "par": 5,
+            "yardage": 399,
+            "handicap": 4
+          },
+          {
+            "par": 4,
+            "yardage": 274,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 284,
+            "handicap": 8
+          },
+          {
+            "par": 3,
+            "yardage": 121,
+            "handicap": 18
+          },
+          {
+            "par": 5,
+            "yardage": 470,
+            "handicap": 2
+          },
+          {
+            "par": 4,
+            "yardage": 276,
+            "handicap": 12
+          },
+          {
+            "par": 4,
+            "yardage": 221,
+            "handicap": 14
+          },
+          {
+            "par": 3,
+            "yardage": 149,
+            "handicap": 16
+          },
+          {
+            "par": 4,
+            "yardage": 329,
+            "handicap": 6
+          }
+        ]
+      }
+    ],
+    "male": [
+      {
+        "tee_name": "Black",
+        "course_rating": 75.7,
+        "slope_rating": 139,
+        "bogey_rating": 101.4,
+        "total_yards": 7390,
+        "total_meters": 6757,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 37.4,
+        "front_slope_rating": 137,
+        "front_bogey_rating": 50.1,
+        "back_course_rating": 38.3,
+        "back_slope_rating": 140,
+        "back_bogey_rating": 51.3,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 400,
+            "handicap": 9
+          },
+          {
+            "par": 5,
+            "yardage": 560,
+            "handicap": 5
+          },
+          {
+            "par": 4,
+            "yardage": 350,
+            "handicap": 17
+          },
+          {
+            "par": 3,
+            "yardage": 160,
+            "handicap": 13
+          },
+          {
+            "par": 5,
+            "yardage": 605,
+            "handicap": 3
+          },
+          {
+            "par": 3,
+            "yardage": 179,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 488,
+            "handicap": 1
+          },
+          {
+            "par": 4,
+            "yardage": 432,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 457,
+            "handicap": 7
+          },
+          {
+            "par": 5,
+            "yardage": 606,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 454,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 438,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 201,
+            "handicap": 16
+          },
+          {
+            "par": 5,
+            "yardage": 584,
+            "handicap": 6
+          },
+          {
+            "par": 4,
+            "yardage": 423,
+            "handicap": 12
+          },
+          {
+            "par": 4,
+            "yardage": 325,
+            "handicap": 18
+          },
+          {
+            "par": 3,
+            "yardage": 250,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 478,
+            "handicap": 4
+          }
+        ]
+      },
+      {
+        "tee_name": "Blue",
+        "course_rating": 72.7,
+        "slope_rating": 129,
+        "bogey_rating": 96.7,
+        "total_yards": 6744,
+        "total_meters": 6167,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 36,
+        "front_slope_rating": 128,
+        "front_bogey_rating": 47.9,
+        "back_course_rating": 36.7,
+        "back_slope_rating": 130,
+        "back_bogey_rating": 48.8,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 365,
+            "handicap": 9
+          },
+          {
+            "par": 5,
+            "yardage": 520,
+            "handicap": 5
+          },
+          {
+            "par": 4,
+            "yardage": 330,
+            "handicap": 17
+          },
+          {
+            "par": 3,
+            "yardage": 135,
+            "handicap": 13
+          },
+          {
+            "par": 5,
+            "yardage": 562,
+            "handicap": 3
+          },
+          {
+            "par": 3,
+            "yardage": 160,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 448,
+            "handicap": 1
+          },
+          {
+            "par": 4,
+            "yardage": 391,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 429,
+            "handicap": 7
+          },
+          {
+            "par": 5,
+            "yardage": 513,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 391,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 414,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 182,
+            "handicap": 16
+          },
+          {
+            "par": 5,
+            "yardage": 572,
+            "handicap": 6
+          },
+          {
+            "par": 4,
+            "yardage": 362,
+            "handicap": 12
+          },
+          {
+            "par": 4,
+            "yardage": 302,
+            "handicap": 18
+          },
+          {
+            "par": 3,
+            "yardage": 214,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 454,
+            "handicap": 4
+          }
+        ]
+      },
+      {
+        "tee_name": "White",
+        "course_rating": 70.1,
+        "slope_rating": 125,
+        "bogey_rating": 93.3,
+        "total_yards": 6197,
+        "total_meters": 5667,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 34.8,
+        "front_slope_rating": 124,
+        "front_bogey_rating": 46.3,
+        "back_course_rating": 35.3,
+        "back_slope_rating": 126,
+        "back_bogey_rating": 47,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 338,
+            "handicap": 9
+          },
+          {
+            "par": 5,
+            "yardage": 487,
+            "handicap": 5
+          },
+          {
+            "par": 4,
+            "yardage": 298,
+            "handicap": 17
+          },
+          {
+            "par": 3,
+            "yardage": 117,
+            "handicap": 13
+          },
+          {
+            "par": 5,
+            "yardage": 539,
+            "handicap": 3
+          },
+          {
+            "par": 3,
+            "yardage": 139,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 414,
+            "handicap": 1
+          },
+          {
+            "par": 4,
+            "yardage": 352,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 394,
+            "handicap": 7
+          },
+          {
+            "par": 5,
+            "yardage": 488,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 376,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 323,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 165,
+            "handicap": 16
+          },
+          {
+            "par": 5,
+            "yardage": 529,
+            "handicap": 6
+          },
+          {
+            "par": 4,
+            "yardage": 331,
+            "handicap": 12
+          },
+          {
+            "par": 4,
+            "yardage": 288,
+            "handicap": 18
+          },
+          {
+            "par": 3,
+            "yardage": 192,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 427,
+            "handicap": 4
+          }
+        ]
+      },
+      {
+        "tee_name": "Gold",
+        "course_rating": 68,
+        "slope_rating": 123,
+        "bogey_rating": 90.7,
+        "total_yards": 5763,
+        "total_meters": 5270,
+        "number_of_holes": 18,
+        "par_total": 72,
+        "front_course_rating": 33.8,
+        "front_slope_rating": 123,
+        "front_bogey_rating": 45.2,
+        "back_course_rating": 34.2,
+        "back_slope_rating": 122,
+        "back_bogey_rating": 45.5,
+        "holes": [
+          {
+            "par": 4,
+            "yardage": 308,
+            "handicap": 9
+          },
+          {
+            "par": 5,
+            "yardage": 458,
+            "handicap": 5
+          },
+          {
+            "par": 4,
+            "yardage": 280,
+            "handicap": 17
+          },
+          {
+            "par": 3,
+            "yardage": 91,
+            "handicap": 13
+          },
+          {
+            "par": 5,
+            "yardage": 515,
+            "handicap": 3
+          },
+          {
+            "par": 3,
+            "yardage": 116,
+            "handicap": 15
+          },
+          {
+            "par": 4,
+            "yardage": 380,
+            "handicap": 1
+          },
+          {
+            "par": 4,
+            "yardage": 349,
+            "handicap": 11
+          },
+          {
+            "par": 4,
+            "yardage": 375,
+            "handicap": 7
+          },
+          {
+            "par": 5,
+            "yardage": 472,
+            "handicap": 8
+          },
+          {
+            "par": 4,
+            "yardage": 336,
+            "handicap": 10
+          },
+          {
+            "par": 4,
+            "yardage": 312,
+            "handicap": 2
+          },
+          {
+            "par": 3,
+            "yardage": 142,
+            "handicap": 16
+          },
+          {
+            "par": 5,
+            "yardage": 524,
+            "handicap": 6
+          },
+          {
+            "par": 4,
+            "yardage": 319,
+            "handicap": 12
+          },
+          {
+            "par": 4,
+            "yardage": 268,
+            "handicap": 18
+          },
+          {
+            "par": 3,
+            "yardage": 166,
+            "handicap": 14
+          },
+          {
+            "par": 4,
+            "yardage": 352,
+            "handicap": 4
+          }
+        ]
+      }
+    ]
+  }
+}

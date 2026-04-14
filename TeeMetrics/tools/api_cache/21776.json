@@ -1,0 +1,14 @@
+{
+  "id": 21776,
+  "club_name": "Sleepy Hollow Golf Club",
+  "course_name": "Sleepy Hollow Golf Club",
+  "location": {
+    "address": "374 Homeworth Rd, Alliance, OH 44601, USA",
+    "city": "Alliance",
+    "state": "OH",
+    "country": "United States",
+    "latitude": 40.896397,
+    "longitude": -81.075424
+  },
+  "tees": {}
+}
