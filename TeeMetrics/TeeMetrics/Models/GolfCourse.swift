@@ -37,6 +37,19 @@ final class GolfCourse {
     // nil = not yet refined (or legacy row).
     var coordinatesRefined: Bool?
 
+    // MARK: - Live API Import (Session: GolfCourseAPI live search)
+    /// True when this course was fetched live from GolfCourseAPI through
+    /// the in-app search flow (vs bundled, community, or hand-created).
+    /// Optional so SwiftData migration stays lightweight — nil on every
+    /// pre-existing row; new imports set this to true.
+    var isUserImported: Bool?
+
+    /// External API course identifier from GolfCourseAPI. Used for
+    /// dedupe (so re-importing the same course returns the existing
+    /// row instead of duplicating). Optional Bool/String pattern matches
+    /// the courseSource / cloudRecordID fields above.
+    var externalAPIID: String?
+
     /// True when this course was created locally by the user (free to edit pins).
     var isUserCreated: Bool {
         courseSource == nil || courseSource == "user"
@@ -75,7 +88,9 @@ final class GolfCourse {
         isFavorite: Bool = false,
         courseSource: String? = "user",
         cloudRecordID: String? = nil,
-        coordinatesRefined: Bool? = nil
+        coordinatesRefined: Bool? = nil,
+        isUserImported: Bool? = nil,
+        externalAPIID: String? = nil
     ) {
         self.id = UUID()
         self.name = name
@@ -92,6 +107,8 @@ final class GolfCourse {
         self.courseSource = courseSource
         self.cloudRecordID = cloudRecordID
         self.coordinatesRefined = coordinatesRefined
+        self.isUserImported = isUserImported
+        self.externalAPIID = externalAPIID
     }
 }
 

@@ -9,3 +9,6 @@ TeeMetrics.xcodeproj/project.xcworkspace/xcuserdata/
 TeeMetrics.xcodeproj/xcuserdata/
 TeeMetrics.xcodeproj/xcshareddata/xcschemes/
 TeeMetrics/Resources/courses.json.tees-*.bak
+
+# Local API keys — see Config/Secrets.xcconfig.example
+Config/Secrets.xcconfig

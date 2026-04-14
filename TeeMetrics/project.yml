@@ -26,6 +26,9 @@ targets:
       - TeeMetrics/Resources/Assets.xcassets
       - TeeMetrics/Resources/courses.json
       - TeeMetrics/Resources/LaunchScreen.storyboard
+    configFiles:
+      Debug: Config/Secrets.xcconfig
+      Release: Config/Secrets.xcconfig
     info:
       path: TeeMetrics/Info.plist
       properties:
@@ -35,6 +38,7 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         NSLocationWhenInUseUsageDescription: "TeeMetrics uses your location to show distances to the green and find nearby courses."
+        GolfCourseAPIKey: "$(GOLFCOURSE_API_KEY)"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.teemetrics.app.TeeMetrics
