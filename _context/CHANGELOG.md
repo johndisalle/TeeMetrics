@@ -4,6 +4,108 @@ All notable changes to TeeMetrics are documented here. Newest entries on top.
 
 ---
 
+## 2026-04-09 — Phase 1B Fix: Center map on course coordinates
+
+**Scope:** Bug fix + small feature extension. Addresses two issues with
+`HoleGPSEditorView` from Phase 1B:
+1. Map opened at `.automatic` instead of the actual course.
+2. Bundled courses had city-level `lat/lng` that never got refined as
+   users placed accurate pins.
+
+### Added
+
+- **`GolfCourse.coordinatesRefined: Bool?`** (optional, nil default) —
+  guards the progressive coordinate refinement so it only runs once per
+  course. Lightweight SwiftData migration: nil for all existing rows,
+  which the refinement check treats as "not yet refined."
+- **`GolfCourse.init`** extended with `coordinatesRefined: Bool? = nil`
+  parameter. All existing call sites continue to compile unchanged via
+  the default.
+- **`CloudKitCourseService.updateCourseLocation(for:)`** — new async
+  method that fetches a `CKRecord` by `recordName`, updates the
+  `latitude` / `longitude` fields with the local course's current
+  coordinates, and saves. Returns `Bool`.
+- **Recenter button** (`HoleGPSEditorView`) — floating circular button
+  bottom-right of the map using `location.fill` SF Symbol on an
+  ultra-thin material background. Tap recenters the camera using the
+  same priority order as initial appear.
+- **`bestCenterCoordinate()` helper** (`HoleGPSEditorView`) — single
+  source of truth for camera centering with priority order:
+  - (a) First placed center pin on any hole (user returning to edit
+    should see their work)
+  - (b) Stored `course.latitude` / `course.longitude` if non-zero
+  - (c) `CourseDetectionManager.shared.currentLocation` if available
+  - (d) nil → caller falls back to `.automatic`
+- **`refineCoordinatesIfNeeded()`** (`HoleGPSEditorView`) — on save,
+  runs progressive refinement for bundled and community courses:
+  - Only runs once per course (gated by `coordinatesRefined`)
+  - Uses the earliest placed center pin across any hole as the new
+    course center
+  - For community courses with a valid `cloudRecordID`, also pushes
+    the refined location to CloudKit via `updateCourseLocation(for:)`
+
+### Changed
+
+- **`centerCameraOnCourse()`** (`HoleGPSEditorView`) — now uses the
+  `bestCenterCoordinate()` priority helper and `MKCoordinateSpan`
+  (0.008 / 0.008, ≈1km square) instead of
+  `latitudinalMeters/longitudinalMeters: 800`. Falls back to
+  `.automatic` when no reasonable center is known.
+- **`HoleGPSEditorView.mapView`** — layout changed from
+  `ZStack(alignment: .topTrailing)` to a plain `ZStack` with two
+  inner `VStack` / `HStack` overlays so the placement-mode banner can
+  live in the top-right while the new Recenter button lives in the
+  bottom-right, without the single alignment fighting both.
+- **`savePins()`** (`HoleGPSEditorView`) — now calls
+  `refineCoordinatesIfNeeded()` before the community share alert.
+  Save order: persist pins (automatic via `@Bindable`) → refine
+  course coords → prompt share-back → dismiss.
+
+### Migration Notes
+
+`coordinatesRefined: Bool?` is the third optional field added to
+`GolfCourse` since Phase 1A (joining `courseSource` and `cloudRecordID`).
+SwiftData handles this as a lightweight migration automatically. No
+`VersionedSchema` or manual migration code is required.
+
+### Out of Scope (Reserved for Phase 2)
+
+Per task brief: `CLGeocoder` fallback for user-created courses that
+don't have lat/lng is intentionally NOT implemented here. That feature
+belongs to Phase 2.
+
+### Build Verification
+
+Manual correctness pass (no `xcodebuild` in this environment):
+
+- All three modified files parse with balanced braces
+  (GolfCourse.swift: 9/9, CloudKitCourseService.swift: 61/61,
+  HoleGPSEditorView.swift: 116/116).
+- All call sites of `GolfCourse(...)` use labeled parameters; the new
+  `coordinatesRefined` param has a `nil` default, so no call site
+  requires an update.
+- `bestCenterCoordinate()` returns `nil` only when no pins, no stored
+  course coords, and no user location exist — the `centerCameraOnCourse`
+  fallback to `.automatic` matches the prior behavior for that edge.
+- `refineCoordinatesIfNeeded()` is gated by `courseSource` check, so
+  it's a no-op for user-created courses (preserves user intent).
+- **User should run `xcodebuild build` or build in Xcode on their Mac
+  after pulling to confirm zero errors.**
+
+### Files Modified
+
+- `TeeMetrics/Models/GolfCourse.swift`
+- `TeeMetrics/Services/CloudKitCourseService.swift`
+- `TeeMetrics/Views/Course/HoleGPSEditorView.swift`
+
+### Files NOT Modified
+
+- No other views touched
+- `TeeMetricsApp.swift` unchanged (lightweight migration is automatic)
+- `courses.json` unchanged
+
+---
+
 ## 2026-04-09 — Phase 1B: GPS Pin Placement UI
 
 **Scope:** Pin placement UI. Builds on Phase 1A (data model) by adding the

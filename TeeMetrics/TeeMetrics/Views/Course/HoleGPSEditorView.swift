@@ -202,7 +202,7 @@ struct HoleGPSEditorView: View {
 
     // MARK: - Map View
     private var mapView: some View {
-        ZStack(alignment: .topTrailing) {
+        ZStack {
             MapReader { proxy in
                 Map(position: $cameraPosition) {
                     // Existing pins for current hole
@@ -233,18 +233,48 @@ struct HoleGPSEditorView: View {
                 }
             }
 
-            // Placement-mode banner
+            // Placement-mode banner (top-right)
             if let pin = activePin {
-                Text("Tap the map to place \(pin.label.uppercased())")
-                    .font(.caption.bold())
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(pin.color.opacity(0.9))
-                    .clipShape(Capsule())
-                    .padding(.top, 12)
+                VStack {
+                    HStack {
+                        Spacer()
+                        Text("Tap the map to place \(pin.label.uppercased())")
+                            .font(.caption.bold())
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(pin.color.opacity(0.9))
+                            .clipShape(Capsule())
+                            .padding(.top, 12)
+                            .padding(.trailing, 12)
+                            .shadow(radius: 4)
+                    }
+                    Spacer()
+                }
+            }
+
+            // Recenter button (bottom-right)
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    Button {
+                        centerCameraOnCourse()
+                        Haptics.selection()
+                    } label: {
+                        Image(systemName: "location.fill")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(Theme.primary)
+                            .frame(width: 44, height: 44)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(.white.opacity(0.3), lineWidth: 1))
+                            .shadow(color: .black.opacity(0.25), radius: 4, y: 2)
+                    }
+                    .accessibilityLabel("Recenter map on course")
                     .padding(.trailing, 12)
-                    .shadow(radius: 4)
+                    .padding(.bottom, 12)
+                }
             }
         }
         .frame(maxHeight: .infinity)
@@ -387,21 +417,40 @@ struct HoleGPSEditorView: View {
         setPin(pin, coordinate: loc.coordinate)
     }
 
-    private func centerCameraOnCourse() {
-        // Prefer course coordinates; fall back to user location if course has none.
-        if course.latitude != 0 || course.longitude != 0 {
-            cameraPosition = .region(MKCoordinateRegion(
-                center: CLLocationCoordinate2D(latitude: course.latitude, longitude: course.longitude),
-                latitudinalMeters: 800,
-                longitudinalMeters: 800
-            ))
-        } else if let loc = locationManager.currentLocation {
-            cameraPosition = .region(MKCoordinateRegion(
-                center: loc.coordinate,
-                latitudinalMeters: 800,
-                longitudinalMeters: 800
-            ))
+    // MARK: - Camera Centering (Phase 1B fix)
+    /// Standard span for golf courses — ~1km square fits most full 18-hole layouts.
+    private static let courseSpan = MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
+
+    /// Returns the best known center coordinate using the priority order:
+    ///   a) First placed center pin on any hole (user returning to edit).
+    ///   b) Stored course lat/lng if non-zero (populated by importers).
+    ///   c) User's current location if available.
+    ///   d) nil → caller falls back to .automatic.
+    private func bestCenterCoordinate() -> CLLocationCoordinate2D? {
+        // (a) Existing center pin on any hole
+        for hole in sortedHoles {
+            if let lat = hole.greenCenterLatitude, let lon = hole.greenCenterLongitude {
+                return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+            }
         }
+        // (b) Stored course coordinates
+        if course.latitude != 0 || course.longitude != 0 {
+            return CLLocationCoordinate2D(latitude: course.latitude, longitude: course.longitude)
+        }
+        // (c) User's current location
+        if let loc = locationManager.currentLocation {
+            return loc.coordinate
+        }
+        // (d) No good center known
+        return nil
+    }
+
+    private func centerCameraOnCourse() {
+        guard let center = bestCenterCoordinate() else {
+            cameraPosition = .automatic
+            return
+        }
+        cameraPosition = .region(MKCoordinateRegion(center: center, span: Self.courseSpan))
     }
 
     // MARK: - Distance Readout (front → back)
@@ -430,12 +479,57 @@ struct HoleGPSEditorView: View {
         // SwiftData auto-persists @Model mutations; this is mostly a UX marker.
         Haptics.success()
 
+        // Progressive course coordinate refinement (Phase 1B fix).
+        // When a user places pins on a bundled or community course for the
+        // first time, update the stored city-level lat/lng toward the actual
+        // course location using the earliest placed center pin.
+        refineCoordinatesIfNeeded()
+
         // If this is a community course with a cloud record, offer to sync back.
         if course.courseSource == "community", course.cloudRecordID != nil,
            CloudKitCourseService.shared.isAvailable {
             showShareAlert = true
         } else {
             dismiss()
+        }
+    }
+
+    // MARK: - Progressive Coordinate Refinement (Phase 1B fix)
+    /// Updates the course's stored lat/lng to the first center pin placed on
+    /// any hole, so future opens of the GPS editor zoom to the correct
+    /// location. Only runs on non-user courses (bundled or community) and
+    /// only once per course (guarded by `coordinatesRefined`).
+    ///
+    /// For community courses with a valid CloudKit record, also pushes the
+    /// refined location back to the public database so other players benefit.
+    private func refineCoordinatesIfNeeded() {
+        // Only refine bundled/community courses. User-created courses keep
+        // whatever the user explicitly set.
+        guard course.courseSource == "bundled" || course.courseSource == "community" else { return }
+
+        // Only refine once.
+        guard course.coordinatesRefined != true else { return }
+
+        // Find the first placed center pin across all holes.
+        guard let firstCenter = sortedHoles
+            .compactMap({ hole -> CLLocationCoordinate2D? in
+                guard let lat = hole.greenCenterLatitude, let lon = hole.greenCenterLongitude else { return nil }
+                return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+            })
+            .first
+        else { return }
+
+        course.latitude = firstCenter.latitude
+        course.longitude = firstCenter.longitude
+        course.coordinatesRefined = true
+
+        // For community courses, push the refined location back to CloudKit.
+        if course.courseSource == "community",
+           course.cloudRecordID != nil,
+           CloudKitCourseService.shared.isAvailable {
+            Task {
+                _ = await CloudKitCourseService.shared.updateCourseLocation(for: course)
+            }
         }
     }
 }

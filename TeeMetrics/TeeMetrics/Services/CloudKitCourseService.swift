@@ -108,6 +108,39 @@ final class CloudKitCourseService {
         }
     }
 
+    // MARK: - Update Course Location on Community Course (Phase 1B fix)
+    /// Fetches the existing CKRecord by its recordName and updates the
+    /// `latitude` / `longitude` fields with the local course's current
+    /// coordinates. Called during progressive coordinate refinement —
+    /// when a user places the first green pin on a community course,
+    /// we use that pin's location to replace the city-level coordinates
+    /// from the original import.
+    ///
+    /// - Returns: true on success, false if iCloud unavailable or fetch/save failed.
+    func updateCourseLocation(for course: GolfCourse) async -> Bool {
+        guard isAvailable else {
+            errorMessage = "iCloud account required to sync course location"
+            return false
+        }
+        guard let recordName = course.cloudRecordID else {
+            errorMessage = "This course has no CloudKit record — cannot sync location"
+            return false
+        }
+
+        let recordID = CKRecord.ID(recordName: recordName)
+
+        do {
+            let record = try await publicDB.record(for: recordID)
+            record["latitude"] = course.latitude
+            record["longitude"] = course.longitude
+            _ = try await publicDB.save(record)
+            return true
+        } catch {
+            errorMessage = "Failed to sync location: \(error.localizedDescription)"
+            return false
+        }
+    }
+
     // MARK: - Update Green Pins on Community Course (Phase 1B)
     /// Fetches the existing CKRecord by its recordName, updates the `holesJSON`
     /// field with any new green GPS pin coordinates from the local course, and
