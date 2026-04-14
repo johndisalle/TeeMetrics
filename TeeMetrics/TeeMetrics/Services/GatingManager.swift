@@ -51,8 +51,6 @@ final class GatingManager {
             return true
         case .csvExport:
             return completedRoundCount > Self.freeRoundLimit
-        case .iCloudSync:
-            return true
         case .unlimitedHistory:
             return false // Always show history, gate detailed stats
         case .roundComparison:
@@ -94,7 +92,6 @@ enum ProFeature: String, CaseIterable {
     case strokesGained = "Strokes Gained"
     case pdfExport = "PDF Export"
     case csvExport = "CSV Export"
-    case iCloudSync = "iCloud Sync"
     case unlimitedHistory = "Unlimited History"
     case roundComparison = "Round Comparison"
     case clubRecommendation = "Club Recommendation"

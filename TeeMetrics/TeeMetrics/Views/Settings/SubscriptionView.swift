@@ -60,6 +60,7 @@ struct SubscriptionView: View {
                     proFeature("party.popper.fill", "Post-round celebrations with confetti & stat reveals")
                     proFeature("mic.fill", "Siri Shortcuts — \"Hey Siri, start a round\"")
                     proFeature("applewatch", "Apple Watch live scoring with phone sync")
+                    proFeature("mappin.and.ellipse", "Hazard distance HUD — live yardage to next bunker & water carry during your round")
                     proFeature("mappin.and.ellipse", "660+ pre-loaded courses with auto-detection")
 
                     Divider().padding(.vertical, 4)
@@ -79,7 +80,6 @@ struct SubscriptionView: View {
                     proFeature("photo.fill", "Shareable round cards (Instagram feed & story)")
                     proFeature("doc.richtext", "Beautiful PDF round reports")
                     proFeature("square.and.arrow.up", "CSV data export")
-                    proFeature("person.3.fill", "Community course sharing via CloudKit")
                     proFeature("bell.fill", "Smart notifications & weekly recaps")
                 }
                 .padding()
