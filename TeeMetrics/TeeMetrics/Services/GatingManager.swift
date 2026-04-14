@@ -59,7 +59,20 @@ final class GatingManager {
             return completedRoundCount > Self.freeRoundLimit
         case .clubRecommendation:
             return completedRoundCount > Self.freeRoundLimit
+        case .pinEditing:
+            // Gated at the call site based on course origin (community/bundled)
+            // via canEditPins(for:) below.
+            return true
         }
+    }
+
+    // MARK: - Pin Editing Gate (Phase 1B)
+    /// Returns true if the user can edit GPS pins on this course without Pro.
+    /// User-created courses are always free to edit; community/bundled courses
+    /// require Pro.
+    func canEditPins(for course: GolfCourse) -> Bool {
+        if isProUser { return true }
+        return course.isUserCreated
     }
 
     // MARK: - Update count from SwiftData
@@ -81,6 +94,7 @@ enum ProFeature: String, CaseIterable {
     case unlimitedHistory = "Unlimited History"
     case roundComparison = "Round Comparison"
     case clubRecommendation = "Club Recommendation"
+    case pinEditing = "GPS Pin Editing"
 }
 
 // MARK: - Pro Gate View Modifier

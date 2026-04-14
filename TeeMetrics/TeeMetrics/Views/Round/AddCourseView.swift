@@ -21,6 +21,8 @@ struct AddCourseView: View {
     @State private var pinLocation: CLLocationCoordinate2D?
     @State private var showSharePrompt = false
     @State private var savedCourse: GolfCourse?
+    @State private var addGPSPinsAfterSave = false
+    @State private var showGPSEditor = false
 
     struct EditableHole: Identifiable {
         let id = UUID()
@@ -100,6 +102,24 @@ struct AddCourseView: View {
                         }
                     }
                 }
+
+                // MARK: - GPS Pins (Phase 1B, optional)
+                Section {
+                    Toggle(isOn: $addGPSPinsAfterSave) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "mappin.and.ellipse")
+                                .foregroundStyle(Theme.primary)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Add GPS Pins After Saving")
+                                Text("Drop front/center/back pins on each green for live distances")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                } header: {
+                    Text("GPS Pins (Optional)")
+                }
             }
             .navigationTitle("Add Course")
             .navigationBarTitleDisplayMode(.inline)
@@ -119,14 +139,29 @@ struct AddCourseView: View {
                             _ = await CloudKitCourseService.shared.shareCourse(course, contributorName: "TeeMetrics User")
                         }
                     }
-                    dismiss()
+                    finishSave()
                 }
                 Button("No Thanks", role: .cancel) {
-                    dismiss()
+                    finishSave()
                 }
             } message: {
                 Text("Help other golfers! Share this course with the TeeMetrics community.")
             }
+            .sheet(isPresented: $showGPSEditor, onDismiss: { dismiss() }) {
+                if let course = savedCourse {
+                    HoleGPSEditorView(course: course)
+                }
+            }
+        }
+    }
+
+    /// After the share-with-community alert resolves, either deep-link into
+    /// the GPS editor (if the user opted in) or dismiss AddCourseView.
+    private func finishSave() {
+        if addGPSPinsAfterSave, savedCourse != nil {
+            showGPSEditor = true
+        } else {
+            dismiss()
         }
     }
 
@@ -183,7 +218,7 @@ struct AddCourseView: View {
         if CloudKitCourseService.shared.isAvailable {
             showSharePrompt = true
         } else {
-            dismiss()
+            finishSave()
         }
     }
 }

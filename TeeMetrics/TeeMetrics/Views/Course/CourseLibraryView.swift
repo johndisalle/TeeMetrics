@@ -121,9 +121,14 @@ struct CourseRow: View {
 // MARK: - Course Detail
 struct CourseDetailView: View {
     @Bindable var course: GolfCourse
+    @State private var showGPSEditor = false
 
     private var sortedHoles: [HoleInfo] {
         course.holes.sorted { $0.holeNumber < $1.holeNumber }
+    }
+
+    private var holesWithPins: Int {
+        sortedHoles.filter { $0.hasGreenPins }.count
     }
 
     var body: some View {
@@ -151,6 +156,30 @@ struct CourseDetailView: View {
                 }
             }
 
+            // MARK: - GPS Pins (Phase 1B)
+            Section("GPS Pins") {
+                Button {
+                    showGPSEditor = true
+                } label: {
+                    HStack {
+                        Image(systemName: "mappin.and.ellipse")
+                            .foregroundStyle(Theme.primary)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Set GPS Pins")
+                                .foregroundStyle(.primary)
+                            Text("\(holesWithPins) of 18 holes mapped")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(.quaternary)
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+
             if course.latitude != 0 {
                 Section("Location") {
                     Map {
@@ -176,6 +205,11 @@ struct CourseDetailView: View {
                         Text("\(hole.yardage) yds")
                             .foregroundStyle(.secondary)
                         Spacer()
+                        if hole.hasGreenPins {
+                            Image(systemName: "mappin.circle.fill")
+                                .font(.caption)
+                                .foregroundStyle(Theme.primary)
+                        }
                         Text("HCP \(hole.handicapRating)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -194,6 +228,9 @@ struct CourseDetailView: View {
                         .foregroundStyle(Theme.accent)
                 }
             }
+        }
+        .sheet(isPresented: $showGPSEditor) {
+            HoleGPSEditorView(course: course)
         }
     }
 }

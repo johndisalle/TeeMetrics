@@ -20,6 +20,21 @@ final class GolfCourse {
     var createdAt: Date
     var isFavorite: Bool
 
+    // MARK: - Provenance (Phase 1B)
+    // Tracks where this course came from so we can gate pin-editing for
+    // non-user-created courses behind Pro. nil = legacy/user-created.
+    // Values: "user", "bundled", "community".
+    var courseSource: String?
+
+    // CloudKit record name for community-imported courses.
+    // Used to push updated GPS pins back to the community database.
+    var cloudRecordID: String?
+
+    /// True when this course was created locally by the user (free to edit pins).
+    var isUserCreated: Bool {
+        courseSource == nil || courseSource == "user"
+    }
+
     @Relationship(deleteRule: .cascade, inverse: \HoleInfo.course)
     var holes: [HoleInfo] = []
 
@@ -36,7 +51,9 @@ final class GolfCourse {
         totalYardage: Int = 6500,
         slopeRating: Double = 113,
         courseRating: Double = 72.0,
-        isFavorite: Bool = false
+        isFavorite: Bool = false,
+        courseSource: String? = "user",
+        cloudRecordID: String? = nil
     ) {
         self.id = UUID()
         self.name = name
@@ -50,6 +67,8 @@ final class GolfCourse {
         self.courseRating = courseRating
         self.createdAt = Date()
         self.isFavorite = isFavorite
+        self.courseSource = courseSource
+        self.cloudRecordID = cloudRecordID
     }
 }
 

@@ -108,6 +108,59 @@ final class CloudKitCourseService {
         }
     }
 
+    // MARK: - Update Green Pins on Community Course (Phase 1B)
+    /// Fetches the existing CKRecord by its recordName, updates the `holesJSON`
+    /// field with any new green GPS pin coordinates from the local course, and
+    /// re-saves it. Called after a user edits pins on a community-imported
+    /// course and opts in to sharing them back.
+    ///
+    /// - Returns: true on success, false if iCloud unavailable or fetch/save failed.
+    func updateGreenPins(for course: GolfCourse) async -> Bool {
+        guard isAvailable else {
+            errorMessage = "iCloud account required to share pins"
+            return false
+        }
+        guard let recordName = course.cloudRecordID else {
+            errorMessage = "This course has no CloudKit record — cannot share pins"
+            return false
+        }
+
+        let recordID = CKRecord.ID(recordName: recordName)
+
+        do {
+            let record = try await publicDB.record(for: recordID)
+
+            // Re-encode the holes JSON with the latest pin data from local course
+            let sortedHoles = course.holes.sorted { $0.holeNumber < $1.holeNumber }
+            let holesData = sortedHoles.map { hole -> [String: Any] in
+                var dict: [String: Any] = [
+                    "num": hole.holeNumber,
+                    "par": hole.par,
+                    "yds": hole.yardage,
+                    "hcp": hole.handicapRating
+                ]
+                if let v = hole.greenFrontLatitude { dict["greenF_lat"] = v }
+                if let v = hole.greenFrontLongitude { dict["greenF_lon"] = v }
+                if let v = hole.greenCenterLatitude { dict["greenC_lat"] = v }
+                if let v = hole.greenCenterLongitude { dict["greenC_lon"] = v }
+                if let v = hole.greenBackLatitude { dict["greenB_lat"] = v }
+                if let v = hole.greenBackLongitude { dict["greenB_lon"] = v }
+                return dict
+            }
+
+            if let jsonData = try? JSONSerialization.data(withJSONObject: holesData),
+               let jsonString = String(data: jsonData, encoding: .utf8) {
+                record["holesJSON"] = jsonString
+            }
+
+            _ = try await publicDB.save(record)
+            return true
+        } catch {
+            errorMessage = "Failed to sync pins: \(error.localizedDescription)"
+            return false
+        }
+    }
+
     // MARK: - Fetch Community Courses
     func fetchCommunityCourses(searchText: String = "", state: String? = nil) async {
         isLoading = true
@@ -208,7 +261,9 @@ final class CloudKitCourseService {
             totalPar: shared.totalPar,
             totalYardage: shared.totalYardage,
             slopeRating: shared.slopeRating,
-            courseRating: shared.courseRating
+            courseRating: shared.courseRating,
+            courseSource: "community",
+            cloudRecordID: shared.id.recordName
         )
         context.insert(course)
 

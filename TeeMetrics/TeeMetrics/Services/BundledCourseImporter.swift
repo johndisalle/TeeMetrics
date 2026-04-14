@@ -80,7 +80,8 @@ enum BundledCourseImporter {
             totalPar: bundled.par,
             totalYardage: bundled.yardage,
             slopeRating: bundled.slope,
-            courseRating: bundled.rating
+            courseRating: bundled.rating,
+            courseSource: "bundled"
         )
         context.insert(course)
 
