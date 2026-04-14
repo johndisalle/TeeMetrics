@@ -95,20 +95,6 @@ enum Theme {
         endPoint: .trailing
     )
 
-    // MARK: - Splash gradient (Foundation Session A)
-    /// Two-stop radial used by the onboarding splash. Lighter near the
-    /// flag and darker at the edges so the yellow glow reads as the
-    /// light source.
-    static let splashRadial = RadialGradient(
-        stops: [
-            .init(color: Color(red: 0.122, green: 0.290, blue: 0.196), location: 0.0),  // #1F4A32
-            .init(color: Color(red: 0.051, green: 0.141, blue: 0.098), location: 1.0),  // #0D2419
-        ],
-        center: .center,
-        startRadius: 0,
-        endRadius: 600
-    )
-
     // MARK: - Legacy aliases
     /// Older code references `secondaryBackground` and `cardBackground`.
     /// Map them onto the new token ladder so call sites don't churn.
