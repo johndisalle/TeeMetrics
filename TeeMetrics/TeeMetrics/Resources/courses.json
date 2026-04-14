@@ -15253,121 +15253,121 @@
     "name": "Waldorf Astoria Golf Club",
     "city": "Orlando",
     "state": "FL",
-    "lat": 0,
-    "lng": 0,
+    "lat": 27.4467,
+    "lng": -82.4242,
     "par": 72,
-    "yardage": 6309,
-    "slope": 127,
-    "rating": 71.4,
-    "verified": true,
+    "yardage": 6436,
+    "slope": 148.0,
+    "rating": 76.8,
+    "verified": false,
     "holes": [
       {
         "num": 1,
         "par": 4,
-        "yds": 342,
-        "hcp": 9
+        "yds": 388,
+        "hcp": 14
       },
       {
         "num": 2,
-        "par": 3,
-        "yds": 142,
-        "hcp": 17
+        "par": 4,
+        "yds": 409,
+        "hcp": 16
       },
       {
         "num": 3,
         "par": 4,
-        "yds": 387,
-        "hcp": 5
+        "yds": 409,
+        "hcp": 17
       },
       {
         "num": 4,
-        "par": 5,
-        "yds": 512,
-        "hcp": 7
+        "par": 3,
+        "yds": 179,
+        "hcp": 18
       },
       {
         "num": 5,
-        "par": 4,
-        "yds": 346,
-        "hcp": 13
+        "par": 3,
+        "yds": 191,
+        "hcp": 11
       },
       {
         "num": 6,
         "par": 4,
-        "yds": 418,
-        "hcp": 3
+        "yds": 415,
+        "hcp": 12
       },
       {
         "num": 7,
-        "par": 3,
-        "yds": 163,
+        "par": 4,
+        "yds": 388,
         "hcp": 15
       },
       {
         "num": 8,
-        "par": 5,
-        "yds": 442,
-        "hcp": 1
+        "par": 3,
+        "yds": 198,
+        "hcp": 10
       },
       {
         "num": 9,
-        "par": 4,
-        "yds": 369,
-        "hcp": 11
+        "par": 5,
+        "yds": 527,
+        "hcp": 13
       },
       {
         "num": 10,
         "par": 4,
-        "yds": 341,
-        "hcp": 12
+        "yds": 434,
+        "hcp": 8
       },
       {
         "num": 11,
-        "par": 3,
-        "yds": 187,
-        "hcp": 14
+        "par": 5,
+        "yds": 501,
+        "hcp": 6
       },
       {
         "num": 12,
-        "par": 5,
-        "yds": 567,
-        "hcp": 4
+        "par": 3,
+        "yds": 130,
+        "hcp": 5
       },
       {
         "num": 13,
-        "par": 4,
-        "yds": 291,
-        "hcp": 16
+        "par": 5,
+        "yds": 503,
+        "hcp": 7
       },
       {
         "num": 14,
         "par": 4,
         "yds": 371,
-        "hcp": 6
+        "hcp": 9
       },
       {
         "num": 15,
-        "par": 4,
-        "yds": 357,
-        "hcp": 10
+        "par": 5,
+        "yds": 463,
+        "hcp": 4
       },
       {
         "num": 16,
-        "par": 3,
-        "yds": 141,
-        "hcp": 18
+        "par": 4,
+        "yds": 310,
+        "hcp": 1
       },
       {
         "num": 17,
         "par": 4,
-        "yds": 447,
+        "yds": 310,
         "hcp": 2
       },
       {
         "num": 18,
-        "par": 5,
-        "yds": 486,
-        "hcp": 8
+        "par": 4,
+        "yds": 310,
+        "hcp": 3
       }
     ]
   },
@@ -42159,123 +42159,123 @@
   },
   {
     "name": "Shangri-La Golf Club (Championship)",
-    "city": "Ambalantota",
-    "state": "33",
-    "lat": 6.1121216,
-    "lng": 81.063965,
-    "par": 70,
-    "yardage": 5481,
-    "slope": 123,
-    "rating": 67,
-    "verified": true,
+    "city": "Afton",
+    "state": "OK",
+    "lat": 34.5153,
+    "lng": -96.7379,
+    "par": 72,
+    "yardage": 6563,
+    "slope": 147.0,
+    "rating": 73.7,
+    "verified": false,
     "holes": [
       {
         "num": 1,
         "par": 4,
-        "yds": 345,
-        "hcp": 1
+        "yds": 413,
+        "hcp": 15
       },
       {
         "num": 2,
         "par": 4,
-        "yds": 400,
-        "hcp": 2
+        "yds": 433,
+        "hcp": 11
       },
       {
         "num": 3,
-        "par": 4,
-        "yds": 271,
-        "hcp": 3
+        "par": 5,
+        "yds": 555,
+        "hcp": 14
       },
       {
         "num": 4,
-        "par": 3,
-        "yds": 182,
-        "hcp": 4
+        "par": 4,
+        "yds": 428,
+        "hcp": 12
       },
       {
         "num": 5,
-        "par": 4,
-        "yds": 355,
-        "hcp": 5
+        "par": 3,
+        "yds": 179,
+        "hcp": 18
       },
       {
         "num": 6,
         "par": 4,
-        "yds": 340,
+        "yds": 452,
         "hcp": 6
       },
       {
         "num": 7,
-        "par": 5,
-        "yds": 480,
-        "hcp": 7
+        "par": 4,
+        "yds": 422,
+        "hcp": 13
       },
       {
         "num": 8,
-        "par": 3,
-        "yds": 131,
-        "hcp": 8
+        "par": 4,
+        "yds": 410,
+        "hcp": 17
       },
       {
         "num": 9,
-        "par": 4,
-        "yds": 286,
-        "hcp": 9
+        "par": 3,
+        "yds": 205,
+        "hcp": 10
       },
       {
         "num": 10,
         "par": 4,
-        "yds": 332,
-        "hcp": 10
+        "yds": 413,
+        "hcp": 16
       },
       {
         "num": 11,
         "par": 5,
-        "yds": 477,
-        "hcp": 11
+        "yds": 504,
+        "hcp": 9
       },
       {
         "num": 12,
-        "par": 3,
-        "yds": 118,
-        "hcp": 12
+        "par": 5,
+        "yds": 468,
+        "hcp": 4
       },
       {
         "num": 13,
         "par": 4,
-        "yds": 294,
-        "hcp": 13
+        "yds": 331,
+        "hcp": 5
       },
       {
         "num": 14,
-        "par": 3,
-        "yds": 119,
-        "hcp": 14
+        "par": 4,
+        "yds": 320,
+        "hcp": 2
       },
       {
         "num": 15,
-        "par": 5,
-        "yds": 478,
-        "hcp": 15
+        "par": 4,
+        "yds": 310,
+        "hcp": 1
       },
       {
         "num": 16,
-        "par": 4,
-        "yds": 334,
-        "hcp": 16
+        "par": 5,
+        "yds": 460,
+        "hcp": 3
       },
       {
         "num": 17,
-        "par": 4,
-        "yds": 378,
-        "hcp": 17
+        "par": 3,
+        "yds": 130,
+        "hcp": 7
       },
       {
         "num": 18,
         "par": 3,
-        "yds": 161,
-        "hcp": 18
+        "yds": 130,
+        "hcp": 8
       }
     ]
   },
@@ -59485,121 +59485,121 @@
     "name": "SentryWorld Golf Club",
     "city": "Stevens Point",
     "state": "WI",
-    "lat": 0,
-    "lng": 0,
+    "lat": 44.9639,
+    "lng": -89.2685,
     "par": 72,
-    "yardage": 5961,
-    "slope": 129,
+    "yardage": 6574,
+    "slope": 150.0,
     "rating": 69.9,
-    "verified": true,
+    "verified": false,
     "holes": [
       {
         "num": 1,
-        "par": 4,
-        "yds": 385,
-        "hcp": 7
+        "par": 5,
+        "yds": 599,
+        "hcp": 6
       },
       {
         "num": 2,
         "par": 4,
-        "yds": 441,
-        "hcp": 5
+        "yds": 401,
+        "hcp": 18
       },
       {
         "num": 3,
-        "par": 3,
-        "yds": 130,
-        "hcp": 17
+        "par": 4,
+        "yds": 406,
+        "hcp": 16
       },
       {
         "num": 4,
-        "par": 4,
-        "yds": 299,
+        "par": 5,
+        "yds": 564,
         "hcp": 13
       },
       {
         "num": 5,
-        "par": 5,
-        "yds": 425,
-        "hcp": 1
+        "par": 4,
+        "yds": 432,
+        "hcp": 11
       },
       {
         "num": 6,
-        "par": 4,
-        "yds": 376,
-        "hcp": 9
+        "par": 5,
+        "yds": 553,
+        "hcp": 14
       },
       {
         "num": 7,
-        "par": 3,
-        "yds": 168,
-        "hcp": 15
+        "par": 4,
+        "yds": 464,
+        "hcp": 5
       },
       {
         "num": 8,
-        "par": 4,
-        "yds": 326,
-        "hcp": 11
+        "par": 3,
+        "yds": 174,
+        "hcp": 17
       },
       {
         "num": 9,
         "par": 5,
-        "yds": 424,
-        "hcp": 3
+        "yds": 551,
+        "hcp": 15
       },
       {
         "num": 10,
-        "par": 5,
-        "yds": 524,
-        "hcp": 4
+        "par": 3,
+        "yds": 209,
+        "hcp": 10
       },
       {
         "num": 11,
         "par": 4,
-        "yds": 259,
-        "hcp": 14
-      },
-      {
-        "num": 12,
-        "par": 3,
-        "yds": 139,
-        "hcp": 18
-      },
-      {
-        "num": 13,
-        "par": 4,
-        "yds": 335,
+        "yds": 375,
         "hcp": 12
       },
       {
+        "num": 12,
+        "par": 4,
+        "yds": 346,
+        "hcp": 7
+      },
+      {
+        "num": 13,
+        "par": 3,
+        "yds": 130,
+        "hcp": 8
+      },
+      {
         "num": 14,
-        "par": 5,
-        "yds": 484,
-        "hcp": 2
+        "par": 3,
+        "yds": 130,
+        "hcp": 9
       },
       {
         "num": 15,
         "par": 4,
-        "yds": 383,
-        "hcp": 10
+        "yds": 310,
+        "hcp": 1
       },
       {
         "num": 16,
-        "par": 3,
-        "yds": 143,
-        "hcp": 16
+        "par": 4,
+        "yds": 310,
+        "hcp": 2
       },
       {
         "num": 17,
         "par": 4,
-        "yds": 321,
-        "hcp": 8
+        "yds": 310,
+        "hcp": 3
       },
       {
         "num": 18,
         "par": 4,
-        "yds": 399,
-        "hcp": 6
+        "yds": 310,
+        "hcp": 4
       }
     ]
   },
