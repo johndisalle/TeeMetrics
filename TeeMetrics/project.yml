@@ -55,6 +55,7 @@ targets:
           - CloudKit
         com.apple.security.application-groups:
           - group.com.teemetrics.shared
+        com.apple.developer.weatherkit: true
     dependencies:
       - target: TeeMetricsWidgets
       - target: TeeMetricsWatch

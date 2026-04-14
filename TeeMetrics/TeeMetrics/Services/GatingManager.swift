@@ -65,6 +65,10 @@ final class GatingManager {
             // Pure Pro feature — hazard editing and live hazard HUD are
             // locked for every non-Pro user on every course.
             return true
+        case .playsLikeDistance:
+            // Pure Pro feature — elevation + wind adjusted "plays like"
+            // yardage on the on-course HUD.
+            return true
         }
     }
 
@@ -97,6 +101,7 @@ enum ProFeature: String, CaseIterable {
     case clubRecommendation = "Club Recommendation"
     case pinEditing = "GPS Pin Editing"
     case hazardDistances = "Hazard Distances"
+    case playsLikeDistance = "Plays-Like Distance"
 }
 
 // MARK: - Pro Gate View Modifier

@@ -141,6 +141,15 @@ final class HoleInfo {
     var greenBackLatitude: Double?
     var greenBackLongitude: Double?
 
+    // MARK: - Pin Elevation (Plays-Like)
+    // Optional altitude (meters above sea level) captured at the moment the
+    // pin was placed via "Use My Location". Map-tapped pins and legacy pins
+    // leave these nil — plays-like falls back to wind-only adjustment in
+    // that case.
+    var greenFrontElevation: Double?
+    var greenCenterElevation: Double?
+    var greenBackElevation: Double?
+
     /// Returns true only if the green **center** coordinates are both set.
     /// Center is the minimum viable pin — front/back are optional refinements.
     var hasGreenPins: Bool {
@@ -174,7 +183,10 @@ final class HoleInfo {
         greenCenterLatitude: Double? = nil,
         greenCenterLongitude: Double? = nil,
         greenBackLatitude: Double? = nil,
-        greenBackLongitude: Double? = nil
+        greenBackLongitude: Double? = nil,
+        greenFrontElevation: Double? = nil,
+        greenCenterElevation: Double? = nil,
+        greenBackElevation: Double? = nil
     ) {
         self.id = UUID()
         self.holeNumber = holeNumber
@@ -188,5 +200,8 @@ final class HoleInfo {
         self.greenCenterLongitude = greenCenterLongitude
         self.greenBackLatitude = greenBackLatitude
         self.greenBackLongitude = greenBackLongitude
+        self.greenFrontElevation = greenFrontElevation
+        self.greenCenterElevation = greenCenterElevation
+        self.greenBackElevation = greenBackElevation
     }
 }

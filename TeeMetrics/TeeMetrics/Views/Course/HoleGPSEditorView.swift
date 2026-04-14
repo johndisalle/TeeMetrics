@@ -572,18 +572,29 @@ struct HoleGPSEditorView: View {
         return CLLocationCoordinate2D(latitude: lat, longitude: lon)
     }
 
-    private func setPin(_ kind: PinKind, coordinate: CLLocationCoordinate2D) {
+    /// Saves a pin coordinate. When called from "Use My Location", the
+    /// caller passes the user's current `CLLocation.altitude` so plays-like
+    /// elevation math has data to work with later. Map-tap placements
+    /// pass nil — there's no way to know the elevation of a tap point.
+    private func setPin(
+        _ kind: PinKind,
+        coordinate: CLLocationCoordinate2D,
+        elevation: Double? = nil
+    ) {
         guard let hole = currentHole else { return }
         switch kind {
         case .front:
             hole.greenFrontLatitude = coordinate.latitude
             hole.greenFrontLongitude = coordinate.longitude
+            if let elevation { hole.greenFrontElevation = elevation }
         case .center:
             hole.greenCenterLatitude = coordinate.latitude
             hole.greenCenterLongitude = coordinate.longitude
+            if let elevation { hole.greenCenterElevation = elevation }
         case .back:
             hole.greenBackLatitude = coordinate.latitude
             hole.greenBackLongitude = coordinate.longitude
+            if let elevation { hole.greenBackElevation = elevation }
         }
         activePin = nil
         Haptics.success()
@@ -591,7 +602,12 @@ struct HoleGPSEditorView: View {
 
     private func useCurrentLocationForActivePin() {
         guard let pin = activePin, let loc = locationManager.currentLocation else { return }
-        setPin(pin, coordinate: loc.coordinate)
+        // CLLocation.altitude is meters above sea level (the native unit
+        // PlaysLikeCalculator expects). We use verticalAccuracy >= 0 as
+        // the validity check — negative means the GPS device couldn't fix
+        // altitude even though horizontal accuracy was usable.
+        let altitude: Double? = loc.verticalAccuracy >= 0 ? loc.altitude : nil
+        setPin(pin, coordinate: loc.coordinate, elevation: altitude)
     }
 
     // MARK: - Camera Centering (Phase 1B fix)
