@@ -82,17 +82,17 @@ struct APITeeContainer: Decodable {
 struct APITee: Decodable {
     let tee_name: String?
     let course_rating: Double?
-    let slope_rating: Int?
+    let slope_rating: Double?
     let bogey_rating: Double?
-    let total_yards: Int?
-    let total_meters: Int?
-    let number_of_holes: Int?
-    let par_total: Int?
+    let total_yards: Double?
+    let total_meters: Double?
+    let number_of_holes: Double?
+    let par_total: Double?
     let front_course_rating: Double?
-    let front_slope_rating: Int?
+    let front_slope_rating: Double?
     let front_bogey_rating: Double?
     let back_course_rating: Double?
-    let back_slope_rating: Int?
+    let back_slope_rating: Double?
     let back_bogey_rating: Double?
     let holes: [APITeeHole]?
 }
@@ -107,6 +107,14 @@ struct APITeeHole: Decodable {
 
 private struct APISearchResponse: Decodable {
     let courses: [APICourseSummary]?
+}
+
+// MARK: - Detail response wrapper
+// The /v1/courses/<id> endpoint wraps the course payload in a top-level
+// `course` envelope (unlike the offline cache files that store the bare
+// course object).
+private struct APICourseDetailResponse: Decodable {
+    let course: APICourseDetail
 }
 
 // MARK: - Errors
@@ -231,7 +239,8 @@ actor GolfCourseAPIClient {
 
         let decoded: APICourseDetail
         do {
-            decoded = try JSONDecoder().decode(APICourseDetail.self, from: data)
+            let envelope = try JSONDecoder().decode(APICourseDetailResponse.self, from: data)
+            decoded = envelope.course
         } catch {
             throw GolfCourseAPIError.decodingFailed
         }

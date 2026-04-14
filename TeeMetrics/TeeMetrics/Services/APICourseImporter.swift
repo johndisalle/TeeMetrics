@@ -71,9 +71,9 @@ enum APICourseImporter {
             state: state,
             latitude: lat,
             longitude: lon,
-            totalPar: primary.par_total ?? 72,
-            totalYardage: primary.total_yards ?? 6500,
-            slopeRating: Double(primary.slope_rating ?? 113),
+            totalPar: primary.par_total.map { Int($0) } ?? 72,
+            totalYardage: primary.total_yards.map { Int($0) } ?? 6500,
+            slopeRating: primary.slope_rating ?? 113,
             courseRating: primary.course_rating ?? 72.0,
             courseSource: "user",
             isUserImported: true,
@@ -112,9 +112,9 @@ enum APICourseImporter {
             let courseTee = CourseTee(
                 name: tee.tee_name ?? "Unknown",
                 gender: gender,
-                par: tee.par_total ?? 72,
-                yardage: tee.total_yards ?? 6500,
-                slope: tee.slope_rating ?? 113,
+                par: tee.par_total.map { Int($0) } ?? 72,
+                yardage: tee.total_yards.map { Int($0) } ?? 6500,
+                slope: tee.slope_rating.map { Int($0) } ?? 113,
                 rating: tee.course_rating ?? 72.0,
                 course: course
             )
