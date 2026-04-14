@@ -18,6 +18,11 @@ struct OnboardingView: View {
     @State private var selectedTemplate: BagTemplate = .standard
     @State private var showWalkthrough = false
 
+    /// Foundation Session A — when true, the form is hidden and the
+    /// goal-selection list takes its place. Single-tap on a goal row
+    /// completes onboarding immediately (no separate "Next" button).
+    @State private var showGoalStep = false
+
     var body: some View {
         ZStack {
             backgroundGradient
@@ -27,17 +32,35 @@ struct OnboardingView: View {
                 VStack(spacing: 0) {
                     Spacer().frame(height: 80)
 
-                    // MARK: - Logo
+                    // MARK: - Logo (Foundation Session A: brighter yellow glow)
+                    // The flag itself is the light source. A soft radial
+                    // glow ~120pt across, yellow at ~40% opacity fading to
+                    // transparent, sits behind the flag.
                     ZStack {
+                        // Outer halo — the bigger, softer light wash.
+                        RadialGradient(
+                            colors: [
+                                Color(red: 0.93, green: 0.79, blue: 0.39).opacity(0.40),
+                                Color(red: 0.93, green: 0.79, blue: 0.39).opacity(0.0),
+                            ],
+                            center: .center,
+                            startRadius: 0,
+                            endRadius: 120
+                        )
+                        .frame(width: 240, height: 240)
+                        .blendMode(.plusLighter)
+
+                        // Inner concentrated bloom right under the flag.
                         Circle()
-                            .fill(Theme.accent.opacity(0.12))
-                            .frame(width: 110, height: 110)
-                            .blur(radius: 25)
+                            .fill(Theme.accent.opacity(0.30))
+                            .frame(width: 90, height: 90)
+                            .blur(radius: 22)
 
                         Image(systemName: "flag.fill")
-                            .font(.system(size: 52))
+                            .font(.system(size: 56))
                             .foregroundStyle(Theme.accent)
-                            .shadow(color: Theme.accent.opacity(0.4), radius: 10, y: 4)
+                            .shadow(color: Theme.accent.opacity(0.55), radius: 14, y: 2)
+                            .shadow(color: Theme.accent.opacity(0.35), radius: 28, y: 0)
                     }
                     .scaleEffect(flagScale)
                     .opacity(showBranding ? 1 : 0)
@@ -49,9 +72,12 @@ struct OnboardingView: View {
                         Text("TeeMetrics")
                             .font(.system(size: 36, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
-                        Text("Track Every Shot. Own Your Game.")
+                        // Foundation Session A — new tagline.
+                        Text("Golf stats. No account. No ads. No nonsense.")
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(.white.opacity(0.5))
+                            .foregroundStyle(.white.opacity(0.55))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 24)
                     }
                     .opacity(showBranding ? 1 : 0)
                     .offset(y: showBranding ? 0 : 10)
@@ -72,6 +98,15 @@ struct OnboardingView: View {
                     .opacity(showBranding ? 1 : 0)
 
                     Spacer().frame(height: 32)
+
+                    if showGoalStep {
+                        // MARK: - Goal Step (Foundation Session A)
+                        // Replaces the form + CTA once the user advances.
+                        // One-tap select-and-advance — no confirmation.
+                        goalSelectionCard
+                            .padding(.horizontal, 20)
+                            .transition(.opacity.combined(with: .move(edge: .trailing)))
+                    } else {
 
                     // MARK: - Input Card
                     VStack(spacing: 18) {
@@ -144,10 +179,15 @@ struct OnboardingView: View {
 
                     Spacer().frame(height: 24)
 
-                    // MARK: - CTA
-                    Button { completeOnboarding() } label: {
+                    // MARK: - CTA — advances to the goal step
+                    Button {
+                        Haptics.selection()
+                        withAnimation(.easeInOut(duration: 0.35)) {
+                            showGoalStep = true
+                        }
+                    } label: {
                         HStack(spacing: 8) {
-                            Text("Get Started")
+                            Text("Continue")
                                 .font(.system(size: 17, weight: .bold))
                             Image(systemName: "arrow.right")
                                 .font(.system(size: 14, weight: .bold))
@@ -178,6 +218,7 @@ struct OnboardingView: View {
                     .opacity(showButton ? 1 : 0)
 
                     Spacer().frame(height: 32)
+                    } // end !showGoalStep else
                 }
             }
             .onTapGesture {
@@ -224,17 +265,19 @@ struct OnboardingView: View {
         }
     }
 
-    // MARK: - Background
+    // MARK: - Background (Foundation Session A: lighter splash radial)
+    /// Two-stop radial gradient: #1F4A32 at center, #0D2419 at edges.
+    /// Roughly 35% lighter at center than the prior linear gradient so
+    /// the yellow flag glow has somewhere bright to bloom into.
     private var backgroundGradient: some View {
-        LinearGradient(
+        RadialGradient(
             stops: [
-                .init(color: Color(red: 0.05, green: 0.16, blue: 0.10), location: 0),
-                .init(color: Color(red: 0.09, green: 0.26, blue: 0.17), location: 0.35),
-                .init(color: Color(red: 0.07, green: 0.22, blue: 0.14), location: 0.65),
-                .init(color: Color(red: 0.04, green: 0.13, blue: 0.08), location: 1),
+                .init(color: Color(red: 0.122, green: 0.290, blue: 0.196), location: 0.0),  // #1F4A32
+                .init(color: Color(red: 0.051, green: 0.141, blue: 0.098), location: 1.0),  // #0D2419
             ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            center: .center,
+            startRadius: 40,
+            endRadius: 700
         )
         .ignoresSafeArea()
     }
@@ -271,10 +314,86 @@ struct OnboardingView: View {
         withAnimation(.easeOut(duration: 0.5).delay(0.55)) { showButton = true }
     }
 
+    // MARK: - Goal Selection (Foundation Session A)
+    /// The five goal options shown on the goal step. nil represents
+    /// "I don't have one yet" — stored as nil on Golfer.scoringGoal.
+    private static let goalOptions: [(label: String, subtitle: String, value: Int?)] = [
+        ("Break 100", "First milestone for new players", 100),
+        ("Break 90",  "The bogey golfer breakthrough", 90),
+        ("Break 80",  "Single-digit handicap territory", 80),
+        ("Break 70",  "Scratch-or-better company", 70),
+        ("I don't have one yet", "Pick later from settings", nil),
+    ]
+
+    private var goalSelectionCard: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("What's your goal?")
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                Text("We'll track your progress.")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.white.opacity(0.55))
+            }
+            .padding(.horizontal, 4)
+
+            VStack(spacing: 10) {
+                ForEach(0..<Self.goalOptions.count, id: \.self) { i in
+                    let option = Self.goalOptions[i]
+                    Button {
+                        completeOnboarding(goal: option.value)
+                    } label: {
+                        HStack(spacing: 12) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(option.label)
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundStyle(.white)
+                                Text(option.subtitle)
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(.white.opacity(0.5))
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundStyle(.white.opacity(0.4))
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 14)
+                        .background(.white.opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(.white.opacity(0.10), lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(option.label)
+                }
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(.ultraThinMaterial.opacity(0.5))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(.white.opacity(0.03))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(.white.opacity(0.10), lineWidth: 1)
+                )
+        )
+    }
+
     // MARK: - Complete
-    private func completeOnboarding() {
+    private func completeOnboarding(goal: Int?) {
         Haptics.success()
-        let golfer = Golfer(name: name.trimmingCharacters(in: .whitespaces), handicapIndex: Double(handicap) ?? 0)
+        let golfer = Golfer(
+            name: name.trimmingCharacters(in: .whitespaces),
+            handicapIndex: Double(handicap) ?? 0,
+            scoringGoal: goal
+        )
         modelContext.insert(golfer)
         let bag = Bag.createFromTemplate(selectedTemplate)
         modelContext.insert(bag)

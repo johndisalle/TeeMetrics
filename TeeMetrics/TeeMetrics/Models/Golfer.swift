@@ -14,12 +14,20 @@ final class Golfer {
     var createdAt: Date
     var avatarSystemName: String
 
+    // MARK: - Scoring Goal (Foundation Session A)
+    /// User's self-selected scoring target — 100, 90, 80, 70, or nil for
+    /// "I don't have one yet". Captured during onboarding and used by the
+    /// dashboard/stats progress UI in Session B. Optional so the SwiftData
+    /// migration stays lightweight (existing Golfer rows get nil).
+    var scoringGoal: Int?
+
     init(
         name: String,
         handicapIndex: Double = 0.0,
         homeCourseID: UUID? = nil,
         defaultBagID: UUID? = nil,
-        avatarSystemName: String = "figure.golf"
+        avatarSystemName: String = "figure.golf",
+        scoringGoal: Int? = nil
     ) {
         self.id = UUID()
         self.name = name
@@ -28,5 +36,6 @@ final class Golfer {
         self.defaultBagID = defaultBagID
         self.createdAt = Date()
         self.avatarSystemName = avatarSystemName
+        self.scoringGoal = scoringGoal
     }
 }
