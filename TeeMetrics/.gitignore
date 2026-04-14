@@ -3,3 +3,9 @@ tools/api_cache_index.json.tmp
 tools/*.bak
 courses.json.pass*.bak
 unmatched*.txt
+
+TeeMetrics.xcodeproj/project.pbxproj
+TeeMetrics.xcodeproj/project.xcworkspace/xcuserdata/
+TeeMetrics.xcodeproj/xcuserdata/
+TeeMetrics.xcodeproj/xcshareddata/xcschemes/
+TeeMetrics/Resources/courses.json.tees-*.bak
