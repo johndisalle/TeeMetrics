@@ -30,6 +30,13 @@ final class GolfCourse {
     // Used to push updated GPS pins back to the community database.
     var cloudRecordID: String?
 
+    // MARK: - Coordinate Refinement (Phase 1B fix)
+    // Set to true after a user places pins and the course's city-level
+    // lat/lng has been refined toward the actual course location. Only
+    // done once per course to avoid drift from later edits.
+    // nil = not yet refined (or legacy row).
+    var coordinatesRefined: Bool?
+
     /// True when this course was created locally by the user (free to edit pins).
     var isUserCreated: Bool {
         courseSource == nil || courseSource == "user"
@@ -53,7 +60,8 @@ final class GolfCourse {
         courseRating: Double = 72.0,
         isFavorite: Bool = false,
         courseSource: String? = "user",
-        cloudRecordID: String? = nil
+        cloudRecordID: String? = nil,
+        coordinatesRefined: Bool? = nil
     ) {
         self.id = UUID()
         self.name = name
@@ -69,6 +77,7 @@ final class GolfCourse {
         self.isFavorite = isFavorite
         self.courseSource = courseSource
         self.cloudRecordID = cloudRecordID
+        self.coordinatesRefined = coordinatesRefined
     }
 }
 
