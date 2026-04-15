@@ -37,6 +37,7 @@ targets:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
+        UIRequiresFullScreen: true
         NSLocationWhenInUseUsageDescription: "TeeMetrics uses your location to show distances to the green and find nearby courses."
         GolfCourseAPIKey: "$(GOLFCOURSE_API_KEY)"
     settings:
@@ -92,12 +93,15 @@ targets:
     deploymentTarget: "10.0"
     sources:
       - TeeMetricsWatch
+    resources:
+      - TeeMetricsWatch/Assets.xcassets
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.teemetrics.app.TeeMetrics.watchkitapp
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_WKApplication: YES
         INFOPLIST_KEY_WKCompanionAppBundleIdentifier: com.teemetrics.app.TeeMetrics
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         MARKETING_VERSION: "2.1.0"
         CURRENT_PROJECT_VERSION: "3"
 
