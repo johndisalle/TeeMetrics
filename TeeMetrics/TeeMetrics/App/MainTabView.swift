@@ -49,8 +49,8 @@ struct MainTabView: View {
             DashboardView()
                 .tabItem { Label("Home", systemImage: "house") }
                 .tag(0)
-            RoundHistoryView()
-                .tabItem { Label("Rounds", systemImage: "list.bullet.clipboard") }
+            CoursesView()
+                .tabItem { Label("Courses", systemImage: "flag") }
                 .tag(1)
             StatsView()
                 .tabItem { Label("Stats", systemImage: "chart.bar") }

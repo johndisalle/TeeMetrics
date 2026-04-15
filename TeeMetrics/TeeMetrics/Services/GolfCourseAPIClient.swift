@@ -21,6 +21,7 @@
 // and course detail. ~50 entries each, simple LRU.
 
 import Foundation
+import CoreLocation
 
 // MARK: - DTOs
 
@@ -139,6 +140,37 @@ enum GolfCourseAPIError: LocalizedError {
     }
 }
 
+// MARK: - Nearby search DTOs (Session B)
+
+/// One row in the Home dashboard's "Near You" list. Decoupled from
+/// `APICourseSummary` because the bundled-fallback path produces these
+/// from local `GolfCourse` rows (which carry their own coordinate +
+/// city) rather than from the API.
+struct NearbyCourse: Identifiable, Hashable, Sendable {
+    let id: String
+    let name: String
+    let city: String
+    let state: String
+    let latitude: Double
+    let longitude: Double
+    /// Great-circle distance from the user's fix to this course, in
+    /// miles. Computed by the caller; not part of the source data.
+    let distanceMiles: Double
+}
+
+/// Sendable snapshot of a bundled `GolfCourse` row, passed into the
+/// actor's `searchNearby` so non-Sendable SwiftData models never cross
+/// the actor boundary. Callers convert their `[GolfCourse]` to
+/// `[NearbyCandidate]` on the main actor before invoking.
+struct NearbyCandidate: Sendable {
+    let id: String
+    let name: String
+    let city: String
+    let state: String
+    let latitude: Double
+    let longitude: Double
+}
+
 // MARK: - Client
 
 /// Singleton actor that fans out URLSession calls and caches results in
@@ -158,6 +190,18 @@ actor GolfCourseAPIClient {
     private var searchOrder: [String] = []
     private var detailCache: [Int: APICourseDetail] = [:]
     private var detailOrder: [Int] = []
+
+    // MARK: - Nearby cache (Session B)
+    // Cache of "nearby courses" lookups, keyed by rounded coordinate +
+    // radius. 15-minute TTL — wind/courses don't change much faster than
+    // that and we want to avoid the bundled-distance recompute on every
+    // Home re-render.
+    private struct NearbyCacheEntry {
+        let timestamp: Date
+        let results: [NearbyCourse]
+    }
+    private var nearbyCache: [String: NearbyCacheEntry] = [:]
+    private static let nearbyTTL: TimeInterval = 15 * 60
 
     private init() {
         let cfg = URLSessionConfiguration.default
@@ -247,6 +291,69 @@ actor GolfCourseAPIClient {
 
         rememberDetail(id, decoded)
         return decoded
+    }
+
+    // MARK: - Nearby (Session B)
+    /// Returns up to `limit` courses within `radiusMiles` of the given
+    /// coordinate, sorted ascending by distance.
+    ///
+    /// **Geo support**: golfcourseapi.com's public `/v1/search` endpoint
+    /// only documents free-text search via `search_query=<q>`. There is
+    /// no documented `?lat=&lng=` parameter, so this method runs
+    /// **bundled-only** — it iterates over the supplied bundled
+    /// `GolfCourse` rows (the 661 `courses.json` set), computes distance
+    /// via Haversine, filters to the radius, and returns the closest N.
+    /// Results are cached for 15 minutes per coordinate grid.
+    ///
+    /// If the API ever gains geo search, the upgrade path is to swap the
+    /// bundled iteration here for an API call and keep the same return
+    /// shape — callers don't need to change.
+    func searchNearby(
+        lat: Double,
+        lng: Double,
+        radiusMiles: Double,
+        limit: Int = 3,
+        candidates: [NearbyCandidate]
+    ) -> [NearbyCourse] {
+        let key = cacheKey(lat: lat, lng: lng, radius: radiusMiles)
+        if let entry = nearbyCache[key],
+           Date().timeIntervalSince(entry.timestamp) < Self.nearbyTTL {
+            return Array(entry.results.prefix(limit))
+        }
+
+        let user = CLLocation(latitude: lat, longitude: lng)
+        let metersPerMile = 1609.34
+        let radiusMeters = radiusMiles * metersPerMile
+
+        let results: [NearbyCourse] = candidates
+            .compactMap { c -> NearbyCourse? in
+                guard c.latitude != 0 || c.longitude != 0 else { return nil }
+                let here = CLLocation(latitude: c.latitude, longitude: c.longitude)
+                let meters = user.distance(from: here)
+                guard meters <= radiusMeters else { return nil }
+                return NearbyCourse(
+                    id: c.id,
+                    name: c.name,
+                    city: c.city,
+                    state: c.state,
+                    latitude: c.latitude,
+                    longitude: c.longitude,
+                    distanceMiles: meters / metersPerMile
+                )
+            }
+            .sorted { $0.distanceMiles < $1.distanceMiles }
+
+        nearbyCache[key] = NearbyCacheEntry(timestamp: Date(), results: results)
+        return Array(results.prefix(limit))
+    }
+
+    /// Coordinate cache key — round to 2 decimal places so callers within
+    /// a ~1 km grid get the same cached result. Plus the radius so two
+    /// requests with different radii at the same point don't collide.
+    private func cacheKey(lat: Double, lng: Double, radius: Double) -> String {
+        let rl = (lat * 100).rounded() / 100
+        let rg = (lng * 100).rounded() / 100
+        return "\(rl),\(rg),\(radius)"
     }
 
     // MARK: - HTTP

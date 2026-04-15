@@ -84,19 +84,22 @@ struct SettingsView: View {
                 }
 
                 // MARK: - Data
+                // Course library moved to its own top-level Courses tab
+                // (Session B). Round history lives here as a row since
+                // it's no longer a tab — Last Round on Home is the
+                // primary entry point.
                 Section("Data") {
+                    NavigationLink {
+                        RoundHistoryView()
+                    } label: {
+                        Label("Round History", systemImage: "list.bullet.clipboard")
+                    }
+
                     Button {
                         exportCSV()
                     } label: {
                         Label("Export CSV", systemImage: "square.and.arrow.up")
                     }
-
-                    NavigationLink {
-                        CourseLibraryView()
-                    } label: {
-                        Label("Course Library", systemImage: "flag.fill")
-                    }
-
                 }
 
                 // MARK: - Appearance

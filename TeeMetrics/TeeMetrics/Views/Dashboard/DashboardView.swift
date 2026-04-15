@@ -1,172 +1,55 @@
-// MARK: - Home Dashboard
-// Quick-start round, last 5 rounds, key stats widgets, hot streaks, pro banner
+// MARK: - Home Dashboard (Session B rebuild)
+// Six stacked sections, in order:
+//   A) Greeting + handicap badge
+//   B) Primary "Start Round" CTA (or Resume Round if one is in progress)
+//   C) Goal progress card  (conditional — golfer.scoringGoal != nil)
+//   D) Last round card     (conditional — at least one completed round,
+//                            otherwise a soft empty state)
+//   E) Near You             (3 closest courses within 25 mi)
+//   F) Weather at nearest course (Pro only, free tier hides it)
+//
+// Location uses the existing CourseDetectionManager singleton (it
+// already provides one-shot fixes via requestLocation()), not a new
+// HomeLocationProvider — that singleton predates this session and we
+// want to keep just one Home-level location consumer to avoid
+// double-prompting.
 
 import SwiftUI
 import SwiftData
+import CoreLocation
 
 struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \GolfRound.date, order: .reverse) private var allRounds: [GolfRound]
     @Query private var golfers: [Golfer]
+    @Query private var allCourses: [GolfCourse]
     @State private var showNewRound = false
 
+    @State private var locationManager = CourseDetectionManager.shared
+
+    // Section E state
+    @State private var nearby: [NearbyCourse] = []
+    @State private var nearbyLoading = false
+    @State private var nearbyError: String?
+    @State private var loadedForCoordKey: String?
+
+    // Section F state
+    @State private var nearestWeather: WindReading?
+    @State private var weatherLoadedForKey: String?
+
+    // MARK: - Derived state
     private var golfer: Golfer? { golfers.first }
 
     private var completedRounds: [GolfRound] {
         allRounds.filter { $0.isCompleted }
     }
 
+    private var lastRound: GolfRound? {
+        completedRounds.first
+    }
+
     private var activeRound: GolfRound? {
         allRounds.first { !$0.isCompleted }
-    }
-
-    private var recentRounds: [GolfRound] {
-        Array(completedRounds.prefix(5))
-    }
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // MARK: - Welcome Header
-                    if let golfer {
-                        welcomeHeader(golfer: golfer)
-                            .slideIn(delay: 0)
-                    }
-
-                    // MARK: - Streak Banner
-                    streakBanner
-                        .slideIn(delay: 0.05)
-
-                    // MARK: - Quick Start / Resume
-                    quickStartSection
-                        .slideIn(delay: 0.1)
-
-                    if completedRounds.isEmpty {
-                        // MARK: - Empty State
-                        emptyState
-                            .slideIn(delay: 0.15)
-                    } else {
-                        // MARK: - Key Stats
-                        statsGrid
-                            .slideIn(delay: 0.15)
-
-                        // MARK: - Recent Rounds
-                        recentRoundsSection
-                            .slideIn(delay: 0.2)
-
-                        // MARK: - Hot Streaks
-                        if completedRounds.count >= 3 {
-                            hotStreaksSection
-                                .slideIn(delay: 0.25)
-                        }
-
-                        // MARK: - Handicap Projection
-                        if let projectionText = StatsCalculator.handicapProjectionText(rounds: completedRounds) {
-                            highlightCard(icon: "chart.line.downtrend.xyaxis", color: .blue, title: "Handicap Projection", subtitle: projectionText)
-                                .slideIn(delay: 0.3)
-                        }
-
-                        // MARK: - Quick Links
-                        quickLinksSection
-                            .slideIn(delay: 0.35)
-                    }
-
-                    // MARK: - Free Rounds Remaining
-                    if !GatingManager.shared.isProUser {
-                        freeRoundsCard
-                            .slideIn(delay: 0.4)
-                    }
-                }
-                .padding()
-            }
-            .background(Theme.background)
-            .navigationTitle("TeeMetrics")
-            .sheet(isPresented: $showNewRound) {
-                NewRoundView()
-            }
-        }
-    }
-
-    // MARK: - Welcome Header
-    private func welcomeHeader(golfer: Golfer) -> some View {
-        HStack(spacing: 14) {
-            Image(systemName: golfer.avatarSystemName)
-                .font(.title2)
-                .foregroundStyle(.white)
-                .frame(width: 44, height: 44)
-                .background(Theme.golfGradient)
-                .clipShape(Circle())
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(greeting)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Text(golfer.name)
-                    .font(.title3.bold())
-            }
-            Spacer()
-
-            if !completedRounds.isEmpty {
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text("HCP")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                    Text(String(format: "%.1f", StatsCalculator.handicapIndex(rounds: completedRounds)))
-                        .font(.title3.bold())
-                        .foregroundStyle(Theme.primary)
-                }
-            }
-        }
-        .padding()
-        .background(Theme.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-        .shadow(color: .black.opacity(0.04), radius: 6, y: 3)
-    }
-
-    // MARK: - Streak Banner
-    @ViewBuilder
-    private var streakBanner: some View {
-        let streak = StatsCalculator.currentWeekStreak(rounds: completedRounds)
-        let daysSince = StatsCalculator.daysSinceLastRound(rounds: completedRounds)
-
-        if streak >= 2 {
-            HStack(spacing: 12) {
-                Image(systemName: "flame.fill")
-                    .font(.title2)
-                    .foregroundStyle(.orange)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("\(streak)-week streak!")
-                        .font(.subheadline.bold())
-                    Text("You've played \(streak) weeks in a row. Keep it going!")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-            }
-            .padding()
-            .background(
-                LinearGradient(colors: [.orange.opacity(0.12), .red.opacity(0.08)], startPoint: .leading, endPoint: .trailing)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-        } else if let days = daysSince, days >= 10 {
-            HStack(spacing: 12) {
-                Image(systemName: "figure.golf")
-                    .font(.title2)
-                    .foregroundStyle(Theme.primary)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Miss the course?")
-                        .font(.subheadline.bold())
-                    Text("It's been \(days) days since your last round")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-            }
-            .padding()
-            .background(Theme.primary.opacity(0.06))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-        }
     }
 
     private var greeting: String {
@@ -178,394 +61,505 @@ struct DashboardView: View {
         }
     }
 
-    // MARK: - Empty State
-    private var emptyState: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "flag.fill")
-                .font(.system(size: 48))
-                .foregroundStyle(Theme.primary.opacity(0.4))
-
-            VStack(spacing: 6) {
-                Text("Ready to Hit the Course?")
-                    .font(.title3.bold())
-                Text("Start your first round or load sample data\nfrom Settings to explore the app.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-            }
-
-            VStack(spacing: 10) {
-                guideRow(step: "1", text: "Add a course in the round setup")
-                guideRow(step: "2", text: "Score each hole as you play")
-                guideRow(step: "3", text: "Review stats and track your progress")
-            }
-            .padding(.top, 4)
-        }
-        .padding(.vertical, 32)
-        .padding(.horizontal)
-        .frame(maxWidth: .infinity)
-        .background(Theme.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.04), radius: 6, y: 3)
+    /// Average over the most recent 5 completed rounds. Returns nil
+    /// when the user has no rounds at all; the goal card uses the
+    /// "play N more rounds" copy when fewer than 5 exist.
+    private var avgLast5: Double? {
+        let recent = completedRounds.prefix(5)
+        guard !recent.isEmpty else { return nil }
+        let total = recent.reduce(0) { $0 + $1.totalScore }
+        return Double(total) / Double(recent.count)
     }
 
-    private func guideRow(step: String, text: String) -> some View {
-        HStack(spacing: 12) {
-            Text(step)
+    private var nearbyWeatherUnlocked: Bool {
+        !GatingManager.shared.requiresPro(feature: .nearbyWeather)
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 18) {
+                    // A
+                    headerSection
+                    // B
+                    primaryPlaySection
+                    // C
+                    if let goal = golfer?.scoringGoal {
+                        goalCard(goal: goal)
+                    }
+                    // D
+                    lastRoundSection
+                    // E
+                    nearbySection
+                    // F
+                    if nearbyWeatherUnlocked, let nearest = nearby.first, nearestWeather != nil {
+                        weatherCard(for: nearest)
+                    }
+                }
+                .padding()
+            }
+            .background(Theme.background)
+            .navigationTitle("TeeMetrics")
+            .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showNewRound) {
+                NewRoundView()
+            }
+            .task {
+                await loadNearbyIfPossible()
+            }
+            // Re-fire the nearby load when a fresh GPS fix arrives.
+            // CLLocation isn't Equatable, so we key on its timestamp
+            // instead — Date? satisfies onChange's Equatable requirement
+            // and only changes when a new fix lands.
+            .onChange(of: locationManager.currentLocation?.timestamp) { _, _ in
+                Task { await loadNearbyIfPossible() }
+            }
+        }
+    }
+
+    // MARK: - Section A — Header
+    private var headerSection: some View {
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(greeting)
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.textMuted)
+                Text(firstName)
+                    .font(.title.bold())
+                    .foregroundStyle(Theme.text)
+            }
+            Spacer()
+            handicapBadge
+        }
+    }
+
+    private var firstName: String {
+        let full = golfer?.name ?? "Golfer"
+        return full.split(separator: " ").first.map(String.init) ?? full
+    }
+
+    private var handicapBadge: some View {
+        let label: String = {
+            guard let g = golfer, g.handicapIndex > 0 else { return "—" }
+            return String(format: "%.1f", g.handicapIndex)
+        }()
+        return HStack(spacing: 4) {
+            Text("HCP")
+                .font(.caption2.bold())
+                .foregroundStyle(Theme.textMuted)
+            Text(label)
                 .font(.caption.bold())
+                .foregroundStyle(Theme.primary)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(Theme.surface)
+        .clipShape(Capsule())
+    }
+
+    // MARK: - Section B — Primary Play CTA
+    @ViewBuilder
+    private var primaryPlaySection: some View {
+        if let active = activeRound {
+            NavigationLink {
+                LiveRoundView(round: active)
+            } label: {
+                playButtonLabel(
+                    icon: "play.circle.fill",
+                    title: "Resume Round",
+                    subtitle: "Hole \(active.currentHole) · \(active.course?.name ?? "Round in progress")"
+                )
+            }
+            .buttonStyle(.plain)
+        } else {
+            Button {
+                Haptics.medium()
+                showNewRound = true
+            } label: {
+                playButtonLabel(
+                    icon: "flag.fill",
+                    title: "Start Round",
+                    subtitle: nil
+                )
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func playButtonLabel(icon: String, title: String, subtitle: String?) -> some View {
+        HStack(spacing: 14) {
+            Image(systemName: icon)
+                .font(.title2)
                 .foregroundStyle(.white)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                if let subtitle {
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.85))
+                }
+            }
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.caption.bold())
+                .foregroundStyle(.white.opacity(0.85))
+        }
+        .padding(.horizontal, 18)
+        .frame(maxWidth: .infinity)
+        .frame(height: 64)
+        .background(Theme.primary)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    // MARK: - Section C — Goal progress
+    private func goalCard(goal: Int) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Goal: Break \(goal)")
+                .font(.headline)
+                .foregroundStyle(Theme.text)
+
+            if completedRounds.count < 5 {
+                Text("Play \(5 - completedRounds.count) more rounds to see progress")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.textMuted)
+            } else if let avg = avgLast5 {
+                let delta = avg - Double(goal)
+                let deltaText: String = {
+                    if delta <= 0 {
+                        return "you're \(String(format: "%.1f", -delta)) under"
+                    }
+                    return "\(String(format: "%.1f", delta)) to goal"
+                }()
+                Text("Avg last 5 rounds: \(String(format: "%.1f", avg)) (\(deltaText))")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.textMuted)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Theme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    // MARK: - Section D — Last round
+    @ViewBuilder
+    private var lastRoundSection: some View {
+        if let round = lastRound {
+            NavigationLink {
+                RoundDetailView(round: round)
+            } label: {
+                lastRoundCard(round)
+            }
+            .buttonStyle(.plain)
+        } else {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 10) {
+                    Image(systemName: "flag")
+                        .foregroundStyle(Theme.textMuted)
+                    Text("Your first round will appear here")
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.textMuted)
+                    Spacer()
+                }
+            }
+            .padding(16)
+            .background(Theme.surface)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+        }
+    }
+
+    private func lastRoundCard(_ round: GolfRound) -> some View {
+        HStack(spacing: 14) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(round.course?.name ?? "Unknown Course")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Theme.text)
+                    .lineLimit(1)
+                HStack(spacing: 6) {
+                    Text(round.date.relativeFormatted)
+                    Text("·")
+                    Text("\(round.totalScore)")
+                    Text("(\(round.scoreToParString))")
+                }
+                .font(.caption)
+                .foregroundStyle(Theme.textMuted)
+            }
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.caption.bold())
+                .foregroundStyle(Theme.textMuted)
+        }
+        .padding(16)
+        .background(Theme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    // MARK: - Section E — Near You
+    private var nearbySection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Near You")
+                .font(.headline)
+                .foregroundStyle(Theme.text)
+
+            nearbyContent
+        }
+    }
+
+    @ViewBuilder
+    private var nearbyContent: some View {
+        switch locationManager.authorizationStatus {
+        case .denied, .restricted:
+            nearbyMessageCard(
+                icon: "location.slash",
+                title: "Nearby courses unavailable",
+                subtitle: "Enable location in Settings",
+                action: openAppSettings,
+                actionLabel: "Open"
+            )
+        case .notDetermined:
+            nearbyMessageCard(
+                icon: "location",
+                title: "Enable location to see nearby courses",
+                subtitle: nil,
+                action: { locationManager.requestLocation() },
+                actionLabel: "Enable"
+            )
+        default:
+            if nearbyLoading {
+                VStack(spacing: 8) {
+                    nearbySkeletonRow
+                    nearbySkeletonRow
+                    nearbySkeletonRow
+                }
+            } else if let err = nearbyError {
+                nearbyMessageCard(
+                    icon: "wifi.exclamationmark",
+                    title: "Can't load nearby courses right now",
+                    subtitle: err,
+                    action: nil,
+                    actionLabel: nil
+                )
+            } else if nearby.isEmpty {
+                nearbyMessageCard(
+                    icon: "mappin.slash",
+                    title: "No courses within 25 miles",
+                    subtitle: nil,
+                    action: nil,
+                    actionLabel: nil
+                )
+            } else {
+                VStack(spacing: 8) {
+                    ForEach(nearby) { course in
+                        nearbyRow(course)
+                    }
+                }
+            }
+        }
+    }
+
+    private func nearbyRow(_ course: NearbyCourse) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "flag")
+                .foregroundStyle(Theme.primary)
+                .frame(width: 24)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(course.name)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Theme.text)
+                    .lineLimit(1)
+                Text(courseSubtitle(course))
+                    .font(.caption)
+                    .foregroundStyle(Theme.textMuted)
+                    .lineLimit(1)
+            }
+            Spacer()
+            Text(String(format: "%.1f mi", course.distanceMiles))
+                .font(.caption.bold())
+                .foregroundStyle(Theme.textMuted)
+            Image(systemName: "chevron.right")
+                .font(.caption.bold())
+                .foregroundStyle(Theme.textMuted)
+        }
+        .padding(14)
+        .background(Theme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func courseSubtitle(_ course: NearbyCourse) -> String {
+        let parts = [course.city, course.state].filter { !$0.isEmpty }
+        return parts.joined(separator: ", ")
+    }
+
+    private var nearbySkeletonRow: some View {
+        HStack(spacing: 12) {
+            Circle()
+                .fill(Theme.textMuted.opacity(0.15))
                 .frame(width: 24, height: 24)
-                .background(Theme.primary)
-                .clipShape(Circle())
-            Text(text)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 4) {
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Theme.textMuted.opacity(0.15))
+                    .frame(height: 12)
+                    .frame(maxWidth: 160)
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Theme.textMuted.opacity(0.10))
+                    .frame(height: 10)
+                    .frame(maxWidth: 100)
+            }
             Spacer()
         }
+        .padding(14)
+        .background(Theme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    // MARK: - Quick Start Button
-    private var quickStartSection: some View {
-        VStack(spacing: 12) {
-            if let active = activeRound {
-                NavigationLink {
-                    LiveRoundView(round: active)
-                } label: {
-                    HStack {
-                        Image(systemName: "play.circle.fill")
-                            .font(.title2)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Resume Round")
-                                .font(.headline)
-                            Text("Hole \(active.currentHole) \u{2022} \(active.course?.name ?? "Unknown")")
-                                .font(.caption)
-                                .foregroundStyle(.white.opacity(0.8))
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                    }
-                    .foregroundStyle(.white)
-                    .padding()
-                    .background(Theme.golfGradient)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .shadow(color: Theme.primary.opacity(0.3), radius: 8, y: 4)
+    private func nearbyMessageCard(
+        icon: String,
+        title: String,
+        subtitle: String?,
+        action: (() -> Void)?,
+        actionLabel: String?
+    ) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .foregroundStyle(Theme.textMuted)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.text)
+                if let subtitle {
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(Theme.textMuted)
                 }
-            } else {
+            }
+            Spacer()
+            if let action, let actionLabel {
                 Button {
-                    Haptics.medium()
-                    showNewRound = true
+                    action()
                 } label: {
-                    HStack {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.title2)
-                        Text("Start New Round")
-                            .font(.headline)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                    }
-                    .foregroundStyle(.white)
-                    .padding()
-                    .background(Theme.golfGradient)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .shadow(color: Theme.primary.opacity(0.3), radius: 8, y: 4)
-                }
-            }
-        }
-    }
-
-    // MARK: - Stats Grid
-    private var statsGrid: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Your Stats")
-                .font(.headline)
-
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                StatCard(
-                    title: "Avg Score",
-                    value: String(format: "%.1f", StatsCalculator.averageScore(rounds: completedRounds)),
-                    icon: "number.circle.fill",
-                    color: Theme.primary
-                )
-                StatCard(
-                    title: "Fairways",
-                    value: String(format: "%.0f%%", StatsCalculator.averageFairways(rounds: completedRounds)),
-                    icon: "leaf.fill",
-                    color: .green
-                )
-                StatCard(
-                    title: "GIR",
-                    value: String(format: "%.0f%%", StatsCalculator.averageGIR(rounds: completedRounds)),
-                    icon: "target",
-                    color: .blue
-                )
-                StatCard(
-                    title: "Avg Putts",
-                    value: String(format: "%.1f", StatsCalculator.averagePutts(rounds: completedRounds)),
-                    icon: "hockey.puck.fill",
-                    color: .orange
-                )
-            }
-        }
-    }
-
-    // MARK: - Recent Rounds
-    private var recentRoundsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Recent Rounds")
-                    .font(.headline)
-                Spacer()
-                NavigationLink {
-                    RoundHistoryView()
-                } label: {
-                    HStack(spacing: 2) {
-                        Text("See All")
-                        Image(systemName: "chevron.right")
-                            .font(.caption2)
-                    }
-                    .font(.caption)
-                    .foregroundStyle(Theme.primary)
-                }
-            }
-
-            ForEach(recentRounds) { round in
-                NavigationLink {
-                    RoundDetailView(round: round)
-                } label: {
-                    RoundRowView(round: round)
+                    Text(actionLabel)
+                        .font(.caption.bold())
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Theme.primary)
+                        .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
             }
         }
-    }
-
-    // MARK: - Hot Streaks
-    private var hotStreaksSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Highlights")
-                .font(.headline)
-
-            let trend = StatsCalculator.scoreTrend(rounds: completedRounds)
-            if trend > 0 {
-                highlightCard(
-                    icon: "flame.fill",
-                    color: .orange,
-                    title: "On Fire",
-                    subtitle: "Scores improving by \(String(format: "%.1f", trend)) strokes on average"
-                )
-            }
-
-            if let best = StatsCalculator.bestScore(rounds: completedRounds) {
-                highlightCard(
-                    icon: "trophy.fill",
-                    color: Theme.accent,
-                    title: "Personal Best",
-                    subtitle: "Your lowest round: \(best)"
-                )
-            }
-
-            if completedRounds.count >= 5 {
-                highlightCard(
-                    icon: "chart.line.uptrend.xyaxis",
-                    color: Theme.primary,
-                    title: "\(completedRounds.count) Rounds Logged",
-                    subtitle: "Keep tracking to unlock deeper insights"
-                )
-            }
-        }
-    }
-
-    private func highlightCard(icon: String, color: Color, title: String, subtitle: String) -> some View {
-        HStack(spacing: 14) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundStyle(color)
-                .frame(width: 40)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.subheadline.bold())
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
-        }
-        .padding()
-        .background(Theme.cardBackground)
+        .padding(14)
+        .background(Theme.surface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.04), radius: 4, y: 2)
     }
 
-    // MARK: - Quick Links
-    private var quickLinksSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Quick Links")
-                .font(.headline)
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                quickLink("Goals", icon: "target", destination: AnyView(GoalsView()))
-                quickLink("Achievements", icon: "trophy.fill", destination: AnyView(AchievementsView()))
-                quickLink("Practice", icon: "figure.golf", destination: AnyView(PracticeView()))
-            }
+    private func openAppSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
         }
     }
 
-    private func quickLink(_ title: String, icon: String, destination: AnyView) -> some View {
-        NavigationLink { destination } label: {
-            VStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.title3)
+    // MARK: - Section F — Weather card
+    private func weatherCard(for course: NearbyCourse) -> some View {
+        let wind = nearestWeather
+        let speed = wind.map { Int($0.speed.rounded()) } ?? 0
+        let dir = wind.map { Int($0.direction.rounded()) } ?? 0
+        return VStack(alignment: .leading, spacing: 8) {
+            Text("Weather at \(course.name)")
+                .font(.headline)
+                .foregroundStyle(Theme.text)
+                .lineLimit(1)
+            HStack(spacing: 14) {
+                Image(systemName: "wind")
+                    .font(.title2)
                     .foregroundStyle(Theme.primary)
-                Text(title)
-                    .font(.caption2.bold())
-                    .foregroundStyle(.primary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .background(Theme.cardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .shadow(color: .black.opacity(0.03), radius: 3, y: 1)
-        }
-    }
-
-    // MARK: - Free Rounds Card
-    private var freeRoundsCard: some View {
-        NavigationLink {
-            SubscriptionView()
-        } label: {
-            let remaining = GatingManager.shared.freeRoundsRemaining
-            HStack(spacing: 14) {
-                Image(systemName: remaining > 0 ? "gift.fill" : "crown.fill")
-                    .font(.title2)
-                    .foregroundStyle(remaining > 0 ? Theme.primary : Theme.accent)
                 VStack(alignment: .leading, spacing: 2) {
-                    if remaining > 0 {
-                        Text("\(remaining) free rounds remaining")
-                            .font(.subheadline.bold())
-                        Text("Full stats unlock after \(GatingManager.freeRoundLimit) rounds — or go Pro now")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        Text("Unlock Pro for Full Stats")
-                            .font(.subheadline.bold())
-                            .foregroundStyle(.white)
-                        Text("3-day free trial \u{2022} $29.99/year")
-                            .font(.caption)
-                            .foregroundStyle(.white.opacity(0.7))
-                    }
-                }
-                Spacer()
-            }
-            .padding()
-            .background(remaining > 0 ? AnyShapeStyle(Theme.cardBackground) : AnyShapeStyle(Theme.golfGradient))
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-            .shadow(color: .black.opacity(0.06), radius: 6, y: 3)
-        }
-    }
-
-    // MARK: - Pro Banner
-    private var proBanner: some View {
-        NavigationLink {
-            SubscriptionView()
-        } label: {
-            HStack(spacing: 14) {
-                Image(systemName: "crown.fill")
-                    .font(.title2)
-                    .foregroundStyle(Theme.accent)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Unlock Pro")
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                    Text("Strokes gained, advanced charts & more")
+                    Text("\(speed) mph")
+                        .font(.title3.bold())
+                        .foregroundStyle(Theme.text)
+                    Text("From \(dir)°")
                         .font(.caption)
-                        .foregroundStyle(.white.opacity(0.8))
+                        .foregroundStyle(Theme.textMuted)
                 }
                 Spacer()
-                Text("$29.99/yr")
-                    .font(.caption.bold())
-                    .foregroundStyle(.white.opacity(0.7))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(.white.opacity(0.15))
-                    .clipShape(Capsule())
+                Image(systemName: "location.north.fill")
+                    .font(.caption)
+                    .foregroundStyle(Theme.primary)
+                    .rotationEffect(.degrees(Double(dir)))
             }
-            .padding()
-            .background(Theme.golfGradient)
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-            .shadow(color: Theme.primary.opacity(0.25), radius: 8, y: 4)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Theme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
-}
 
-// MARK: - Stat Card
-struct StatCard: View {
-    let title: String
-    let value: String
-    let icon: String
-    var color: Color = Theme.primary
+    // MARK: - Loading helpers
 
-    var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundStyle(color)
-            Text(value)
-                .font(.title2.bold())
-                .foregroundStyle(.primary)
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Theme.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.04), radius: 4, y: 2)
-    }
-}
-
-// MARK: - Round Row
-struct RoundRowView: View {
-    let round: GolfRound
-
-    var body: some View {
-        HStack(spacing: 14) {
-            // Score circle
-            ZStack {
-                Circle()
-                    .fill(Theme.scoreColor(for: round.scoreToPar).opacity(0.12))
-                    .frame(width: 48, height: 48)
-                VStack(spacing: 0) {
-                    Text("\(round.totalScore)")
-                        .font(.headline.bold())
-                    Text(round.scoreToParString)
-                        .font(.caption2.bold())
-                        .foregroundStyle(Theme.scoreColor(for: round.scoreToPar))
-                }
+    private func loadNearbyIfPossible() async {
+        // Trigger a one-shot fix if we don't have one and authorization
+        // already allows it. The "notDetermined" case does NOT auto-prompt
+        // — Section E's tap-to-enable button is the trigger.
+        if locationManager.currentLocation == nil {
+            switch locationManager.authorizationStatus {
+            case .authorizedWhenInUse, .authorizedAlways:
+                locationManager.requestLocation()
+            default:
+                return
             }
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text(round.course?.name ?? "Unknown Course")
-                    .font(.subheadline.bold())
-                    .lineLimit(1)
-                HStack(spacing: 8) {
-                    Text(round.date.relativeFormatted)
-                    Text("\u{2022}")
-                    Text("\(round.totalPutts) putts")
-                    Text("\u{2022}")
-                    Text(String(format: "%.0f%% FW", round.fairwayPercentage))
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundStyle(.quaternary)
         }
-        .padding()
-        .background(Theme.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.04), radius: 4, y: 2)
+
+        guard let fix = locationManager.currentLocation else { return }
+
+        let coordKey = String(
+            format: "%.2f,%.2f",
+            fix.coordinate.latitude,
+            fix.coordinate.longitude
+        )
+        guard coordKey != loadedForCoordKey else { return }
+        loadedForCoordKey = coordKey
+
+        nearbyLoading = true
+        nearbyError = nil
+
+        // Snapshot the SwiftData rows into Sendable structs on the main
+        // actor before crossing into the GolfCourseAPIClient actor.
+        let candidates: [NearbyCandidate] = allCourses.map { c in
+            NearbyCandidate(
+                id: c.id.uuidString,
+                name: c.name,
+                city: c.city,
+                state: c.state,
+                latitude: c.latitude,
+                longitude: c.longitude
+            )
+        }
+        let results = await GolfCourseAPIClient.shared.searchNearby(
+            lat: fix.coordinate.latitude,
+            lng: fix.coordinate.longitude,
+            radiusMiles: 25,
+            limit: 3,
+            candidates: candidates
+        )
+        nearby = results
+        nearbyLoading = false
+
+        // Section F — fetch weather for the nearest course (Pro only).
+        if nearbyWeatherUnlocked, let nearest = results.first {
+            let wxKey = String(format: "%.2f,%.2f", nearest.latitude, nearest.longitude)
+            if wxKey != weatherLoadedForKey {
+                weatherLoadedForKey = wxKey
+                let coord = CLLocationCoordinate2D(
+                    latitude: nearest.latitude,
+                    longitude: nearest.longitude
+                )
+                nearestWeather = await WeatherService.shared.currentWind(at: coord)
+            }
+        } else {
+            nearestWeather = nil
+            weatherLoadedForKey = nil
+        }
     }
 }

@@ -73,6 +73,10 @@ final class GatingManager {
             // Pure Pro feature — manual-tap GPS shot capture during a
             // round. Mirrors the playsLikeDistance gate exactly.
             return true
+        case .nearbyWeather:
+            // Pure Pro feature — weather card on the Home dashboard
+            // (current conditions + wind at the nearest course).
+            return true
         }
     }
 
@@ -107,6 +111,7 @@ enum ProFeature: String, CaseIterable {
     case hazardDistances = "Hazard Distances"
     case playsLikeDistance = "Plays-Like Distance"
     case shotTracking = "Shot Tracking"
+    case nearbyWeather = "Nearby Weather"
 }
 
 // MARK: - Pro Gate View Modifier
