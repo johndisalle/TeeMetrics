@@ -46,6 +46,8 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         SUPPORTS_MACCATALYST: NO
         CODE_SIGN_ENTITLEMENTS: TeeMetrics/TeeMetrics.entitlements
+        MARKETING_VERSION: "2.1.0"
+        CURRENT_PROJECT_VERSION: "3"
     entitlements:
       path: TeeMetrics/TeeMetrics.entitlements
       properties:
@@ -75,6 +77,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.teemetrics.app.TeeMetrics.TeeMetricsWidgets
+        MARKETING_VERSION: "2.1.0"
+        CURRENT_PROJECT_VERSION: "3"
     entitlements:
       path: TeeMetrics/TeeMetricsWidgets.entitlements
       properties:
@@ -94,6 +98,8 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_WKApplication: YES
         INFOPLIST_KEY_WKCompanionAppBundleIdentifier: com.teemetrics.app.TeeMetrics
+        MARKETING_VERSION: "2.1.0"
+        CURRENT_PROJECT_VERSION: "3"
 
 schemes:
   TeeMetrics:
