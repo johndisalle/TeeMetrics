@@ -7,6 +7,7 @@ import StoreKit
 struct SubscriptionView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var manager = SubscriptionManager.shared
+    @State private var showRedeemCode = false
 
     var body: some View {
         ScrollView {
@@ -118,6 +119,17 @@ struct SubscriptionView: View {
                     .foregroundStyle(.secondary)
                     .padding(.top, 4)
 
+                    // Redeem entry point — parallel to the one in
+                    // Settings so App Reviewers find it during the
+                    // paywall walkthrough. Hidden for existing Pro
+                    // users since they have nothing to redeem.
+                    Button("Redeem Offer Code") {
+                        showRedeemCode = true
+                    }
+                    .font(.footnote)
+                    .foregroundStyle(Theme.primary)
+                    .padding(.top, 2)
+
                     HStack(spacing: 16) {
                         Link("Terms of Service", destination: AppURLs.terms)
                         Text("·")
@@ -133,6 +145,11 @@ struct SubscriptionView: View {
         .navigationTitle("Go Pro")
         .navigationBarTitleDisplayMode(.inline)
         .task { await manager.loadProducts() }
+        .offerCodeRedemption(isPresented: $showRedeemCode) { result in
+            if case .success = result {
+                Task { await SubscriptionManager.shared.updatePurchasedProducts() }
+            }
+        }
     }
 
     private func sectionLabel(_ text: String) -> some View {
