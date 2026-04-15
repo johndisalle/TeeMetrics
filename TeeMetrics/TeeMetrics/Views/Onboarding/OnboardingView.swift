@@ -68,7 +68,10 @@ struct SplashScreen<Destination: View>: View {
             Theme.background.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                Spacer()
+                // Top spacer takes 1 share, the spacer below the cluster
+                // takes 2 shares — anchors the flag/title cluster at
+                // roughly the upper third of the screen.
+                Spacer(minLength: 0)
 
                 // Flag — flat, no glow, no shadow, no halo.
                 Image(systemName: "flag.fill")
@@ -89,19 +92,30 @@ struct SplashScreen<Destination: View>: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
 
-                Spacer()
+                Spacer().frame(height: 24)
+
+                // Tertiary line — single muted reassurance row, no chips.
+                Text("661 courses · Offline · Apple Watch")
+                    .font(.caption2)
+                    .foregroundColor(Theme.textMuted)
+                    .multilineTextAlignment(.center)
+
+                // Two flexible spacers below the cluster vs one above gives
+                // the cluster a 1:2 vertical balance.
+                Spacer(minLength: 0)
+                Spacer(minLength: 0)
 
                 // Primary CTA — solid, full width, clearly tappable.
                 NavigationLink {
                     profileDestination
                 } label: {
                     Text("Get Started")
-                        .font(.headline)
+                        .font(.body.weight(.semibold))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 52)
                         .background(Theme.primary)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 .padding(.horizontal, 24)
 
