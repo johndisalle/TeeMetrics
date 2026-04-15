@@ -162,8 +162,10 @@ struct ProfileFormScreen<Destination: View>: View {
                         TextField("Name", text: $name)
                             .textContentType(.name)
                             .autocorrectionDisabled()
+                            .listRowBackground(Theme.surfaceElevated)
                         TextField("Handicap (optional)", text: $handicap)
                             .keyboardType(.decimalPad)
+                            .listRowBackground(Theme.surfaceElevated)
                     } header: {
                         Text("About You")
                     }
@@ -183,6 +185,7 @@ struct ProfileFormScreen<Destination: View>: View {
                                     .foregroundStyle(Theme.textMuted)
                             }
                         }
+                        .listRowBackground(Theme.surfaceElevated)
                     } header: {
                         Text("Bag Setup")
                     } footer: {
@@ -199,11 +202,11 @@ struct ProfileFormScreen<Destination: View>: View {
                 } label: {
                     Text("Continue")
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(canContinue ? Color.white : Theme.textMuted)
                         .frame(maxWidth: .infinity)
                         .frame(height: 52)
-                        .background(canContinue ? Theme.primary : Theme.primary.opacity(0.4))
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .background(canContinue ? Theme.primary : Theme.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 .disabled(!canContinue)
                 .padding(.horizontal, 24)
@@ -282,7 +285,7 @@ struct GoalScreen: View {
                 .padding(.bottom, 32)
             }
         }
-        .navigationTitle("Goal")
+        .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
