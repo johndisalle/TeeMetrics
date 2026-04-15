@@ -15,13 +15,17 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(MARKETING_VERSION)</string>
+	<string>2.1.0</string>
 	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<string>3</string>
+	<key>GolfCourseAPIKey</key>
+	<string>$(GOLFCOURSE_API_KEY)</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>TeeMetrics uses your location to show distances to the green and find nearby courses.</string>
 	<key>UILaunchScreen</key>
 	<dict/>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
