@@ -81,24 +81,22 @@ struct SubscriptionView: View {
                     .padding()
                 } else {
                     VStack(spacing: 12) {
+                        // Annual — auto-renewing subscription with 3-day
+                        // intro trial. Highlighted card style.
                         pricingCard(
-                            title: "Yearly",
-                            price: "$29.99/yr",
-                            subtitle: "3-day free trial \u{2022} Save 50%",
-                            badge: "BEST VALUE",
+                            title: "Annual",
+                            subtitle: "3-day free trial \u{2022} billed annually",
+                            priceSuffix: "/yr",
                             productID: SubscriptionManager.yearlyID,
                             highlighted: true
                         )
-                        pricingCard(
-                            title: "Monthly",
-                            price: "$4.99/mo",
-                            subtitle: "Cancel anytime",
-                            productID: SubscriptionManager.monthlyID
-                        )
+                        // Lifetime — non-consumable IAP, no trial.
+                        // Marketed as Best Value at the new $79.99
+                        // launch price.
                         pricingCard(
                             title: "Lifetime",
-                            price: "$49.99",
                             subtitle: "One-time purchase \u{2022} Pay once, own forever",
+                            badge: "BEST VALUE",
                             productID: SubscriptionManager.lifetimeID
                         )
                     }
@@ -106,7 +104,7 @@ struct SubscriptionView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "shield.checkered")
                             .foregroundStyle(.green)
-                        Text("Try free for 3 days. Cancel anytime before trial ends — no charge.")
+                        Text("Annual: 3-day free trial. Cancel anytime before trial ends — no charge. Lifetime is a one-time purchase with no auto-renewal.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -169,17 +167,31 @@ struct SubscriptionView: View {
         }
     }
 
+    /// Pricing card that pulls its price string from the loaded
+    /// StoreKit `Product.displayPrice` so a price change in App Store
+    /// Connect lands automatically without a binary update. `priceSuffix`
+    /// gets appended to the displayPrice (e.g. "/yr" for the annual
+    /// subscription); pass nil for one-time purchases like Lifetime.
+    /// Card is disabled and renders an em dash while the product is
+    /// still loading.
     private func pricingCard(
         title: String,
-        price: String,
         subtitle: String,
+        priceSuffix: String? = nil,
         badge: String? = nil,
         productID: String,
         highlighted: Bool = false
     ) -> some View {
-        Button {
+        let product = manager.products.first(where: { $0.id == productID })
+        let priceText: String = {
+            guard let product else { return "—" }
+            if let suffix = priceSuffix { return "\(product.displayPrice)\(suffix)" }
+            return product.displayPrice
+        }()
+
+        return Button {
             Task {
-                if let product = manager.products.first(where: { $0.id == productID }) {
+                if let product {
                     _ = try? await manager.purchase(product)
                 }
             }
@@ -202,7 +214,7 @@ struct SubscriptionView: View {
                             .foregroundStyle(highlighted ? .white.opacity(0.8) : .secondary)
                     }
                     Spacer()
-                    Text(price)
+                    Text(priceText)
                         .font(.title3.bold())
                 }
                 .padding()

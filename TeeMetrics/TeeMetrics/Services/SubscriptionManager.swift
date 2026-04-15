@@ -12,9 +12,23 @@ final class SubscriptionManager {
     var products: [Product] = []
     var purchasedProductIDs: Set<String> = []
 
-    static let monthlyID = "com.teemetrics.pro.monthly"
+    // MARK: - Product IDs
+    // Annual auto-renewing subscription with a 3-day intro trial (price
+    // configured in App Store Connect — code reads `displayPrice` at
+    // runtime so a price change in ASC doesn't require a binary update).
     static let yearlyID = "com.teemetrics.pro.yearly"
+
+    // Lifetime non-consumable IAP — single purchase, never expires.
+    // Verified via the same `Transaction.currentEntitlements` path
+    // since StoreKit returns non-consumables there indefinitely.
     static let lifetimeID = "com.teemetrics.pro.lifetime"
+
+    // NOTE: A monthly subscription used to be offered. Legacy monthly
+    // subscribers KEEP Pro automatically — `updatePurchasedProducts()`
+    // iterates `Transaction.currentEntitlements`, which still surfaces
+    // their active subscription regardless of whether the monthly
+    // product is loaded in `Product.products(for:)` below. They just
+    // can't see the monthly card on the paywall anymore.
 
     init() {
         listenForTransactions()
@@ -25,7 +39,6 @@ final class SubscriptionManager {
     func loadProducts() async {
         do {
             products = try await Product.products(for: [
-                Self.monthlyID,
                 Self.yearlyID,
                 Self.lifetimeID
             ])
