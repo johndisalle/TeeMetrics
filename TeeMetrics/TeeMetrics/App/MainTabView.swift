@@ -64,6 +64,10 @@ struct MainTabView: View {
         }
         .tint(Theme.primary)
         .onAppear {
+            // First-launch seed: drop all 661 bundled courses into
+            // SwiftData if the store is empty. Idempotent — subsequent
+            // launches no-op via an internal count check.
+            BundledCourseImporter.seedBundledCoursesIfNeeded(context: modelContext)
             GatingManager.shared.updateRoundCount(from: modelContext)
         }
     }

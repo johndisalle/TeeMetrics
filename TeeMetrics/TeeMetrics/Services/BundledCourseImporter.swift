@@ -93,6 +93,54 @@ struct BundledTeeHole: Codable {
 @MainActor
 enum BundledCourseImporter {
 
+    // MARK: - First-launch seed
+    /// Imports the entire bundled `courses.json` set (~661 courses) into
+    /// SwiftData, but **only when the store is empty**. Idempotent: a
+    /// second call after the seed has already happened is a no-op via
+    /// the count check.
+    ///
+    /// Called from `MainTabView.onAppear` so the Home dashboard's
+    /// "Near You" query and the Courses tab `@Query` have data to read
+    /// on a fresh install. Without this, the importer was only triggered
+    /// when the user manually browsed `BundledCourseBrowser` and tapped
+    /// "Add" on individual rows — meaning a fresh install showed an
+    /// empty Courses tab and no nearby suggestions.
+    static func seedBundledCoursesIfNeeded(context: ModelContext) {
+        let existing = (try? context.fetchCount(FetchDescriptor<GolfCourse>())) ?? 0
+        guard existing == 0 else {
+            #if DEBUG
+            print("[BundledCourseImporter] Seed skipped — \(existing) courses already in DB")
+            #endif
+            return
+        }
+
+        let bundled = loadBundledCourses()
+        #if DEBUG
+        print("[BundledCourseImporter] Seeding \(bundled.count) bundled courses on first launch")
+        #endif
+        guard !bundled.isEmpty else {
+            #if DEBUG
+            print("[BundledCourseImporter] WARNING: courses.json missing or unreadable from main bundle")
+            #endif
+            return
+        }
+
+        for c in bundled {
+            _ = importCourse(c, into: context)
+        }
+
+        do {
+            try context.save()
+            #if DEBUG
+            print("[BundledCourseImporter] Seed complete — \(bundled.count) courses inserted")
+            #endif
+        } catch {
+            #if DEBUG
+            print("[BundledCourseImporter] Seed save failed: \(error)")
+            #endif
+        }
+    }
+
     // MARK: - Load all bundled courses from JSON
     static func loadBundledCourses() -> [BundledCourse] {
         guard let url = Bundle.main.url(forResource: "courses", withExtension: "json"),

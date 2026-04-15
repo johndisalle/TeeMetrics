@@ -26,6 +26,9 @@ struct CoursesView: View {
     }
 
     var body: some View {
+        #if DEBUG
+        let _ = print("[CoursesView] courses.count: \(courses.count) (filtered: \(filteredCourses.count))")
+        #endif
         NavigationStack {
             Group {
                 if courses.isEmpty {

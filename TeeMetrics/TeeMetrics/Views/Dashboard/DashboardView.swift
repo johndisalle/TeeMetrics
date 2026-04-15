@@ -105,6 +105,9 @@ struct DashboardView: View {
                 NewRoundView()
             }
             .task {
+                #if DEBUG
+                print("[DashboardView] allCourses count: \(allCourses.count), completedRounds: \(completedRounds.count)")
+                #endif
                 await loadNearbyIfPossible()
             }
             // Re-fire the nearby load when a fresh GPS fix arrives.
