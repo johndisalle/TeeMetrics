@@ -1,90 +1,18 @@
-// MARK: - Course Library
-// Browsable list of saved courses, 18-hole editor, favorites
+// MARK: - Course Components
+// Shared row + detail views for the course list. Originally lived
+// alongside an outer `CourseLibraryView` wrapper; that wrapper was
+// promoted to the top-level `CoursesView` tab in Session B and removed
+// from Settings, so this file now holds just the reusable pieces:
+//
+//   - `CourseRow`         — text-only row used by CommunityCourseBrowser
+//   - `CourseDetailView`  — full course detail used by CoursesView
+//
+// (The Courses tab itself uses `CoursesListRow` from CoursesView.swift,
+// which is the hero-image variant introduced in Session C.)
 
 import SwiftUI
 import SwiftData
 import MapKit
-
-struct CourseLibraryView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query(sort: \GolfCourse.name) private var courses: [GolfCourse]
-    @State private var searchText = ""
-    @State private var showAddCourse = false
-    @State private var showBundledBrowser = false
-    @State private var showCommunityBrowser = false
-
-    private var filteredCourses: [GolfCourse] {
-        if searchText.isEmpty { return courses }
-        return courses.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-    }
-
-    var body: some View {
-        NavigationStack {
-            Group {
-                if courses.isEmpty {
-                    ContentUnavailableView(
-                        "No Courses",
-                        systemImage: "flag.fill",
-                        description: Text("Add your first course to get started")
-                    )
-                } else {
-                    List {
-                        ForEach(filteredCourses) { course in
-                            NavigationLink {
-                                CourseDetailView(course: course)
-                            } label: {
-                                CourseRow(course: course)
-                            }
-                        }
-                        .onDelete(perform: deleteCourses)
-                    }
-                    .listStyle(.plain)
-                }
-            }
-            .navigationTitle("Courses")
-            .searchable(text: $searchText, prompt: "Search courses")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Menu {
-                        Button {
-                            showBundledBrowser = true
-                        } label: {
-                            Label("Browse 500+ Courses", systemImage: "building.2.fill")
-                        }
-                        Button {
-                            showCommunityBrowser = true
-                        } label: {
-                            Label("Community Courses", systemImage: "person.3.fill")
-                        }
-                        Divider()
-                        Button {
-                            showAddCourse = true
-                        } label: {
-                            Label("Create Custom Course", systemImage: "plus.circle")
-                        }
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                }
-            }
-            .sheet(isPresented: $showAddCourse) {
-                AddCourseView()
-            }
-            .sheet(isPresented: $showBundledBrowser) {
-                BundledCourseBrowser()
-            }
-            .sheet(isPresented: $showCommunityBrowser) {
-                CommunityCourseBrowser()
-            }
-        }
-    }
-
-    private func deleteCourses(at offsets: IndexSet) {
-        for index in offsets {
-            modelContext.delete(filteredCourses[index])
-        }
-    }
-}
 
 // MARK: - Course Row
 struct CourseRow: View {

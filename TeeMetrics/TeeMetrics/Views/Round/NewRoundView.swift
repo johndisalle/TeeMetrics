@@ -100,7 +100,7 @@ struct NewRoundView: View {
                     Button {
                         showBundledBrowser = true
                     } label: {
-                        Label("Browse 500+ Courses", systemImage: "building.2.fill")
+                        Label("Browse 660+ Courses", systemImage: "building.2.fill")
                             .foregroundStyle(Theme.primary)
                     }
 

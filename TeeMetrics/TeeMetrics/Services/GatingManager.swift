@@ -49,14 +49,6 @@ final class GatingManager {
             return completedRoundCount > Self.freeRoundLimit
         case .pdfExport:
             return true
-        case .csvExport:
-            return completedRoundCount > Self.freeRoundLimit
-        case .unlimitedHistory:
-            return false // Always show history, gate detailed stats
-        case .roundComparison:
-            return completedRoundCount > Self.freeRoundLimit
-        case .clubRecommendation:
-            return completedRoundCount > Self.freeRoundLimit
         case .pinEditing:
             // Gated at the call site based on course origin (community/bundled)
             // via canEditPins(for:) below.
@@ -103,10 +95,6 @@ enum ProFeature: String, CaseIterable {
     case advancedStats = "Advanced Stats"
     case strokesGained = "Strokes Gained"
     case pdfExport = "PDF Export"
-    case csvExport = "CSV Export"
-    case unlimitedHistory = "Unlimited History"
-    case roundComparison = "Round Comparison"
-    case clubRecommendation = "Club Recommendation"
     case pinEditing = "GPS Pin Editing"
     case hazardDistances = "Hazard Distances"
     case playsLikeDistance = "Plays-Like Distance"

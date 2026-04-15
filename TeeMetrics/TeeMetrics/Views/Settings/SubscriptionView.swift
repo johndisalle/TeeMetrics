@@ -46,41 +46,24 @@ struct SubscriptionView: View {
 
                     // Analytics & Insights
                     sectionLabel("Analytics & Insights")
-                    proFeature("chart.line.uptrend.xyaxis", "Advanced analytics & score trends")
                     proFeature("scope", "Strokes gained breakdown (off-tee, approach, short game, putting)")
-                    proFeature("chart.line.downtrend.xyaxis", "Handicap projection — see where your game is heading")
-                    proFeature("arrow.left.arrow.right", "Round comparison — overlay two rounds side by side")
-                    proFeature("lightbulb.fill", "Club recommendations — \"From 155 yds, hit your 7-iron\"")
+                    proFeature("chart.line.uptrend.xyaxis", "Handicap chart — track your rolling handicap over time")
 
                     Divider().padding(.vertical, 4)
 
                     // On-Course Tools
                     sectionLabel("On-Course Tools")
-                    proFeature("bolt.fill", "Quick-score mode — score any hole in one tap")
-                    proFeature("party.popper.fill", "Post-round celebrations with confetti & stat reveals")
-                    proFeature("mic.fill", "Siri Shortcuts — \"Hey Siri, start a round\"")
-                    proFeature("applewatch", "Apple Watch live scoring with phone sync")
                     proFeature("mappin.and.ellipse", "Hazard distance HUD — live yardage to next bunker & water carry during your round")
-                    proFeature("mappin.and.ellipse", "660+ pre-loaded courses with auto-detection")
+                    proFeature("mountain.2.fill", "Plays-like distance — elevation + wind-adjusted yardage to the pin")
+                    proFeature("location.fill", "Shot tracking — log every shot with GPS + club for detailed performance data")
+                    proFeature("cloud.sun.fill", "Nearby course weather — live wind at your next round's course")
 
                     Divider().padding(.vertical, 4)
 
-                    // Tracking & Goals
-                    sectionLabel("Tracking & Goals")
-                    proFeature("target", "Goal setting — break 80, lower handicap, and more")
-                    proFeature("trophy.fill", "17 achievements & milestones to unlock")
-                    proFeature("flame.fill", "Streak tracking — keep your weekly streak alive")
-                    proFeature("figure.golf", "Practice & range session logging")
-                    proFeature("bag.fill", "6 bag templates + custom club sets")
-
-                    Divider().padding(.vertical, 4)
-
-                    // Sharing & Export
-                    sectionLabel("Sharing & Export")
-                    proFeature("photo.fill", "Shareable round cards (Instagram feed & story)")
+                    // Sharing & Celebration
+                    sectionLabel("Sharing & Celebration")
+                    proFeature("party.popper.fill", "Post-round celebrations with confetti & stat reveals")
                     proFeature("doc.richtext", "Beautiful PDF round reports")
-                    proFeature("square.and.arrow.up", "CSV data export")
-                    proFeature("bell.fill", "Smart notifications & weekly recaps")
                 }
                 .padding()
                 .background(Theme.secondaryBackground)

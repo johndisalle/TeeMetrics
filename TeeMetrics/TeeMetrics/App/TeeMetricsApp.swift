@@ -24,8 +24,6 @@ struct TeeMetricsApp: App {
             Club.self,
             Bag.self,
             Goal.self,
-            PracticeSession.self,
-            PracticeShot.self,
         ])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, cloudKitDatabase: .none)
         do {
