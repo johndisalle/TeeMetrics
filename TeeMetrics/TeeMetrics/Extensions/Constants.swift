@@ -12,6 +12,12 @@ enum AppURLs {
 }
 
 enum AppConfig {
-    static let appVersion = "1.0.0"
+    /// App version read from the bundle's `CFBundleShortVersionString` so
+    /// the Settings → About row always reflects what xcodegen / project.yml
+    /// set as `MARKETING_VERSION`. Falls back to "1.0.0" only if the
+    /// Info.plist key is missing entirely (shouldn't happen in practice).
+    static let appVersion: String = {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+    }()
     static let supportEmail = "support@ellasid.com"
 }
