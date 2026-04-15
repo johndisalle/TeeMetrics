@@ -43,7 +43,7 @@ struct CoursesView: View {
                             NavigationLink {
                                 CourseDetailView(course: course)
                             } label: {
-                                CourseRow(course: course)
+                                CoursesListRow(course: course)
                             }
                         }
                         .onDelete(perform: deleteCourses)
@@ -94,5 +94,50 @@ struct CoursesView: View {
         for index in offsets {
             modelContext.delete(filteredCourses[index])
         }
+    }
+}
+
+// MARK: - List Row (Session C — with hero image)
+/// Course list row with a 64x64 satellite hero on the left. Distinct
+/// from `CourseRow` (the original text-only row used by the legacy
+/// CourseLibraryView and CommunityCourseBrowser) so we don't break
+/// those call sites.
+struct CoursesListRow: View {
+    let course: GolfCourse
+
+    var body: some View {
+        HStack(spacing: 12) {
+            CourseHeroImage(
+                latitude: course.latitude,
+                longitude: course.longitude,
+                cacheID: course.id.uuidString,
+                size: CGSize(width: 64, height: 64),
+                cornerRadius: 10
+            )
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 4) {
+                    Text(course.name)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Theme.text)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                    if course.isFavorite {
+                        Image(systemName: "star.fill")
+                            .font(.caption2)
+                            .foregroundStyle(Theme.accent)
+                    }
+                }
+                Text("\(course.city)\(course.city.isEmpty || course.state.isEmpty ? "" : ", ")\(course.state)")
+                    .font(.caption)
+                    .foregroundStyle(Theme.textMuted)
+                    .lineLimit(1)
+                Text("Par \(course.totalPar) · \(course.totalYardage) yds")
+                    .font(.caption2)
+                    .foregroundStyle(Theme.textMuted)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.vertical, 4)
     }
 }

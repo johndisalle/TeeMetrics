@@ -362,9 +362,16 @@ struct DashboardView: View {
 
     private func nearbyRow(_ course: NearbyCourse) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "flag")
-                .foregroundStyle(Theme.primary)
-                .frame(width: 24)
+            // Compact 48x48 satellite hero — matches Home's denser row
+            // height vs the 64x64 used in the Courses tab list.
+            CourseHeroImage(
+                latitude: course.latitude,
+                longitude: course.longitude,
+                cacheID: course.id,
+                size: CGSize(width: 48, height: 48),
+                cornerRadius: 8
+            )
+
             // Flexible frame so long course names truncate cleanly
             // instead of pushing the distance + chevron off-screen.
             VStack(alignment: .leading, spacing: 2) {
@@ -388,7 +395,7 @@ struct DashboardView: View {
                 .font(.caption.bold())
                 .foregroundStyle(Theme.textMuted)
         }
-        .padding(14)
+        .padding(12)
         .background(Theme.surface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }

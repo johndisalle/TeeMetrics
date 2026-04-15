@@ -81,12 +81,19 @@ struct LiveRoundView: View {
             }
         }
         .fullScreenCover(isPresented: $showCelebration) {
-            RoundCelebrationView(
-                round: round,
-                isPersonalBest: isPersonalBest,
-                previousBest: previousBest,
-                onDismiss: { dismiss() }
-            )
+            // Pro users get the existing confetti / share / stat-reveal
+            // celebration. Free users get a clean post-round summary
+            // with one fun stat — no confetti, no share card.
+            if SubscriptionManager.shared.isProUser {
+                RoundCelebrationView(
+                    round: round,
+                    isPersonalBest: isPersonalBest,
+                    previousBest: previousBest,
+                    onDismiss: { dismiss() }
+                )
+            } else {
+                FreeRoundSummaryView(round: round, onDismiss: { dismiss() })
+            }
         }
         .onAppear {
             currentHole = round.currentHole
