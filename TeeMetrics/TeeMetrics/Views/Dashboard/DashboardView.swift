@@ -99,8 +99,7 @@ struct DashboardView: View {
                 .padding()
             }
             .background(Theme.background)
-            .navigationTitle("TeeMetrics")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarHidden(true)
             .sheet(isPresented: $showNewRound) {
                 NewRoundView()
             }
@@ -141,23 +140,22 @@ struct DashboardView: View {
         return full.split(separator: " ").first.map(String.init) ?? full
     }
 
+    @ViewBuilder
     private var handicapBadge: some View {
-        let label: String = {
-            guard let g = golfer, g.handicapIndex > 0 else { return "—" }
-            return String(format: "%.1f", g.handicapIndex)
-        }()
-        return HStack(spacing: 4) {
-            Text("HCP")
-                .font(.caption2.bold())
-                .foregroundStyle(Theme.textMuted)
-            Text(label)
-                .font(.caption.bold())
-                .foregroundStyle(Theme.primary)
+        if let g = golfer, g.handicapIndex > 0 {
+            HStack(spacing: 4) {
+                Text("HCP")
+                    .font(.caption2.bold())
+                    .foregroundStyle(Theme.textMuted)
+                Text(String(format: "%.1f", g.handicapIndex))
+                    .font(.caption.bold())
+                    .foregroundStyle(Theme.primary)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(Theme.surface)
+            .clipShape(Capsule())
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(Theme.surface)
-        .clipShape(Capsule())
     }
 
     // MARK: - Section B — Primary Play CTA
@@ -367,20 +365,25 @@ struct DashboardView: View {
             Image(systemName: "flag")
                 .foregroundStyle(Theme.primary)
                 .frame(width: 24)
+            // Flexible frame so long course names truncate cleanly
+            // instead of pushing the distance + chevron off-screen.
             VStack(alignment: .leading, spacing: 2) {
                 Text(course.name)
-                    .font(.subheadline.bold())
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Theme.text)
                     .lineLimit(1)
+                    .truncationMode(.tail)
                 Text(courseSubtitle(course))
                     .font(.caption)
                     .foregroundStyle(Theme.textMuted)
                     .lineLimit(1)
+                    .truncationMode(.tail)
             }
-            Spacer()
+            .frame(maxWidth: .infinity, alignment: .leading)
             Text(String(format: "%.1f mi", course.distanceMiles))
                 .font(.caption.bold())
                 .foregroundStyle(Theme.textMuted)
+                .fixedSize()
             Image(systemName: "chevron.right")
                 .font(.caption.bold())
                 .foregroundStyle(Theme.textMuted)
